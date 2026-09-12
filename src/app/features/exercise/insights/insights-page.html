@@ -1,0 +1,205 @@
+<article class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Exercise</p>
+      <h1>Train smarter.</h1>
+      <p class="lead">
+        Track volume, note what you flagged, and consider alternatives — without medical claims.
+      </p>
+    </div>
+    <a routerLink="/os/photos" class="ghost-link">Progress photos</a>
+  </header>
+
+  <p-tabs [value]="tab()" (valueChange)="tab.set($event?.toString() ?? 'insights')">
+    <p-tablist>
+      <p-tab value="insights">Insights</p-tab>
+      <p-tab value="body">Body map</p-tab>
+      <p-tab value="swap">Swap</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="insights">
+        <div class="stack">
+          @if (deload()?.suggest) {
+            <p-message severity="warn" [closable]="true" (onClose)="dismissDeload()">
+              {{ deload()?.message }}
+              <span class="msg-detail">{{ deload()?.detail }}</span>
+            </p-message>
+          }
+
+          <div class="grid two">
+            <p-card header="Possible plateau">
+              @if (!plateaus().length) {
+                <p class="muted">No flat e1RM windows in the last four weeks.</p>
+              } @else {
+                @for (item of plateaus(); track item.exerciseId) {
+                  <section class="plateau">
+                    <div class="row">
+                      <strong>{{ item.exerciseName }}</strong>
+                      <p-tag [value]="item.message" severity="warn" />
+                    </div>
+                    <p>{{ item.detail }}</p>
+                    <div class="chips">
+                      @for (option of item.options; track option) {
+                        <p-tag [value]="option" severity="secondary" />
+                      }
+                    </div>
+                  </section>
+                }
+              }
+            </p-card>
+
+            <p-card header="Consistency">
+              <div class="heat-head">
+                <p-select
+                  [options]="kindOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [ngModel]="heatmapKind()"
+                  (ngModelChange)="heatmapKind.set($event); loadHeatmap()"
+                />
+                @if (heatmap(); as heat) {
+                  <span class="muted">{{ heat.streak }}-day streak</span>
+                }
+              </div>
+              <div class="heatmap" aria-label="Training consistency heatmap">
+                @for (week of heatmapWeeks(); track $index) {
+                  <div class="week">
+                    @for (day of week; track day?.date ?? $index) {
+                      <span
+                        class="cell"
+                        [class.empty]="!day"
+                        [attr.data-intensity]="day?.intensity ?? 0"
+                        [title]="day ? day.date + ' · ' + day.count : ''"
+                      ></span>
+                    }
+                  </div>
+                }
+              </div>
+            </p-card>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="body">
+        <div class="grid map-grid">
+          <p-card>
+            <ascend-body-map
+              [flagged]="flagged()"
+              [selected]="selectedMuscle()"
+              (selectedChange)="onMuscleChange($event)"
+            />
+          </p-card>
+
+          <div class="stack">
+            @if (selectedMuscle(); as region) {
+              <p-message severity="info">
+                You marked {{ muscleLabel(region).toLowerCase() }} as the region to note.
+              </p-message>
+            } @else {
+              <p-message severity="secondary">Select a region on the map.</p-message>
+            }
+
+            <p-card header="Note discomfort">
+              <div class="form">
+                <label>
+                  Side
+                  <p-select
+                    [options]="sideOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="side()"
+                    (ngModelChange)="side.set($event)"
+                  />
+                </label>
+                <label>
+                  Severity
+                  <p-select
+                    [options]="severityOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="severity()"
+                    (ngModelChange)="severity.set($event)"
+                  />
+                </label>
+                <label class="wide">
+                  What you noticed
+                  <textarea
+                    pTextarea
+                    rows="3"
+                    [ngModel]="description()"
+                    (ngModelChange)="description.set($event)"
+                    placeholder="Left shoulder felt off on pressing."
+                  ></textarea>
+                </label>
+                <p-button label="Save note" (onClick)="saveDiscomfort()" />
+              </div>
+              <p class="fine">Hedged notes only. This is not a diagnosis.</p>
+            </p-card>
+
+            @for (note of regionNotes(); track note.id) {
+              <p-card>
+                <div class="row">
+                  <strong>{{ note.summary }}</strong>
+                  <p-tag [value]="note.side" />
+                </div>
+                <p>{{ note.description }}</p>
+                <div class="chips">
+                  @for (tag of note.tags; track tag) {
+                    <p-tag [value]="'#' + tag" severity="secondary" />
+                  }
+                </div>
+                <p-button label="Remove" severity="secondary" [text]="true" (onClick)="removeNote(note.id)" />
+              </p-card>
+            }
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="swap">
+        <div class="stack">
+          <p-card header="Consider alternative exercises">
+            <div class="form">
+              <label class="wide">
+                Exercise
+                <p-select
+                  [options]="regionExercises()"
+                  optionLabel="name"
+                  optionValue="id"
+                  [filter]="true"
+                  placeholder="Choose a lift"
+                  [ngModel]="exerciseId()"
+                  (ngModelChange)="exerciseId.set($event); loadSubstitutes()"
+                />
+              </label>
+            </div>
+            @if (substitutes()?.discomfort; as flag) {
+              <p-message severity="warn">{{ flag.note }} This exercise may involve the movement you flagged.</p-message>
+            }
+          </p-card>
+
+          @if (substitutes(); as pack) {
+            <div class="grid two">
+              @for (hit of pack.substitutes; track hit.id) {
+                <p-card [header]="hit.name">
+                  <div class="row">
+                    <p-tag [value]="hit.primaryMuscle" />
+                    <span class="muted">{{ hit.equipment }} · {{ hit.pattern }}</span>
+                  </div>
+                  <p-progressbar [value]="scorePct(hit.score)" [showValue]="false" />
+                  <div class="chips">
+                    @for (reason of hit.reasons; track reason) {
+                      <p-tag [value]="reason" severity="secondary" />
+                    }
+                  </div>
+                </p-card>
+              }
+            </div>
+            @if (!pack.substitutes.length) {
+              <p class="muted">No close variations for that lift yet.</p>
+            }
+          }
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</article>
