@@ -65,7 +65,7 @@ export const JOURNAL_DEMO_DRAFTS: JournalDemoDraft[] = [
   },
 ];
 
-/** Local stub so Journal “This week” matches Personal OS without the reports module. */
+/** Fallback if `/api/reports/week` is unavailable. */
 export const JOURNAL_WEEK_STUB: JournalWeekStub = {
   workouts: 4,
   prs: 3,

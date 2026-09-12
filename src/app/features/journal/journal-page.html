@@ -97,25 +97,25 @@
             <p-card styleClass="pos-panel">
               <div class="week-kpi">
                 <p class="week-kpi-label">Workouts</p>
-                <p class="week-kpi-value">{{ week.workouts }}</p>
+                <p class="week-kpi-value">{{ week().workouts }}</p>
               </div>
             </p-card>
             <p-card styleClass="pos-panel">
               <div class="week-kpi">
                 <p class="week-kpi-label">PRs</p>
-                <p class="week-kpi-value">{{ week.prs }}</p>
+                <p class="week-kpi-value">{{ week().prs }}</p>
               </div>
             </p-card>
             <p-card styleClass="pos-panel">
               <div class="week-kpi">
                 <p class="week-kpi-label">Pages read</p>
-                <p class="week-kpi-value">{{ week.booksPages }}</p>
+                <p class="week-kpi-value">{{ week().booksPages }}</p>
               </div>
             </p-card>
             <p-card styleClass="pos-panel">
               <div class="week-kpi">
                 <p class="week-kpi-label">Spent</p>
-                <p class="week-kpi-value">€{{ week.spent }}</p>
+                <p class="week-kpi-value">€{{ week().spent }}</p>
               </div>
             </p-card>
           </div>
@@ -124,13 +124,13 @@
             <p-accordion-panel value="note">
               <p-accordion-header>Weekly note</p-accordion-header>
               <p-accordion-content>
-                <p class="week-copy">{{ week.insight }}</p>
+                <p class="week-copy">{{ week().insight }}</p>
               </p-accordion-content>
             </p-accordion-panel>
             <p-accordion-panel value="open">
               <p-accordion-header>Still open</p-accordion-header>
               <p-accordion-content>
-                <p class="week-copy">{{ week.stillOpen }}</p>
+                <p class="week-copy">{{ week().stillOpen }}</p>
               </p-accordion-content>
             </p-accordion-panel>
           </p-accordion>

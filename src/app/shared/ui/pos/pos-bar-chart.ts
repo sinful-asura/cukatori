@@ -20,7 +20,7 @@ import type { PosChartSeries } from './pos-line-chart';
           <div class="pos-chart-grid"></div>
           @for (label of labels(); track label; let i = $index) {
             <div class="pos-bar-group">
-              @for (group of groups(); track group.label || label) {
+              @for (group of groups(); track $index) {
                 <div
                   class="pos-bar"
                   [style.height]="barHeight(group.values[i] ?? 0)"

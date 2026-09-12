@@ -17,15 +17,18 @@ import { Textarea } from 'primeng/textarea';
 import type { FileSelectEvent } from 'primeng/types/fileupload';
 import { firstValueFrom } from 'rxjs';
 import { JournalApi } from '../../core/api/journal.api';
+import { ReportsApi } from '../../core/api/reports.api';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
 import { JournalCrypto } from './journal-crypto';
 import {
   JOURNAL_DEMO_DRAFTS,
   JOURNAL_WEEK_STUB,
+  type JournalWeekStub,
   discomfortNote,
   entryExcerpt,
   tagSeverity,
 } from './journal-demo';
+import type { WeekRecapDto } from '@ascend-os/shared/recap';
 
 type JournalView = JournalEntryDto & {
   plain?: JournalPlaintext;
@@ -63,12 +66,13 @@ type JournalView = JournalEntryDto & {
 })
 export class JournalPage implements OnDestroy {
   private readonly api = inject(JournalApi);
+  private readonly reports = inject(ReportsApi);
   private readonly messages = inject(MessageService);
   readonly crypto = inject(JournalCrypto);
 
   readonly tagSeverity = tagSeverity;
   readonly discomfortNote = discomfortNote;
-  readonly week = JOURNAL_WEEK_STUB;
+  readonly week = signal<JournalWeekStub>(JOURNAL_WEEK_STUB);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -296,10 +300,20 @@ export class JournalPage implements OnDestroy {
       this.entries.set(views);
       this.selectedId.set(views[0]?.id ?? null);
       this.unlockOpen.set(true);
+      void this.loadWeek();
     } catch {
       this.error.set('Journal API is not wired yet. Import JournalModule — see INTEGRATION.md.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async loadWeek(): Promise<void> {
+    try {
+      const recap = await firstValueFrom(this.reports.week());
+      this.week.set(weekFromRecap(recap));
+    } catch {
+      this.week.set(JOURNAL_WEEK_STUB);
     }
   }
 
@@ -353,4 +367,17 @@ export class JournalPage implements OnDestroy {
       return { ...entry, decryptError: true };
     }
   }
+}
+
+function weekFromRecap(recap: WeekRecapDto): JournalWeekStub {
+  const kpi = (id: string) => recap.kpis.find((row) => row.id === id)?.value ?? '0';
+  const spent = Number(kpi('spent').replace(/[^\d.-]/g, '')) || 0;
+  return {
+    workouts: Number(kpi('workouts')) || 0,
+    prs: Number(kpi('prs')) || 0,
+    booksPages: Number(kpi('pages')) || 0,
+    spent,
+    insight: recap.insight || recap.insights[0] || JOURNAL_WEEK_STUB.insight,
+    stillOpen: recap.insights[1] ?? JOURNAL_WEEK_STUB.stillOpen,
+  };
 }
