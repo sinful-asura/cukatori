@@ -47,6 +47,14 @@ export interface ActivityEmitInput {
   xp?: number;
 }
 
+export interface ActivityQuery {
+  category?: ActivityCategory;
+  type?: ActivityType;
+  from?: string;
+  to?: string;
+  tag?: string;
+}
+
 export const XP_AWARDS: Record<ActivityType, number> = {
   WORKOUT_COMPLETED: 180,
   PERSONAL_RECORD: 40,

@@ -1,29 +1,13 @@
-import type { ActivityType } from '../activity/types';
+/** Keep in sync with `shared/xp`. Inlined so Nest rootDir stays `api/`. */
 
-export const XP_AWARDS: Record<ActivityType, number> = {
-  WORKOUT_COMPLETED: 180,
-  PERSONAL_RECORD: 40,
-  HABIT_COMPLETED: 25,
-  GOAL_PROGRESSED: 10,
-  GOAL_COMPLETED: 60,
-  EXPENSE_CREATED: 10,
-  INCOME_CREATED: 10,
-  MEDIA_PROGRESS: 20,
-  MEDIA_COMPLETED: 50,
-  JOURNAL_CREATED: 15,
-  ACHIEVEMENT_UNLOCKED: 30,
-  LEVEL_UP: 0,
-  STREAK_UPDATED: 0,
-};
+export { XP_AWARDS } from './activity.js';
 
 export function xpForLevel(level: number): number {
   return Math.round(100 * level * 1.15 ** (level - 1));
 }
 
-/** Alias used by the activity-xp skill (`xpFor(level)`). */
 export const xpFor = xpForLevel;
 
-/** Total XP consumed by levels `[1, level)`. */
 export function totalXpBeforeLevel(level: number): number {
   let total = 0;
   for (let current = 1; current < level; current += 1) {
@@ -31,10 +15,6 @@ export function totalXpBeforeLevel(level: number): number {
   }
   return total;
 }
-
-/** Assist seeder target: Kristijan at this level, this far into the current bar. */
-export const SEED_LEVEL = 18;
-export const SEED_XP_INTO = 2840;
 
 export function levelForXp(total: number): { level: number; into: number; next: number } {
   let level = 1;
@@ -48,6 +28,9 @@ export function levelForXp(total: number): { level: number; into: number; next: 
     level += 1;
   }
 }
+
+export const SEED_LEVEL = 18;
+export const SEED_XP_INTO = 2840;
 
 export interface StreakDto {
   kind: string;
