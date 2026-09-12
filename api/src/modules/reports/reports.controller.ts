@@ -14,6 +14,15 @@ export class ReportsController {
     return this.reports.week(user, start);
   }
 
+  @Get('period')
+  period(
+    @CurrentUser() user: User,
+    @Query('range') range?: string,
+    @Query('start') start?: string,
+  ) {
+    return this.reports.period(user, range === 'year' ? 'year' : 'month', start);
+  }
+
   @Get('coach')
   coach(@CurrentUser() user: User) {
     return this.reports.coach(user);

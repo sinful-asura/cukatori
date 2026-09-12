@@ -41,6 +41,83 @@ export function uniqueIsoDays(dates: Date[]): string[] {
   return [...new Set(dates.map(isoDateUtc))].sort();
 }
 
+export const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+export function parseAnchor(start?: string): Date {
+  const raw = start?.trim() ?? '';
+  const datePart = raw.match(/^(\d{4}-\d{2}-\d{2})/)?.[1];
+  if (datePart) {
+    const parsed = parseIsoDate(datePart);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+  return new Date();
+}
+
+export function startOfUtcMonth(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+}
+
+export function addUtcMonths(date: Date, months: number): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1));
+}
+
+export function startOfUtcYear(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+}
+
+export function addUtcYears(date: Date, years: number): Date {
+  return new Date(Date.UTC(date.getUTCFullYear() + years, 0, 1));
+}
+
+export function utcWeekdayMon0(date: Date): number {
+  const day = date.getUTCDay();
+  return day === 0 ? 6 : day - 1;
+}
+
+export function seriesYLabels(values: number[]): string[] {
+  const max = Math.max(...values, 1);
+  return [String(max), String(Math.round(max / 2)), '0'];
+}
+
+export function weekdayCounts(dates: Date[]): number[] {
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+  for (const date of dates) {
+    counts[utcWeekdayMon0(date)] += 1;
+  }
+  return counts;
+}
+
+export function monthWeekSlices(
+  monthStart: Date,
+  monthEnd: Date,
+): { label: string; start: Date; end: Date }[] {
+  const slices: { label: string; start: Date; end: Date }[] = [];
+  let index = 1;
+  let cursor = monthStart;
+  while (cursor < monthEnd) {
+    const next = addUtcDays(cursor, 7);
+    slices.push({
+      label: `Week ${index}`,
+      start: cursor,
+      end: next < monthEnd ? next : monthEnd,
+    });
+    cursor = next;
+    index += 1;
+  }
+  return slices;
+}
+
+export function utcMonthLabel(date: Date): string {
+  return date.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+}
+
+export function startOfUtcQuarter(date: Date): Date {
+  const month = Math.floor(date.getUTCMonth() / 3) * 3;
+  return new Date(Date.UTC(date.getUTCFullYear(), month, 1));
+}
+
 export function longestConsecutiveDays(dates: Date[]): number {
   const days = uniqueIsoDays(dates);
   if (days.length === 0) {

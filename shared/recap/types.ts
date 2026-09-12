@@ -8,6 +8,8 @@ export type RecapSectionId =
   | 'finance'
   | 'overall';
 
+export type RecapPeriodRange = 'month' | 'year';
+
 export interface RecapKpi {
   id: string;
   label: string;
@@ -29,13 +31,40 @@ export interface RecapSection {
   rows: RecapRow[];
 }
 
+export interface RecapSeries {
+  title: string;
+  labels: string[];
+  values: number[];
+  yLabels: string[];
+}
+
+export interface RecapHighlight {
+  id: string;
+  title: string;
+  meta: string;
+  content: string;
+}
+
 export interface WeekRecapDto {
   start: string;
   end: string;
   headline: string;
+  insight: string;
   kpis: RecapKpi[];
   insights: string[];
   sections: RecapSection[];
+  activity: RecapSeries;
+  highlights: RecapHighlight[];
+}
+
+export interface PeriodRecapDto {
+  range: RecapPeriodRange;
+  start: string;
+  end: string;
+  label: string;
+  insight: string;
+  kpis: RecapKpi[];
+  activity: RecapSeries | null;
 }
 
 export interface CoachPrItem {

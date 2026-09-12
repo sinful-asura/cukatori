@@ -1,105 +1,173 @@
 <article class="reports-page">
-  <header class="reports-head">
-    <div>
-      <p class="eyebrow">UNDERSTAND</p>
-      <h1>Your Week</h1>
-      <p class="range">{{ rangeLabel() }}</p>
-    </div>
-    <div class="actions no-print">
+  <app-page-header title="Reports" kicker="Understand how the week landed.">
+    <div class="header-actions no-print">
+      @if (rangeLabel()) {
+        <p-tag [value]="rangeLabel()" severity="secondary" />
+      }
       <p-button
         icon="pi pi-chevron-left"
         [rounded]="true"
         [text]="true"
-        ariaLabel="Previous week"
-        (onClick)="shiftWeek(-1)"
+        ariaLabel="Previous range"
+        (onClick)="shift(-1)"
       />
       <p-button
         icon="pi pi-chevron-right"
         [rounded]="true"
         [text]="true"
-        ariaLabel="Next week"
-        (onClick)="shiftWeek(1)"
+        ariaLabel="Next range"
+        (onClick)="shift(1)"
       />
-      <p-button label="Print" icon="pi pi-print" [outlined]="true" (onClick)="print()" />
+      <p-button label="Print" icon="pi pi-print" (onClick)="print()" />
     </div>
-  </header>
+  </app-page-header>
 
   @if (loading()) {
-    <p-card>
-      <p class="muted">Building your week…</p>
+    <p-card styleClass="pos-panel">
+      <div class="panel-pad">
+        <p class="muted">Building your week…</p>
+      </div>
     </p-card>
   } @else if (error()) {
-    <p-card>
-      <p class="muted">{{ error() }}</p>
+    <p-card styleClass="pos-panel">
+      <div class="panel-pad">
+        <p class="muted">{{ error() }}</p>
+      </div>
     </p-card>
   } @else if (recap(); as week) {
-    <p-card styleClass="week-hero">
-      <div class="kpis">
-        @for (kpi of week.kpis; track kpi.id) {
-          <div class="kpi">
-            <strong>{{ kpi.value }}</strong>
-            <span>{{ kpi.label }}</span>
-          </div>
-        }
-      </div>
-      <div class="insight-tags">
-        @for (kpi of week.kpis; track kpi.id) {
-          <p-tag [value]="kpi.value + ' ' + kpi.label" severity="secondary" />
-        }
-      </div>
-      <ul class="insights">
-        @for (line of week.insights; track line) {
-          <li>{{ line }}</li>
-        }
-      </ul>
-    </p-card>
-
-    <p-tabs class="screen-only" [value]="activeTab()" (valueChange)="onTab($event)">
+    <p-tabs class="screen-only" [value]="rangeTab()" (valueChange)="onRange($event)">
       <p-tablist>
-        <p-tab value="fitness">Fitness</p-tab>
-        <p-tab value="goals">Goals</p-tab>
-        <p-tab value="habits">Habits</p-tab>
-        <p-tab value="entertainment">Entertainment</p-tab>
-        <p-tab value="finance">Finance</p-tab>
-        <p-tab value="overall">Overall</p-tab>
-        <p-tab value="coach">Coach</p-tab>
+        <p-tab value="week">This week</p-tab>
+        <p-tab value="month">This month</p-tab>
+        <p-tab value="year">This year</p-tab>
       </p-tablist>
       <p-tabpanels>
-        @for (section of week.sections; track section.id) {
-          <p-tabpanel [value]="section.id">
-            <p class="summary">{{ section.summary }}</p>
-            <p-table [value]="section.rows" [tableStyle]="{ 'min-width': '32rem' }">
-              <ng-template #header>
-                <tr>
-                  <th>Metric</th>
-                  <th>Value</th>
-                  <th>Detail</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-row>
-                <tr>
-                  <td>{{ row.label }}</td>
-                  <td>{{ row.value }}</td>
-                  <td>{{ row.detail || '—' }}</td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr>
-                  <td colspan="3">Nothing logged in this section.</td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </p-tabpanel>
-        }
-        <p-tabpanel value="coach">
-          @if (coach(); as report) {
-            <ng-container *ngTemplateOutlet="coachBody; context: { $implicit: report }" />
+        <p-tabpanel value="week">
+          <div class="range-panel">
+            <div class="stat-grid">
+              @for (kpi of week.kpis; track kpi.id) {
+                <p-card styleClass="pos-panel">
+                  <div class="stat-pad">
+                    <app-pos-stat [label]="kpi.label" [value]="kpi.value" />
+                  </div>
+                </p-card>
+              }
+            </div>
+
+            <div class="split">
+              <p-card styleClass="pos-panel">
+                <div class="panel-pad">
+                  <p class="panel-title">{{ weekActivity().title }}</p>
+                  <app-pos-bar-chart
+                    [values]="weekActivity().values"
+                    [labels]="weekActivity().labels"
+                    [yLabels]="weekActivity().yLabels"
+                    [height]="160"
+                    [thick]="true"
+                  />
+                </div>
+              </p-card>
+
+              <p-card styleClass="pos-panel">
+                <div class="panel-pad">
+                  <p class="panel-title">Insight</p>
+                  <p class="insight">{{ weekInsight() }}</p>
+                </div>
+              </p-card>
+            </div>
+
+            <p-accordion [(value)]="openHighlight">
+              @for (item of weekHighlights(); track item.id) {
+                <p-accordion-panel [value]="item.id">
+                  <p-accordion-header>
+                    <span class="acc-title">{{ item.title }}</span>
+                    <p-tag [value]="item.meta" severity="secondary" />
+                  </p-accordion-header>
+                  <p-accordion-content>
+                    <p class="insight">{{ item.content }}</p>
+                    <p-table [value]="rowsFor(week, item.id)" [tableStyle]="{ 'min-width': '32rem' }">
+                      <ng-template #header>
+                        <tr>
+                          <th>Metric</th>
+                          <th>Value</th>
+                          <th>Detail</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template #body let-row>
+                        <tr>
+                          <td>{{ row.label }}</td>
+                          <td>{{ row.value }}</td>
+                          <td>{{ row.detail || '—' }}</td>
+                        </tr>
+                      </ng-template>
+                      <ng-template #emptymessage>
+                        <tr>
+                          <td colspan="3">Nothing logged in this section.</td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </p-accordion-content>
+                </p-accordion-panel>
+              }
+            </p-accordion>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="month">
+          @if (month(); as period) {
+            <div class="range-panel">
+              <div class="stat-grid">
+                @for (kpi of period.kpis; track kpi.id) {
+                  <p-card styleClass="pos-panel">
+                    <div class="stat-pad">
+                      <app-pos-stat [label]="kpi.label" [value]="kpi.value" />
+                    </div>
+                  </p-card>
+                }
+              </div>
+
+              <p-card styleClass="pos-panel">
+                <div class="panel-pad">
+                  <p class="panel-title">{{ monthActivity().title }}</p>
+                  <app-pos-bar-chart
+                    [values]="monthActivity().values"
+                    [labels]="monthActivity().labels"
+                    [yLabels]="monthActivity().yLabels"
+                    [height]="180"
+                    [thick]="true"
+                  />
+                </div>
+              </p-card>
+            </div>
+          }
+        </p-tabpanel>
+
+        <p-tabpanel value="year">
+          @if (year(); as period) {
+            <div class="range-panel">
+              <p-card styleClass="pos-panel">
+                <div class="panel-pad">
+                  <p class="panel-title">{{ period.label }}</p>
+                  <p class="insight year-insight">{{ period.insight }}</p>
+                </div>
+              </p-card>
+            </div>
           }
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
 
     <section class="print-only">
+      <h2>This week</h2>
+      <div class="stat-grid">
+        @for (kpi of week.kpis; track kpi.id) {
+          <div class="print-kpi">
+            <span>{{ kpi.label }}</span>
+            <strong>{{ kpi.value }}</strong>
+          </div>
+        }
+      </div>
+      <p class="insight">{{ weekInsight() }}</p>
       @for (section of week.sections; track section.id) {
         <h2>{{ section.title }}</h2>
         <p>{{ section.summary }}</p>
@@ -120,6 +188,24 @@
           </ng-template>
         </p-table>
       }
+
+      @if (month(); as period) {
+        <h2>This month</h2>
+        <div class="stat-grid">
+          @for (kpi of period.kpis; track kpi.id) {
+            <div class="print-kpi">
+              <span>{{ kpi.label }}</span>
+              <strong>{{ kpi.value }}</strong>
+            </div>
+          }
+        </div>
+      }
+
+      @if (year(); as period) {
+        <h2>This year</h2>
+        <p class="insight">{{ period.insight }}</p>
+      }
+
       @if (coach(); as report) {
         <h2>Coach export</h2>
         <ng-container *ngTemplateOutlet="coachBody; context: { $implicit: report }" />
@@ -129,35 +215,35 @@
 </article>
 
 <ng-template #coachBody let-report>
-  <p class="summary muted">
+  <p class="muted">
     {{ report.periodStart | date: 'MMM d, y' : 'UTC' }} –
     {{ report.periodEnd | date: 'MMM d, y' : 'UTC' }}
   </p>
-  <ul class="insights">
+  <ul class="sentences">
     @for (line of report.sentences; track line) {
       <li>{{ line }}</li>
     }
   </ul>
-  <div class="kpis compact">
-    <div class="kpi">
-      <strong>{{ report.frequency.workouts }}</strong>
+  <div class="stat-grid compact">
+    <div class="print-kpi">
       <span>Workouts</span>
+      <strong>{{ report.frequency.workouts }}</strong>
     </div>
-    <div class="kpi">
-      <strong>{{ report.frequency.perWeek }}</strong>
+    <div class="print-kpi">
       <span>Per week</span>
+      <strong>{{ report.frequency.perWeek }}</strong>
     </div>
-    <div class="kpi">
-      <strong>{{ report.volume.totalKg }} kg</strong>
+    <div class="print-kpi">
       <span>Volume</span>
+      <strong>{{ report.volume.totalKg }} kg</strong>
     </div>
-    <div class="kpi">
-      <strong>{{ report.prs.count }}</strong>
+    <div class="print-kpi">
       <span>PRs</span>
+      <strong>{{ report.prs.count }}</strong>
     </div>
-    <div class="kpi">
-      <strong>{{ report.consistency.ratePercent }}%</strong>
+    <div class="print-kpi">
       <span>Consistency</span>
+      <strong>{{ report.consistency.ratePercent }}%</strong>
     </div>
   </div>
 
