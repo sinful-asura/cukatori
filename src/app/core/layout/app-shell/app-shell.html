@@ -1,0 +1,31 @@
+<div class="shell">
+  <aside class="rail">
+    <a routerLink="/app" class="brand">
+      <span class="mark"></span>
+      Personal OS
+    </a>
+    <nav>
+      @for (link of links; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+      }
+    </nav>
+    <div class="user">
+      <span class="avatar">K</span>
+      <div>
+        <strong>Kristijan</strong>
+        <small>Level 18</small>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <header>
+      <label class="search">
+        <input type="search" placeholder="Search or type a command…" />
+      </label>
+      <time>Thu, Sep 11 2026</time>
+    </header>
+    <section class="page">
+      <router-outlet />
+    </section>
+  </div>
+</div>

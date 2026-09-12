@@ -17,10 +17,6 @@
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "types": ["vitest/globals", "node"],
-    "paths": {
-      "@cukatori/shared": ["../shared/index.ts"],
-      "@cukatori/shared/*": ["../shared/*"]
-    }
+    "types": ["vitest/globals", "node"]
   }
 }
