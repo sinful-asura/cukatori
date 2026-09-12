@@ -42,3 +42,7 @@ Optional copy of `shared/exercise`. Types used by Nest live under `api/src/modul
 ## Demo
 
 First authenticated `GET /api/workouts` or `GET /api/exercises` seeds ~109 catalog lifts plus Kristijan’s Back & Biceps pair (Wed Sep 10, 6,420 kg, 14 sets, 3 PRs, possible +8%). Until the modules are registered, the page shows that snapshot from local fallback data.
+
+## UI
+
+`/os/exercise` uses `app-page-header` (title = last session name, kicker = `Last session · Sep 10, 2026`) plus PrimeNG Tabs / Table / ProgressBar / Card (`pos-panel`) / Tag. Overview matches Personal OS ExerciseView: featured lifts, PosStat KPIs, hedged recap, muscle bars, session log, and PRs. Catalog / workout / PR tables stay on live API data. Do not edit `body-map/` or `insights/` from this scenario.

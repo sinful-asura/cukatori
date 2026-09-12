@@ -1,24 +1,17 @@
 <section class="exercise">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">EXERCISE</p>
-      <h1>Train smarter.</h1>
-      <p class="lead">
-        Track workouts, monitor progress, and build consistency — without medical claims.
-      </p>
-    </div>
+  <app-page-header [title]="pageTitle()" [kicker]="pageKicker()">
     <p-button label="Log workout" icon="pi pi-plus" (onClick)="openLog()" />
-  </header>
+  </app-page-header>
+
+  @if (usingFallback()) {
+    <p-message severity="secondary">
+      Showing the Kristijan demo snapshot. Catalog and workout APIs appear offline — register the
+      modules from INTEGRATION.md.
+    </p-message>
+  }
 
   @if (loading()) {
     <p class="muted">Loading sessions…</p>
-  }
-
-  @if (usingFallback()) {
-    <p class="fallback">
-      Showing the Kristijan demo snapshot. Catalog and workout APIs appear offline — register the
-      modules from INTEGRATION.md.
-    </p>
   }
 
   <p-tabs [value]="tab()" (valueChange)="onTabChange($event)">
@@ -31,198 +24,250 @@
     <p-tabpanels>
       <p-tabpanel value="overview">
         @if (lastSession(); as session) {
-          <p-card styleClass="session-card">
-            <div class="session-head">
-              <div>
-                <h2>{{ session.title }}</h2>
-                <p class="muted">
-                  {{ session.completedAt | date: 'EEE, MMM d' }}
-                  · {{ session.durationMin }} min
-                </p>
+          <div class="overview">
+            @if (featuredLifts().length) {
+              <div class="featured">
+                @for (lift of featuredLifts(); track lift.slug) {
+                  <article class="thumb-card">
+                    <div class="thumb" aria-hidden="true">{{ lift.initials }}</div>
+                    <div class="thumb-meta">
+                      <p class="name">{{ lift.name }}</p>
+                      <p class="detail">{{ lift.detail }}</p>
+                    </div>
+                  </article>
+                }
               </div>
-              @if (session.prCount) {
-                <p-tag [value]="session.prCount + ' PRs'" severity="danger" />
-              }
-            </div>
-
-            <div class="kpis">
-              <div>
-                <strong>{{ formatKg(session.volumeKg) }}</strong>
-                <span>volume</span>
-              </div>
-              <div>
-                <strong>{{ session.setCount }}</strong>
-                <span>sets</span>
-              </div>
-              <div>
-                <strong>{{ session.prCount }}</strong>
-                <span>PRs</span>
-              </div>
-            </div>
-
-            <p class="delta">{{ changeCopy(session) }}</p>
-            @if (session.summary?.copy) {
-              <p class="copy">{{ session.summary?.copy }}</p>
             }
 
-            <h3>Muscle activation</h3>
-            <ul class="bars">
-              @for (item of session.summary?.muscleMix?.slice(0, 4); track item.muscle) {
-                <li>
-                  <div class="bar-label">
-                    <span>{{ item.label }}</span>
-                    <span>{{ item.percent }}%</span>
-                  </div>
-                  <p-progressbar [value]="item.percent" [showValue]="false" />
-                </li>
-              }
-            </ul>
-
-            <h3>Session log</h3>
-            <p-table [value]="session.sets" [tableStyle]="{ 'min-width': '36rem' }">
-              <ng-template #header>
-                <tr>
-                  <th>Exercise</th>
-                  <th>Set</th>
-                  <th>kg</th>
-                  <th>Reps</th>
-                  <th>e1RM</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-row>
-                <tr>
-                  <td>{{ row.exerciseName }}</td>
-                  <td>{{ row.setIndex }}</td>
-                  <td>{{ row.weightKg }}</td>
-                  <td>{{ row.reps }}</td>
-                  <td>{{ row.e1rmKg }}</td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </p-card>
-        } @else {
-          <p-card>
-            <p class="muted">No completed sessions yet. Log a workout to see a summary here.</p>
-          </p-card>
-        }
-
-        @if (recentPrs().length) {
-          <div class="pr-row">
-            @for (pr of recentPrs(); track pr.id) {
-              <p-tag
-                [value]="pr.exerciseName + ' · ' + prKindLabel(pr.kind)"
-                severity="secondary"
+            <div class="stats">
+              <app-pos-stat
+                label="Total volume"
+                [value]="volumeValue()"
+                suffix="kg"
+                [delta]="volumeDelta()"
               />
+              <app-pos-stat label="Total sets" [value]="setsValue()" />
+              <app-pos-stat label="Duration" [value]="durationValue()" suffix="min" />
+              <app-pos-stat label="Personal records" [value]="prsValue()" />
+            </div>
+
+            <p-card styleClass="pos-panel">
+              <p class="recap">{{ recapCopy() }}</p>
+            </p-card>
+
+            <div class="split">
+              <p-card styleClass="pos-panel">
+                <app-pos-panel-header title="Most Trained Muscles" />
+                <div class="muscle-grid">
+                  <div class="figure" aria-hidden="true">
+                    <div class="figure-body"></div>
+                    <div class="figure-lat left"></div>
+                    <div class="figure-lat right"></div>
+                    <div class="figure-core"></div>
+                    <div class="figure-leg left"></div>
+                    <div class="figure-leg right"></div>
+                  </div>
+                  <ul class="bars">
+                    @for (item of sessionMuscles(); track item.muscle) {
+                      <li>
+                        <div class="bar-label">
+                          <span>{{ item.label }}</span>
+                          <span>{{ item.percent }}%</span>
+                        </div>
+                        <p-progressbar [value]="item.percent" [showValue]="false" />
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </p-card>
+
+              <p-card styleClass="pos-panel">
+                <app-pos-panel-header title="Exercises" />
+                <ul class="lift-list">
+                  @for (lift of sessionLifts(); track lift.slug) {
+                    <li>
+                      <div class="lift-thumb" aria-hidden="true">{{ lift.initials }}</div>
+                      <div class="min">
+                        <p class="name">{{ lift.name }}</p>
+                        <p class="detail">{{ lift.detail }}</p>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              </p-card>
+            </div>
+
+            <p-card styleClass="pos-panel">
+              <app-pos-panel-header title="Session log" />
+              <p-table [value]="session.sets" [tableStyle]="{ 'min-width': '36rem' }">
+                <ng-template #header>
+                  <tr>
+                    <th>Exercise</th>
+                    <th>Set</th>
+                    <th>kg</th>
+                    <th>Reps</th>
+                    <th>e1RM</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-row>
+                  <tr>
+                    <td>{{ row.exerciseName }}</td>
+                    <td>{{ row.setIndex }}</td>
+                    <td>{{ row.weightKg }}</td>
+                    <td>{{ row.reps }}</td>
+                    <td>{{ row.e1rmKg }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-card>
+
+            @if (recentPrs().length) {
+              <p-card styleClass="pos-panel">
+                <app-pos-panel-header title="Personal records" />
+                <p-table [value]="recentPrs()" [tableStyle]="{ 'min-width': '32rem' }">
+                  <ng-template #header>
+                    <tr>
+                      <th>Exercise</th>
+                      <th>Kind</th>
+                      <th>Value</th>
+                      <th>Date</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template #body let-row>
+                    <tr>
+                      <td>{{ row.exerciseName }}</td>
+                      <td>
+                        <p-tag [value]="prKindLabel(row.kind)" severity="secondary" />
+                      </td>
+                      <td>{{ prValue(row) }}</td>
+                      <td>{{ row.occurredAt | date: 'MMM d, y' }}</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </p-card>
             }
           </div>
+        } @else if (!loading()) {
+          <p-card styleClass="pos-panel">
+            <p class="empty">No completed sessions yet. Log a workout to see a summary here.</p>
+          </p-card>
         }
       </p-tabpanel>
 
       <p-tabpanel value="workouts">
-        <p-table [value]="workouts()" [tableStyle]="{ 'min-width': '40rem' }">
-          <ng-template #header>
-            <tr>
-              <th>Date</th>
-              <th>Session</th>
-              <th>Duration</th>
-              <th>Volume</th>
-              <th>Sets</th>
-              <th>PRs</th>
-              <th>Status</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-row>
-            <tr>
-              <td>{{ (row.completedAt || row.startedAt) | date: 'EEE, MMM d' }}</td>
-              <td>{{ row.title }}</td>
-              <td>{{ row.durationMin ? row.durationMin + ' min' : '—' }}</td>
-              <td>{{ formatKg(row.volumeKg) }}</td>
-              <td>{{ row.setCount }}</td>
-              <td>{{ row.prCount }}</td>
-              <td>
-                <p-tag
-                  [value]="row.status"
-                  [severity]="row.status === 'completed' ? 'success' : 'secondary'"
-                />
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="7">No workouts yet.</td>
-            </tr>
-          </ng-template>
-        </p-table>
+        <p-card styleClass="pos-panel">
+          <app-pos-panel-header title="Workouts" subtitle="Completed and draft sessions from the live API." />
+          <p-table [value]="workouts()" [tableStyle]="{ 'min-width': '40rem' }">
+            <ng-template #header>
+              <tr>
+                <th>Date</th>
+                <th>Session</th>
+                <th>Duration</th>
+                <th>Volume</th>
+                <th>Sets</th>
+                <th>PRs</th>
+                <th>Status</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td>{{ (row.completedAt || row.startedAt) | date: 'EEE, MMM d' }}</td>
+                <td>{{ row.title }}</td>
+                <td>{{ row.durationMin ? row.durationMin + ' min' : '—' }}</td>
+                <td>{{ formatKg(row.volumeKg) }}</td>
+                <td>{{ row.setCount }}</td>
+                <td>{{ row.prCount }}</td>
+                <td>
+                  <p-tag
+                    [value]="row.status"
+                    [severity]="row.status === 'completed' ? 'success' : 'secondary'"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="7">No workouts yet.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
       </p-tabpanel>
 
       <p-tabpanel value="exercises">
-        <div class="filters">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input
-              pInputText
-              type="text"
-              placeholder="Search lifts"
-              [ngModel]="catalogQuery()"
-              (ngModelChange)="catalogQuery.set($event)"
+        <p-card styleClass="pos-panel">
+          <app-pos-panel-header title="Catalog" subtitle="Search local lifts by name or muscle." />
+          <div class="filters">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                pInputText
+                type="text"
+                placeholder="Search lifts"
+                [ngModel]="catalogQuery()"
+                (ngModelChange)="catalogQuery.set($event)"
+              />
+            </p-iconfield>
+            <p-select
+              [options]="muscleOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Muscle"
+              [showClear]="true"
+              [ngModel]="catalogMuscle()"
+              (ngModelChange)="catalogMuscle.set($event)"
             />
-          </p-iconfield>
-          <p-select
-            [options]="muscleOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Muscle"
-            [showClear]="true"
-            [ngModel]="catalogMuscle()"
-            (ngModelChange)="catalogMuscle.set($event)"
-          />
-        </div>
-        <p-table
-          [value]="filteredCatalog()"
-          [paginator]="true"
-          [rows]="12"
-          [tableStyle]="{ 'min-width': '44rem' }"
-        >
-          <ng-template #header>
-            <tr>
-              <th>Exercise</th>
-              <th>Primary</th>
-              <th>Equipment</th>
-              <th>Pattern</th>
-              <th>Type</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-row>
-            <tr>
-              <td>{{ row.name }}</td>
-              <td>
-                <p-tag [value]="muscleName(row.primaryMuscle)" severity="secondary" />
-              </td>
-              <td>{{ row.equipment }}</td>
-              <td>{{ row.pattern }}</td>
-              <td>{{ row.kind }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+          </div>
+          <p-table
+            [value]="filteredCatalog()"
+            [paginator]="true"
+            [rows]="12"
+            [tableStyle]="{ 'min-width': '44rem' }"
+          >
+            <ng-template #header>
+              <tr>
+                <th>Exercise</th>
+                <th>Primary</th>
+                <th>Equipment</th>
+                <th>Pattern</th>
+                <th>Type</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>
+                  <p-tag [value]="muscleName(row.primaryMuscle)" severity="secondary" />
+                </td>
+                <td>{{ row.equipment }}</td>
+                <td>{{ row.pattern }}</td>
+                <td>{{ row.kind }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
       </p-tabpanel>
 
       <p-tabpanel value="muscles">
-        <p class="muted muscles-hint">
-          Volume share from completed sessions. Body map and substitutions live in exercise intel.
-        </p>
-        <ul class="bars wide">
-          @for (item of muscleVolume(); track item.muscle) {
-            <li>
-              <div class="bar-label">
-                <span>{{ item.label }}</span>
-                <span>{{ formatKg(item.volumeKg) }} · {{ item.percent }}%</span>
-              </div>
-              <p-progressbar [value]="item.percent" [showValue]="false" />
-            </li>
-          } @empty {
-            <li class="muted">Complete a session to see muscle mix.</li>
-          }
-        </ul>
+        <p-card styleClass="pos-panel">
+          <app-pos-panel-header
+            title="Volume share"
+            subtitle="From completed sessions. Body map and substitutions live in Insights."
+          />
+          <ul class="bars wide">
+            @for (item of muscleVolume(); track item.muscle) {
+              <li>
+                <div class="bar-label">
+                  <span>{{ item.label }}</span>
+                  <span>{{ formatKg(item.volumeKg) }} · {{ item.percent }}%</span>
+                </div>
+                <p-progressbar [value]="item.percent" [showValue]="false" />
+              </li>
+            } @empty {
+              <li class="muted">Complete a session to see muscle mix.</li>
+            }
+          </ul>
+        </p-card>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>
