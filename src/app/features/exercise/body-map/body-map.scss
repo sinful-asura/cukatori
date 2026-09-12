@@ -6,26 +6,7 @@
   display: grid;
   justify-items: center;
   gap: 12px;
-}
-
-.toolbar {
-  display: flex;
-  gap: 8px;
-}
-
-.view {
-  border: 1px solid var(--border);
-  background: #0c0c10;
-  color: var(--text-muted);
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13px;
-}
-
-.view.on {
-  color: var(--text);
-  border-color: rgba(255, 77, 58, 0.4);
-  background: rgba(255, 77, 58, 0.12);
+  padding: 16px 24px 24px;
 }
 
 .figure {
@@ -33,9 +14,13 @@
   height: auto;
 }
 
+.silhouette {
+  fill: var(--bg-elevated);
+}
+
 .muscle {
-  fill: rgba(96, 149, 212, 0.38);
-  stroke: rgba(168, 204, 236, 0.28);
+  fill: color-mix(in srgb, var(--accent) 32%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 28%, var(--border));
   stroke-width: 1;
   cursor: pointer;
   transition: fill 140ms ease;
@@ -43,16 +28,16 @@
 
 .muscle:hover,
 .muscle:focus-visible {
-  fill: rgba(255, 77, 58, 0.5);
+  fill: color-mix(in srgb, var(--accent) 55%, transparent);
   outline: none;
 }
 
 .muscle.is-selected {
-  fill: rgba(255, 77, 58, 0.72);
+  fill: var(--accent);
 }
 
 .muscle.is-flagged:not(.is-selected) {
-  fill: rgba(255, 138, 101, 0.62);
+  fill: color-mix(in srgb, var(--accent-warning) 62%, transparent);
 }
 
 .caption {
@@ -63,6 +48,8 @@
 .caption strong {
   display: block;
   font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
 }
 
 .caption span {
@@ -70,4 +57,5 @@
   margin-top: 4px;
   color: var(--text-muted);
   font-size: 12px;
+  line-height: 18px;
 }

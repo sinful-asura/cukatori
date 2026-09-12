@@ -14,11 +14,12 @@ import {
   CatalogExercise,
   DeloadDto,
   DiscomfortDto,
-  HeatmapDto,
   InsightsApi,
   PlateauItem,
   SubstituteResponse,
 } from '../../../core/api/insights.api';
+import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { PosHeatmap, PosPanelHeader, PosStat } from '../../../shared/ui/pos';
 import { BodyMap, MUSCLE_LABELS } from '../body-map/body-map';
 
 @Component({
@@ -30,6 +31,10 @@ import { BodyMap, MUSCLE_LABELS } from '../body-map/body-map';
     Button,
     Card,
     Message,
+    PageHeader,
+    PosHeatmap,
+    PosPanelHeader,
+    PosStat,
     ProgressBar,
     Select,
     Tabs,
@@ -60,7 +65,9 @@ export class InsightsPage {
   readonly discomfort = signal<DiscomfortDto[]>([]);
   readonly plateaus = signal<PlateauItem[]>([]);
   readonly deload = signal<DeloadDto | null>(null);
-  readonly heatmap = signal<HeatmapDto | null>(null);
+  readonly heatmap = signal<{ days: { date: string; count: number; intensity: number }[]; streak: number } | null>(
+    null,
+  );
   readonly substitutes = signal<SubstituteResponse | null>(null);
 
   readonly flagged = computed(() => [...new Set(this.discomfort().map((note) => note.region))]);
@@ -78,7 +85,21 @@ export class InsightsPage {
       (item) => item.primaryMuscle === region || item.secondaryMuscles.includes(region),
     );
   });
-  readonly heatmapWeeks = computed(() => weeksFrom(this.heatmap()?.days ?? []));
+  readonly heatmapDays = computed(() => {
+    const days = this.heatmap()?.days ?? [];
+    if (!days.length) {
+      return [];
+    }
+    const first = new Date(`${days[0].date}T00:00:00`);
+    const pad = first.getDay();
+    return [
+      ...Array.from({ length: pad }, () => 0),
+      ...days.map((day) => Math.max(0, Math.min(4, day.intensity))),
+    ];
+  });
+  readonly flaggedCount = computed(() => String(this.flagged().length));
+  readonly plateauCount = computed(() => String(this.plateaus().length));
+  readonly streakLabel = computed(() => String(this.heatmap()?.streak ?? 0));
   readonly kindOptions = [
     { label: 'Training', value: 'training' },
     { label: 'Habits', value: 'habits' },
@@ -205,24 +226,12 @@ export class InsightsPage {
     return MUSCLE_LABELS[id] ?? id;
   }
 
-  scorePct(score: number): number {
-    return Math.max(8, Math.min(100, Math.round((score / 100) * 100)));
+  discomfortCopy(id: string): string {
+    const noun = id === 'shoulders' ? 'shoulder' : (MUSCLE_LABELS[id] ?? id).toLowerCase();
+    return `You marked ${noun} discomfort`;
   }
-}
 
-function weeksFrom(days: { date: string; count: number; intensity: number }[]) {
-  if (!days.length) {
-    return [];
+  scorePct(score: number): number {
+    return Math.max(8, Math.min(100, Math.round(score)));
   }
-  const first = new Date(`${days[0].date}T00:00:00`);
-  const pad = first.getDay();
-  const cells: ({ date: string; count: number; intensity: number } | null)[] = [
-    ...Array.from({ length: pad }, () => null),
-    ...days,
-  ];
-  const weeks: ({ date: string; count: number; intensity: number } | null)[][] = [];
-  for (let i = 0; i < cells.length; i += 7) {
-    weeks.push(cells.slice(i, i + 7));
-  }
-  return weeks;
 }

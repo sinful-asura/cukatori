@@ -1,4 +1,8 @@
 import { Component, input, model } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Card } from 'primeng/card';
+import { SelectButton } from 'primeng/selectbutton';
+import { PosPanelHeader } from '../../../shared/ui/pos';
 
 export const MUSCLE_LABELS: Record<string, string> = {
   chest: 'Chest',
@@ -22,6 +26,7 @@ export const MUSCLE_LABELS: Record<string, string> = {
 
 @Component({
   selector: 'ascend-body-map',
+  imports: [FormsModule, Card, SelectButton, PosPanelHeader],
   templateUrl: './body-map.html',
   styleUrl: './body-map.scss',
 })
@@ -29,6 +34,10 @@ export class BodyMap {
   readonly flagged = input<string[]>([]);
   readonly selected = model<string | null>(null);
   readonly view = model<'front' | 'back'>('front');
+  readonly viewOptions = [
+    { label: 'Front', value: 'front' },
+    { label: 'Back', value: 'back' },
+  ];
 
   pick(id: string): void {
     this.selected.set(this.selected() === id ? null : id);

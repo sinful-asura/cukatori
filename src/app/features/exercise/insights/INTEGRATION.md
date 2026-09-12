@@ -1,5 +1,7 @@
 # exercise-intel hotspot notes
 
+UI in this slice uses `app-page-header`, `p-card.pos-panel`, and `app-pos-heatmap` (read-only shared widgets). Do not restyle the main exercise catalog/workout page from here.
+
 Do not apply from this worktree. Orchestrator-only files:
 
 - `api/src/app.module.ts`

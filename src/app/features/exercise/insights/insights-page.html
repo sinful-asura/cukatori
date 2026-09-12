@@ -1,14 +1,13 @@
 <article class="page">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Exercise</p>
-      <h1>Train smarter.</h1>
-      <p class="lead">
-        Track volume, note what you flagged, and consider alternatives — without medical claims.
-      </p>
-    </div>
-    <a routerLink="/os/photos" class="ghost-link">Progress photos</a>
-  </header>
+  <app-page-header title="Insights" kicker="Flagged regions, consistency, and swap suggestions — no medical claims.">
+    <p-button label="Photos" icon="pi pi-images" [outlined]="true" routerLink="/os/photos" />
+  </app-page-header>
+
+  <div class="stats">
+    <app-pos-stat label="Flagged regions" [value]="flaggedCount()" />
+    <app-pos-stat label="Possible plateau" [value]="plateauCount()" />
+    <app-pos-stat label="Streak" [value]="streakLabel()" suffix="days" />
+  </div>
 
   <p-tabs [value]="tab()" (valueChange)="tab.set($event?.toString() ?? 'insights')">
     <p-tablist>
@@ -27,29 +26,35 @@
           }
 
           <div class="grid two">
-            <p-card header="Possible plateau">
-              @if (!plateaus().length) {
-                <p class="muted">No flat e1RM windows in the last four weeks.</p>
-              } @else {
-                @for (item of plateaus(); track item.exerciseId) {
-                  <section class="plateau">
-                    <div class="row">
-                      <strong>{{ item.exerciseName }}</strong>
-                      <p-tag [value]="item.message" severity="warn" />
-                    </div>
-                    <p>{{ item.detail }}</p>
-                    <div class="chips">
-                      @for (option of item.options; track option) {
-                        <p-tag [value]="option" severity="secondary" />
-                      }
-                    </div>
-                  </section>
+            <p-card styleClass="pos-panel">
+              <app-pos-panel-header title="Possible plateau" subtitle="About four weeks of flat estimated 1RM." />
+              <div class="panel-body">
+                @if (!plateaus().length) {
+                  <p class="muted">No flat e1RM windows in the last four weeks.</p>
+                } @else {
+                  @for (item of plateaus(); track item.exerciseId) {
+                    <section class="plateau">
+                      <div class="row">
+                        <strong>{{ item.exerciseName }}</strong>
+                        <p-tag [value]="item.message" severity="warn" />
+                      </div>
+                      <p>{{ item.detail }}</p>
+                      <div class="chips">
+                        @for (option of item.options; track option) {
+                          <p-tag [value]="option" severity="secondary" />
+                        }
+                      </div>
+                    </section>
+                  }
                 }
-              }
+              </div>
             </p-card>
 
-            <p-card header="Consistency">
-              <div class="heat-head">
+            <p-card styleClass="pos-panel">
+              <app-pos-panel-header
+                title="Consistency"
+                [subtitle]="heatmap() ? heatmap()!.streak + '-day streak' : 'Training, habits, or activity'"
+              >
                 <p-select
                   [options]="kindOptions"
                   optionLabel="label"
@@ -57,22 +62,12 @@
                   [ngModel]="heatmapKind()"
                   (ngModelChange)="heatmapKind.set($event); loadHeatmap()"
                 />
-                @if (heatmap(); as heat) {
-                  <span class="muted">{{ heat.streak }}-day streak</span>
-                }
-              </div>
-              <div class="heatmap" aria-label="Training consistency heatmap">
-                @for (week of heatmapWeeks(); track $index) {
-                  <div class="week">
-                    @for (day of week; track day?.date ?? $index) {
-                      <span
-                        class="cell"
-                        [class.empty]="!day"
-                        [attr.data-intensity]="day?.intensity ?? 0"
-                        [title]="day ? day.date + ' · ' + day.count : ''"
-                      ></span>
-                    }
-                  </div>
+              </app-pos-panel-header>
+              <div class="panel-body heat-wrap">
+                @if (heatmapDays().length) {
+                  <app-pos-heatmap [days]="heatmapDays()" [year]="true" [cell]="11" />
+                } @else {
+                  <p class="muted">No consistency data for this year yet.</p>
                 }
               </div>
             </p-card>
@@ -82,73 +77,73 @@
 
       <p-tabpanel value="body">
         <div class="grid map-grid">
-          <p-card>
-            <ascend-body-map
-              [flagged]="flagged()"
-              [selected]="selectedMuscle()"
-              (selectedChange)="onMuscleChange($event)"
-            />
-          </p-card>
+          <ascend-body-map
+            [flagged]="flagged()"
+            [selected]="selectedMuscle()"
+            (selectedChange)="onMuscleChange($event)"
+          />
 
           <div class="stack">
             @if (selectedMuscle(); as region) {
-              <p-message severity="info">
-                You marked {{ muscleLabel(region).toLowerCase() }} as the region to note.
-              </p-message>
+              <p-message severity="info">{{ discomfortCopy(region) }}</p-message>
             } @else {
               <p-message severity="secondary">Select a region on the map.</p-message>
             }
 
-            <p-card header="Note discomfort">
-              <div class="form">
-                <label>
-                  Side
-                  <p-select
-                    [options]="sideOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [ngModel]="side()"
-                    (ngModelChange)="side.set($event)"
-                  />
-                </label>
-                <label>
-                  Severity
-                  <p-select
-                    [options]="severityOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    [ngModel]="severity()"
-                    (ngModelChange)="severity.set($event)"
-                  />
-                </label>
-                <label class="wide">
-                  What you noticed
-                  <textarea
-                    pTextarea
-                    rows="3"
-                    [ngModel]="description()"
-                    (ngModelChange)="description.set($event)"
-                    placeholder="Left shoulder felt off on pressing."
-                  ></textarea>
-                </label>
-                <p-button label="Save note" (onClick)="saveDiscomfort()" />
+            <p-card styleClass="pos-panel">
+              <app-pos-panel-header title="Note discomfort" subtitle="Hedged notes only. This is not a diagnosis." />
+              <div class="panel-body">
+                <div class="form">
+                  <label>
+                    Side
+                    <p-select
+                      [options]="sideOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [ngModel]="side()"
+                      (ngModelChange)="side.set($event)"
+                    />
+                  </label>
+                  <label>
+                    Severity
+                    <p-select
+                      [options]="severityOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [ngModel]="severity()"
+                      (ngModelChange)="severity.set($event)"
+                    />
+                  </label>
+                  <label class="wide">
+                    What you noticed
+                    <textarea
+                      pTextarea
+                      rows="3"
+                      [ngModel]="description()"
+                      (ngModelChange)="description.set($event)"
+                      placeholder="Left shoulder felt off on pressing."
+                    ></textarea>
+                  </label>
+                  <p-button label="Save note" (onClick)="saveDiscomfort()" />
+                </div>
               </div>
-              <p class="fine">Hedged notes only. This is not a diagnosis.</p>
             </p-card>
 
             @for (note of regionNotes(); track note.id) {
-              <p-card>
-                <div class="row">
-                  <strong>{{ note.summary }}</strong>
-                  <p-tag [value]="note.side" />
+              <p-card styleClass="pos-panel">
+                <div class="panel-body">
+                  <div class="row">
+                    <strong>{{ note.summary }}</strong>
+                    <p-tag [value]="note.side" />
+                  </div>
+                  <p>{{ note.description }}</p>
+                  <div class="chips">
+                    @for (tag of note.tags; track tag) {
+                      <p-tag [value]="'#' + tag" severity="secondary" />
+                    }
+                  </div>
+                  <p-button label="Remove" severity="secondary" [text]="true" (onClick)="removeNote(note.id)" />
                 </div>
-                <p>{{ note.description }}</p>
-                <div class="chips">
-                  @for (tag of note.tags; track tag) {
-                    <p-tag [value]="'#' + tag" severity="secondary" />
-                  }
-                </div>
-                <p-button label="Remove" severity="secondary" [text]="true" (onClick)="removeNote(note.id)" />
               </p-card>
             }
           </div>
@@ -157,39 +152,50 @@
 
       <p-tabpanel value="swap">
         <div class="stack">
-          <p-card header="Consider alternative exercises">
-            <div class="form">
-              <label class="wide">
-                Exercise
-                <p-select
-                  [options]="regionExercises()"
-                  optionLabel="name"
-                  optionValue="id"
-                  [filter]="true"
-                  placeholder="Choose a lift"
-                  [ngModel]="exerciseId()"
-                  (ngModelChange)="exerciseId.set($event); loadSubstitutes()"
-                />
-              </label>
+          <p-card styleClass="pos-panel">
+            <app-pos-panel-header
+              title="Consider alternative exercises"
+              subtitle="Scored by muscle, pattern, and equipment — flagged regions count against a match."
+            />
+            <div class="panel-body">
+              <div class="form">
+                <label class="wide">
+                  Exercise
+                  <p-select
+                    [options]="regionExercises()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [filter]="true"
+                    placeholder="Choose a lift"
+                    [ngModel]="exerciseId()"
+                    (ngModelChange)="exerciseId.set($event); loadSubstitutes()"
+                  />
+                </label>
+              </div>
+              @if (substitutes()?.discomfort; as flag) {
+                <p-message severity="warn">
+                  {{ flag.note }} This exercise may involve the movement you flagged.
+                </p-message>
+              }
             </div>
-            @if (substitutes()?.discomfort; as flag) {
-              <p-message severity="warn">{{ flag.note }} This exercise may involve the movement you flagged.</p-message>
-            }
           </p-card>
 
           @if (substitutes(); as pack) {
             <div class="grid two">
               @for (hit of pack.substitutes; track hit.id) {
-                <p-card [header]="hit.name">
-                  <div class="row">
-                    <p-tag [value]="hit.primaryMuscle" />
-                    <span class="muted">{{ hit.equipment }} · {{ hit.pattern }}</span>
-                  </div>
-                  <p-progressbar [value]="scorePct(hit.score)" [showValue]="false" />
-                  <div class="chips">
-                    @for (reason of hit.reasons; track reason) {
-                      <p-tag [value]="reason" severity="secondary" />
-                    }
+                <p-card styleClass="pos-panel">
+                  <app-pos-panel-header [title]="hit.name" [subtitle]="hit.equipment + ' · ' + hit.pattern" />
+                  <div class="panel-body">
+                    <div class="row">
+                      <p-tag [value]="hit.primaryMuscle" />
+                      <span class="muted">Match {{ scorePct(hit.score) }}%</span>
+                    </div>
+                    <p-progressbar [value]="scorePct(hit.score)" [showValue]="false" />
+                    <div class="chips">
+                      @for (reason of hit.reasons; track reason) {
+                        <p-tag [value]="reason" severity="secondary" />
+                      }
+                    </div>
                   </div>
                 </p-card>
               }
