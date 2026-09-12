@@ -11,7 +11,7 @@ Project skill only. Visual source: `.cursor/references/ui-landing.jpg` and `.cur
 
 Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,255,0.08)`, text `#f4f4f5`, muted `#8b8b93`, accent `#ff4d3a`, warm `#ff8a65`, radius 20px, Inter. Red-orange radial glow behind the hero. Dark first.
 
-## Landing `/` (logged out)
+## Landing `/landing` (logged out; `/` redirects here)
 
 - Nav: coral mark + **Personal OS**, Product / Features / Pricing / Docs, Sign in, white **Get started** pill.
 - Eyebrow `TRACK. IMPROVE. BECOME MORE.`
@@ -21,7 +21,7 @@ Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,2
 - Right: floating dashboard preview card (can embed dashboard component).
 - Below: four claim+preview cards — Exercise, Finance, Entertainment, Journal.
 
-## App chrome (logged in)
+## App chrome (logged in, `/os`)
 
 - `AppShell`: left rail (Dashboard, Goals, Habits, Exercise, Finance, Entertainment, Timeline, Achievements), user chip Kristijan, top search (opens quick-log later), date.
 - Floating rounded frames, not a full-bleed grey admin theme.

@@ -1,12 +1,22 @@
-import { Routes } from '@angular/router';
+import { RedirectFunction, Routes } from '@angular/router';
+
+const redirectAppToOs: RedirectFunction = ({ url }) => {
+  const rest = url.map((segment) => segment.path).filter(Boolean).join('/');
+  return rest ? `/os/${rest}` : '/os';
+};
 
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'landing',
+  },
+  {
+    path: 'landing',
     loadComponent: () => import('./features/landing/landing-page').then((m) => m.LandingPage),
   },
   {
-    path: 'app',
+    path: 'os',
     loadComponent: () => import('./core/layout/app-shell/app-shell').then((m) => m.AppShell),
     children: [
       {
@@ -70,5 +80,9 @@ export const routes: Routes = [
           import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
       },
     ],
+  },
+  {
+    path: 'app',
+    children: [{ path: '**', redirectTo: redirectAppToOs }],
   },
 ];

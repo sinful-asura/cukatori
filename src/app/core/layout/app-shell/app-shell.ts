@@ -9,14 +9,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class AppShell {
   readonly links = [
-    { path: '/app/dashboard', label: 'Dashboard' },
-    { path: '/app/goals', label: 'Goals' },
-    { path: '/app/habits', label: 'Habits' },
-    { path: '/app/exercise', label: 'Exercise' },
-    { path: '/app/finance', label: 'Finance' },
-    { path: '/app/entertainment', label: 'Entertainment' },
-    { path: '/app/journal', label: 'Journal' },
-    { path: '/app/timeline', label: 'Timeline' },
-    { path: '/app/achievements', label: 'Achievements' },
+    { path: '/os/dashboard', label: 'Dashboard' },
+    { path: '/os/goals', label: 'Goals' },
+    { path: '/os/habits', label: 'Habits' },
+    { path: '/os/exercise', label: 'Exercise' },
+    { path: '/os/finance', label: 'Finance' },
+    { path: '/os/entertainment', label: 'Entertainment' },
+    { path: '/os/journal', label: 'Journal' },
+    { path: '/os/timeline', label: 'Timeline' },
+    { path: '/os/achievements', label: 'Achievements' },
   ];
 }

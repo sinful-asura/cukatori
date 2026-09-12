@@ -22,7 +22,7 @@ npm run local -- fe        # ng serve on :4200 (proxies /api → :3000)
 npm run local -- seed
 ```
 
-Open [http://localhost:4200](http://localhost:4200). API: [http://localhost:3000/api/health](http://localhost:3000/api/health).
+Open [http://localhost:4200](http://localhost:4200) (`/` → `/landing`). Signed-in OS is under `/os` (old `/app` URLs redirect there). API: [http://localhost:3000/api/health](http://localhost:3000/api/health).
 
 `.env` `PORT=3000` is **Nest only**. Angular CLI also reads `PORT`, so `npm run local -- fe` unsets it and passes `--port 4200`. Do not point `ng serve` at 3000.
 
