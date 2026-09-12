@@ -1,0 +1,240 @@
+:host {
+  display: block;
+}
+
+.finance {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 550;
+}
+
+h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 550;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+:host ::ng-deep .kpi-card.p-card,
+:host ::ng-deep .panel.p-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+
+:host ::ng-deep .kpi-card .p-card-body,
+:host ::ng-deep .panel .p-card-body {
+  padding: 16px 18px;
+}
+
+.kpi-label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.kpi-card strong {
+  font-size: 26px;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.spend-list,
+.budget-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spend-list li,
+.budget-list li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.budget-list li {
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'meta pct'
+    'meter meter';
+}
+
+.budget-meta {
+  grid-area: meta;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.budget-list p-metergroup,
+.budget-list .p-metergroup {
+  grid-area: meter;
+}
+
+.pct {
+  grid-area: pct;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 99px;
+}
+
+.donut-card {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+}
+
+.donut {
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.donut-hole {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.donut-hole small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.donut-hole strong {
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.muted,
+small {
+  color: var(--text-muted);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.income {
+  color: #6ee7b7;
+}
+
+.over {
+  color: var(--accent);
+}
+
+.lead {
+  color: var(--text-muted);
+  max-width: 62ch;
+  line-height: 1.5;
+}
+
+code {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.drop {
+  padding: 28px 12px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+:host ::ng-deep .finance-table.p-datatable .p-datatable-thead > tr > th {
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 12px;
+  border-color: var(--border);
+}
+
+:host ::ng-deep .finance-table.p-datatable .p-datatable-tbody > tr > td {
+  background: transparent;
+  border-color: var(--border);
+  font-size: 13px;
+}
+
+:host ::ng-deep .finance-table td small {
+  display: block;
+  margin-top: 2px;
+}
+
+@media (max-width: 960px) {
+  .kpis,
+  .split,
+  .composer {
+    grid-template-columns: 1fr;
+  }
+}

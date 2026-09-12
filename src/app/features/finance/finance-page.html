@@ -1,0 +1,334 @@
+<p-confirmpopup />
+
+<article class="finance" [attr.aria-busy]="loading()">
+  <header class="head">
+    <div>
+      <p class="eyebrow">Take control</p>
+      <h1>Finance</h1>
+    </div>
+    <p-datepicker
+      [ngModel]="monthDate()"
+      (ngModelChange)="onMonthChange($event)"
+      view="month"
+      dateFormat="MM yy"
+      [readonlyInput]="true"
+      [showIcon]="true"
+      appendTo="body"
+      inputId="finance-month"
+    />
+  </header>
+
+  <p-tabs [(value)]="activeTab">
+    <p-tablist>
+      <p-tab value="overview">Overview</p-tab>
+      <p-tab value="transactions">Transactions</p-tab>
+      <p-tab value="budgets">Budgets</p-tab>
+      <p-tab value="import">Import</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="overview">
+        <section class="kpis">
+          @for (kpi of overview()?.kpis ?? []; track kpi.key) {
+            <p-card styleClass="kpi-card">
+              <span class="kpi-label">{{ kpi.label }}</span>
+              <strong>{{ eur(kpi.amount) }}</strong>
+            </p-card>
+          }
+        </section>
+
+        <section class="split">
+          <p-card styleClass="panel">
+            <ng-template #header>
+              <div class="panel-head">
+                <h2>Spending by category</h2>
+                <span>{{ eur(overview()?.totalSpent ?? 0) }}</span>
+              </div>
+            </ng-template>
+            <p-metergroup [value]="spendMeter()" [max]="100" labelPosition="end" />
+            <ul class="spend-list">
+              @for (row of overview()?.byCategory ?? []; track row.category.id) {
+                <li>
+                  <span class="dot" [style.background]="row.category.color"></span>
+                  <span>{{ row.category.name }}</span>
+                  <span class="muted">{{ row.percent }}%</span>
+                  <strong>{{ eur(row.amount) }}</strong>
+                </li>
+              }
+            </ul>
+          </p-card>
+
+          <p-card styleClass="panel donut-card">
+            <div class="donut" [style.background]="donutStyle()">
+              <div class="donut-hole">
+                <small>Spent</small>
+                <strong>{{ eur(overview()?.totalSpent ?? 0) }}</strong>
+              </div>
+            </div>
+          </p-card>
+        </section>
+
+        <section class="split">
+          <p-card styleClass="panel">
+            <ng-template #header>
+              <div class="panel-head">
+                <h2>Recent transactions</h2>
+              </div>
+            </ng-template>
+            <p-table [value]="overview()?.recent ?? []" styleClass="finance-table">
+              <ng-template #header>
+                <tr>
+                  <th>Merchant</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr>
+                  <td>
+                    <strong>{{ row.merchant }}</strong>
+                    <small>{{ when(row.occurredAt) }}</small>
+                  </td>
+                  <td>
+                    <p-tag [value]="row.category.name" [style]="{ background: row.category.color }" />
+                  </td>
+                  <td class="num">{{ eur(row.amount, 2) }}</td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="3" class="muted">No expenses this month.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+
+          <p-card styleClass="panel">
+            <ng-template #header>
+              <div class="panel-head">
+                <h2>Budgets</h2>
+              </div>
+            </ng-template>
+            <ul class="budget-list">
+              @for (row of budgets(); track row.id) {
+                <li>
+                  <div class="budget-meta">
+                    <span>{{ row.category.name }}</span>
+                    <span class="muted">{{ eur(row.spent) }} / {{ eur(row.limit) }}</span>
+                  </div>
+                  <p-metergroup [value]="budgetMeter(row)" [max]="100" />
+                  <span class="pct" [class.over]="row.overLimit">{{ row.utilization }}%</span>
+                </li>
+              } @empty {
+                <li class="muted">No budgets for {{ monthKey() }}.</li>
+              }
+            </ul>
+          </p-card>
+        </section>
+      </p-tabpanel>
+
+      <p-tabpanel value="transactions">
+        <p-card styleClass="panel">
+          <form class="composer" (submit)="$event.preventDefault(); addTransaction()">
+            <input pInputText [(ngModel)]="txnMerchant" name="merchant" placeholder="Merchant" />
+            <p-inputnumber
+              [(ngModel)]="txnAmount"
+              name="amount"
+              mode="currency"
+              currency="EUR"
+              locale="en-US"
+              [min]="0"
+              placeholder="Amount"
+            />
+            <p-select
+              [(ngModel)]="txnCategoryId"
+              name="category"
+              [options]="categories()"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Category"
+              appendTo="body"
+            />
+            <p-select
+              [(ngModel)]="txnKind"
+              name="kind"
+              [options]="kindOptions"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+            />
+            <p-datepicker [(ngModel)]="txnDate" name="occurred" dateFormat="dd M yy" appendTo="body" />
+            <p-button type="submit" label="Add" icon="pi pi-plus" />
+          </form>
+
+          <p-table [value]="transactions()" [paginator]="true" [rows]="10" styleClass="finance-table">
+            <ng-template #header>
+              <tr>
+                <th>Merchant</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Source</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td>{{ row.merchant }}</td>
+                <td>
+                  <p-tag [value]="row.category.name" [style]="{ background: row.category.color }" />
+                </td>
+                <td class="num" [class.income]="row.kind === 'income'">
+                  {{ row.kind === 'income' ? '+' : '' }}{{ eur(row.amount, 2) }}
+                </td>
+                <td>{{ when(row.occurredAt) }}</td>
+                <td>
+                  <p-tag [value]="row.source" [severity]="row.source === 'xml' ? 'info' : 'secondary'" />
+                </td>
+                <td>
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    (onClick)="confirmDeleteTxn($event, row)"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6" class="muted">No transactions this month.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </p-tabpanel>
+
+      <p-tabpanel value="budgets">
+        <p-card styleClass="panel">
+          <form class="composer" (submit)="$event.preventDefault(); addBudget()">
+            <p-select
+              [(ngModel)]="budgetCategoryId"
+              name="budgetCategory"
+              [options]="expenseCategories()"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Category"
+              appendTo="body"
+            />
+            <p-datepicker
+              [(ngModel)]="budgetMonth"
+              name="budgetMonth"
+              view="month"
+              dateFormat="MM yy"
+              appendTo="body"
+            />
+            <p-inputnumber
+              [(ngModel)]="budgetLimit"
+              name="limit"
+              mode="currency"
+              currency="EUR"
+              locale="en-US"
+              [min]="0"
+              placeholder="Limit"
+            />
+            <p-button type="submit" label="Set budget" icon="pi pi-wallet" />
+          </form>
+
+          <p-table [value]="budgets()" styleClass="finance-table">
+            <ng-template #header>
+              <tr>
+                <th>Category</th>
+                <th>Month</th>
+                <th>Spent</th>
+                <th>Limit</th>
+                <th>Used</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-row>
+              <tr>
+                <td>
+                  <p-tag [value]="row.category.name" [style]="{ background: row.category.color }" />
+                </td>
+                <td>{{ row.month }}</td>
+                <td class="num">{{ eur(row.spent, 2) }}</td>
+                <td class="num">{{ eur(row.limit) }}</td>
+                <td>
+                  <p-metergroup [value]="budgetMeter(row)" [max]="100" />
+                  <small [class.over]="row.overLimit">{{ row.utilization }}%</small>
+                </td>
+                <td>
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    (onClick)="confirmDeleteBudget($event, row)"
+                  />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6" class="muted">No budgets for {{ monthKey() }}.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </p-tabpanel>
+
+      <p-tabpanel value="import">
+        <p-card styleClass="panel">
+          <p class="lead">
+            Upload a bank XML statement. The importer is pluggable and reads a generic list of
+            <code>{ date, amount, merchant, category }</code>. Sample file:
+            <code>api/fixtures/bank-sample.xml</code>.
+          </p>
+          <p-fileupload
+            name="file"
+            mode="advanced"
+            accept=".xml,text/xml,application/xml"
+            [customUpload]="true"
+            [multiple]="false"
+            chooseLabel="Choose XML"
+            uploadLabel="Import"
+            cancelLabel="Clear"
+            (uploadHandler)="importStatement($event)"
+          >
+            <ng-template #empty>
+              <div class="drop">Drop a bank XML statement here.</div>
+            </ng-template>
+          </p-fileupload>
+
+          @if (importResult(); as result) {
+            <p class="muted">
+              {{ result.imported }} imported · {{ result.skipped }} skipped
+              @if (result.alerts.length) {
+                · {{ result.alerts.length }} budget alert{{ result.alerts.length === 1 ? '' : 's' }}
+              }
+            </p>
+            <p-table [value]="result.transactions" styleClass="finance-table">
+              <ng-template #header>
+                <tr>
+                  <th>Merchant</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr>
+                  <td>{{ row.merchant }}</td>
+                  <td>
+                    <p-tag [value]="row.category.name" [style]="{ background: row.category.color }" />
+                  </td>
+                  <td class="num">{{ eur(row.amount, 2) }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          }
+        </p-card>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</article>

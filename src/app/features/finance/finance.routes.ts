@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { FinancePage } from './finance-page';
 
-export const FINANCE_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Finance' } },
-];
+export const FINANCE_ROUTES: Routes = [{ path: '', component: FinancePage }];

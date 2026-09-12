@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<statement bank="demo" currency="EUR" period="2026-09">
+  <transactions>
+    <txn date="2026-09-03" amount="-14.50" merchant="McDonald's" category="Food" />
+    <txn date="2026-09-04" amount="-22.40" merchant="Starbucks" category="Food" />
+    <txn date="2026-09-09" amount="-64.90" merchant="Decathlon" category="Shopping" />
+    <txn date="2026-09-11" amount="-18.20" merchant="Bolt" category="Transport" />
+    <txn date="2026-09-13" amount="-31.00" merchant="Ljekarna" category="Health" />
+    <txn date="2026-09-19" amount="-12.99" merchant="Spotify" category="Entertainment" />
+    <txn date="2026-09-26" amount="-47.80" merchant="IKEA" category="Shopping" />
+    <txn date="2026-09-28" amount="-9.60" merchant="ZET" category="Transport" />
+    <transaction>
+      <date>2026-09-29</date>
+      <amount>-16.70</amount>
+      <merchant>Konzum</merchant>
+      <category>Food</category>
+    </transaction>
+    <transaction>
+      <date>2026-09-15</date>
+      <amount>80.00</amount>
+      <merchant>Refund</merchant>
+      <category>Income</category>
+    </transaction>
+  </transactions>
+</statement>
