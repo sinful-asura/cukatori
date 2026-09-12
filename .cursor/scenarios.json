@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "rule": "Give one scenario to one subagent. The agent reads the skill, stays in allowedPaths, implements the slice, and does not wait for other agents.",
+  "hotspots": [
+    "src/app/app.routes.ts",
+    "src/app/app.config.ts",
+    "src/styles.scss",
+    "src/app/core/layout/**",
+    "api/src/app.module.ts",
+    "api/src/mikro-orm.config.ts",
+    "shared/activity/**",
+    "shared/xp/**"
+  ],
+  "scenarios": [
+    {
+      "id": "foundation",
+      "skill": "pos-foundation",
+      "owner": "orchestrator",
+      "allowedPaths": [
+        "docker/**",
+        "api/**",
+        ".env.example",
+        "proxy.conf.json"
+      ]
+    },
+    {
+      "id": "shell",
+      "skill": "pos-shell",
+      "owner": "orchestrator",
+      "allowedPaths": [
+        "src/app/core/**",
+        "src/app/shared/ui/**",
+        "src/app/app.*",
+        "src/styles.scss",
+        "src/index.html"
+      ]
+    },
+    {
+      "id": "activity-xp",
+      "skill": "pos-activity-xp",
+      "allowedPaths": [
+        "api/src/modules/activity/**",
+        "api/src/modules/gamification/**",
+        "api/src/modules/notes/**",
+        "api/src/modules/notifications/**",
+        "src/app/core/api/activity.api.ts",
+        "src/app/core/api/me.api.ts"
+      ]
+    },
+    {
+      "id": "habits-goals",
+      "skill": "pos-habits-goals",
+      "allowedPaths": [
+        "api/src/modules/habits/**",
+        "api/src/modules/goals/**",
+        "src/app/features/habits/**",
+        "src/app/features/goals/**",
+        "src/app/core/api/habits.api.ts",
+        "src/app/core/api/goals.api.ts",
+        "shared/habits/**",
+        "shared/goals/**"
+      ]
+    },
+    {
+      "id": "dashboard",
+      "skill": "pos-dashboard",
+      "allowedPaths": [
+        "src/app/features/dashboard/**",
+        "src/app/features/timeline/**",
+        "src/app/features/achievements/**",
+        "src/app/features/settings/**",
+        "src/app/core/api/achievements.api.ts"
+      ]
+    },
+    {
+      "id": "exercise-core",
+      "skill": "pos-exercise-core",
+      "allowedPaths": [
+        "api/src/modules/exercise/**",
+        "api/src/modules/catalog/**",
+        "src/app/features/exercise/**",
+        "src/app/core/api/exercise.api.ts",
+        "shared/exercise/**"
+      ]
+    },
+    {
+      "id": "exercise-intel",
+      "skill": "pos-exercise-intel",
+      "allowedPaths": [
+        "api/src/modules/photos/**",
+        "api/src/modules/insights/**",
+        "src/app/features/photos/**",
+        "src/app/features/exercise/body-map/**",
+        "src/app/features/exercise/insights/**",
+        "src/app/core/api/photos.api.ts",
+        "src/app/core/api/insights.api.ts"
+      ]
+    },
+    {
+      "id": "entertainment",
+      "skill": "pos-entertainment",
+      "allowedPaths": [
+        "api/src/modules/entertainment/**",
+        "src/app/features/entertainment/**",
+        "src/app/core/api/media.api.ts",
+        "shared/media/**"
+      ]
+    },
+    {
+      "id": "finance",
+      "skill": "pos-finance",
+      "allowedPaths": [
+        "api/src/modules/finance/**",
+        "api/fixtures/**",
+        "src/app/features/finance/**",
+        "src/app/core/api/finance.api.ts",
+        "shared/finance/**"
+      ]
+    },
+    {
+      "id": "journal",
+      "skill": "pos-journal",
+      "allowedPaths": [
+        "api/src/modules/journal/**",
+        "src/app/features/journal/**",
+        "src/app/core/api/journal.api.ts",
+        "shared/journal/**"
+      ]
+    },
+    {
+      "id": "reports",
+      "skill": "pos-reports",
+      "allowedPaths": [
+        "api/src/modules/reports/**",
+        "src/app/features/reports/**",
+        "src/app/core/api/reports.api.ts",
+        "shared/recap/**"
+      ]
+    },
+    {
+      "id": "assist",
+      "skill": "pos-assist",
+      "allowedPaths": [
+        "shared/nlp/**",
+        "api/src/modules/quick-log/**",
+        "api/src/seeders/**",
+        "src/app/core/quick-log/**",
+        "src/app/shared/ui/celebration-host/**"
+      ]
+    }
+  ]
+}

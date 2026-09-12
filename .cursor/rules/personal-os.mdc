@@ -1,0 +1,16 @@
+---
+description: Personal OS product rules for Cukatori.
+alwaysApply: true
+---
+
+# Personal OS
+
+Modules must not become isolated apps. Every write emits an `ActivityEvent` via `ActivityBus`.
+
+Fitness copy is hedged only: "You marked shoulder discomfort", "Possible plateau", "Consider a lighter week". No medical claims. No body-composition analysis.
+
+Journal bodies are ciphertext + IV. Progress photos are auth-gated, not public URLs.
+
+Quick-log is speech-to-text plus deterministic parsing in `shared/nlp`. No autonomous agent loop.
+
+Demo seed user is Kristijan (level 18, 12-day streak) matching the landing/dashboard mockup.

@@ -1,0 +1,7 @@
+# Laptop overlay — publish Postgres on localhost:5432 for Nest / tools.
+# Merged after docker-compose.db.yaml (see npm run local -- db).
+
+services:
+  postgres:
+    ports:
+      - '5432:5432'

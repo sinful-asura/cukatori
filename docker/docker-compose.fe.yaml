@@ -1,0 +1,10 @@
+# Frontend nginx image (Angular static files) — production only.
+# Local FE is `ng serve` on the host.
+
+services:
+  web:
+    image: ${DOCKER_REGISTRY}/cukatori-web:${IMAGE_TAG:-latest}
+    container_name: cukatori-web
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:8080:80'

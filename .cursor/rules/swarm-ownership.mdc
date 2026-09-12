@@ -1,0 +1,20 @@
+---
+description: Parallel swarm file ownership. Always apply when implementing Cukatori.
+alwaysApply: true
+---
+
+# Swarm ownership
+
+Read `.cursor/scenarios.json` and the named skill under `.cursor/skills/` before writing code.
+
+- One scenario per subagent. Do not implement a sibling scenario.
+- Stay inside that scenario's `allowedPaths`. Create files there; do not edit hotspots.
+- Hotspots (orchestrator only): `src/app/app.routes.ts`, `src/app/app.config.ts`, `src/styles.scss`, `src/app/core/layout/**`, `api/src/app.module.ts`, `api/src/mikro-orm.config.ts`, `shared/activity/**`, `shared/xp/**`.
+- Import `ActivityBus` and emit events. Never write `XpLedger` or `Streak` from a feature module.
+- Import DTOs from `@cukatori/shared`. Do not duplicate event/XP types.
+- Global CLIs only: `ng` and `nest`. No `npx @angular/cli` / `npx @nestjs/cli`. No second `ng new`.
+- Angular: standalone, SCSS, `--skip-tests` unless asked. Export `*.routes.ts` from the feature folder.
+- Nest: entities as `*.entity.ts` under your module so Mikro glob picks them up.
+- UI source of truth: `.cursor/references/ui-landing.jpg` plus `.cursor/skills/pos-shell/SKILL.md` tokens. Deep black canvas, red-orange hero glow, floating cards, Inter. Not a game UI.
+- Do not wait for other agents. Stub against existing contracts if a neighbor is unfinished.
+- Do not commit, push, or run `ng serve` / long-lived servers.

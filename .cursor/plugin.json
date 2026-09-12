@@ -1,0 +1,25 @@
+{
+  "name": "cukatori-pos",
+  "displayName": "Cukatori Personal OS Swarm",
+  "version": "0.1.0",
+  "description": "Claude-plugin-style Cursor pack: one skill per implementation scenario, spawned as parallel subagents.",
+  "skills": [
+    "skills/pos-swarm/SKILL.md",
+    "skills/pos-foundation/SKILL.md",
+    "skills/pos-shell/SKILL.md",
+    "skills/pos-activity-xp/SKILL.md",
+    "skills/pos-habits-goals/SKILL.md",
+    "skills/pos-dashboard/SKILL.md",
+    "skills/pos-exercise-core/SKILL.md",
+    "skills/pos-exercise-intel/SKILL.md",
+    "skills/pos-entertainment/SKILL.md",
+    "skills/pos-finance/SKILL.md",
+    "skills/pos-journal/SKILL.md",
+    "skills/pos-reports/SKILL.md",
+    "skills/pos-assist/SKILL.md"
+  ],
+  "agents": [
+    "agents/pos-implementer.md"
+  ],
+  "scenarios": "scenarios.json"
+}

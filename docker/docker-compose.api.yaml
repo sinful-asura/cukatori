@@ -1,0 +1,23 @@
+# API image — production only. Local API is `nest start --watch` on the host.
+
+services:
+  api:
+    image: ${DOCKER_REGISTRY}/cukatori-api:${IMAGE_TAG:-latest}
+    container_name: cukatori-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      UPLOAD_DIR: /data/uploads
+      NODE_ENV: production
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - '127.0.0.1:3000:3000'
+
+volumes:
+  uploads:

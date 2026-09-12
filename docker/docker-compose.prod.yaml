@@ -1,0 +1,13 @@
+# Production stack — db + api + fe. Laptop uses npm run local (db docker, api/fe live).
+#
+# On server (cwd docker/):
+#   docker compose --env-file ../.env -f docker-compose.prod.yaml up -d
+# From repo root:
+#   docker compose --env-file .env -f docker/docker-compose.prod.yaml up -d
+
+include:
+  - path: docker-compose.db.yaml
+  - path: docker-compose.api.yaml
+  - path: docker-compose.fe.yaml
+
+name: cukatori

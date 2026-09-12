@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "local": "python scripts/cmd/local.py",
+    "build": "python scripts/cmd/build.py",
+    "deploy": "python scripts/cmd/deploy.py",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:cukatori-project": "node dist/cukatori-project/server/server.mjs"
