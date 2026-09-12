@@ -1,65 +1,119 @@
 <section class="goals">
+  <app-page-header title="Goals" kicker="Achieve">
+    <p-button label="Add goal" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
+  </app-page-header>
+
+  <div class="stats">
+    <app-pos-stat label="Active" [value]="activeCount()" />
+    <app-pos-stat label="Average" [value]="averagePct()" suffix="%" />
+    <app-pos-stat label="On pace" [value]="onPaceCount()" />
+  </div>
+
   <p-tabs [value]="tab()" (valueChange)="onTab($event)">
     <p-tablist>
       <p-tab value="active">Active</p-tab>
       <p-tab value="completed">Completed</p-tab>
     </p-tablist>
-    <p-tabpanels>
-      <p-tabpanel value="active">
-        <p-card styleClass="panel">
-          <ng-template #title>
-            <div class="panel-head">
-              <span>Goals</span>
-              <div class="panel-actions">
-                <p-button label="View all" [text]="true" size="small" (onClick)="showCompleted()" />
-                <p-button label="Add goal" icon="pi pi-plus" [text]="true" size="small" (onClick)="openCreate()" />
-              </div>
-            </div>
-          </ng-template>
-          <ng-container [ngTemplateOutlet]="list" />
-        </p-card>
-      </p-tabpanel>
-      <p-tabpanel value="completed">
-        <p-card styleClass="panel">
-          <ng-template #title>
-            <div class="panel-head">
-              <span>Completed</span>
-              <p-button label="Add goal" icon="pi pi-plus" [text]="true" size="small" (onClick)="openCreate()" />
-            </div>
-          </ng-template>
-          <ng-container [ngTemplateOutlet]="list" />
-        </p-card>
-      </p-tabpanel>
-    </p-tabpanels>
   </p-tabs>
-</section>
 
-<ng-template #list>
-  <ul class="meters">
-    @for (goal of visibleGoals(); track goal.id) {
-      <li>
-        <div class="meter-row">
-          <span class="name">{{ goal.title }}</span>
-          <span class="frac">{{ progressLabel(goal) }}</span>
-          <p-tag [value]="goal.percent + '%'" severity="secondary" />
-          @if (goal.status !== 'completed') {
+  <div class="board">
+    <div class="goal-stack">
+      @for (goal of visibleViews(); track goal.id) {
+        <p-card styleClass="pos-panel">
+          <button
+            type="button"
+            class="goal-select"
+            [class.is-selected]="selected()?.id === goal.id"
+            (click)="select(goal.id)"
+          >
+            <div class="goal-top">
+              <div>
+                <p class="category">{{ goal.category }}</p>
+                <h2>{{ goal.title }}</h2>
+              </div>
+              <span class="pct">{{ goal.percent }}%</span>
+            </div>
+            <p-progressbar
+              [value]="goal.percent"
+              [showValue]="false"
+              [color]="goal.color"
+              [style]="{ height: '4px' }"
+            />
+            <p class="meta">{{ goal.progressLabel }} · {{ goal.deadlineLabel }}</p>
+          </button>
+        </p-card>
+      } @empty {
+        <p class="empty">Nothing here yet.</p>
+      }
+    </div>
+
+    @if (selected(); as goal) {
+      <div class="detail">
+        <div class="detail-head">
+          <div>
+            <p class="note">{{ goal.note }}</p>
+            <p class="meta">{{ goal.remainingLabel }} · due {{ goal.deadlineLabel }}</p>
+          </div>
+          <div class="detail-actions">
+            <app-pos-chart-toggle [(mode)]="chartMode" />
             <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              [text]="true"
+              label="Log progress"
               size="small"
-              [attr.aria-label]="'Log progress for ' + goal.title"
+              [disabled]="goal.status === 'completed'"
               (onClick)="progress(goal)"
             />
-          }
+          </div>
         </div>
-        <p-metergroup [value]="meters(goal)" [min]="0" [max]="100" />
-      </li>
-    } @empty {
-      <li class="empty">No goals in this list.</li>
+
+        <p-card styleClass="pos-panel">
+          <div class="chart">
+            @if (chartMode() === 'line') {
+              <app-pos-line-chart
+                [labels]="monthLabels"
+                [yLabels]="yLabels(goal)"
+                [height]="180"
+                [series]="series(goal)"
+              />
+            } @else {
+              <app-pos-bar-chart
+                [labels]="monthLabels"
+                [yLabels]="yLabels(goal)"
+                [height]="180"
+                [values]="goal.series"
+                [color]="goal.color"
+              />
+            }
+          </div>
+        </p-card>
+
+        <p-accordion [(value)]="milestoneOpen">
+          @for (milestone of goal.milestones; track milestone.label; let i = $index) {
+            <p-accordion-panel [value]="'m' + i">
+              <p-accordion-header>
+                <span class="mile-row">
+                  <span>{{ milestone.label }}</span>
+                  <p-tag
+                    [value]="milestone.done ? 'Done' : 'Open'"
+                    [severity]="milestone.done ? 'success' : 'secondary'"
+                  />
+                </span>
+              </p-accordion-header>
+              <p-accordion-content>
+                <p class="mile-copy">
+                  @if (milestone.done) {
+                    Already counted toward this goal.
+                  } @else {
+                    Still open — log progress to move this forward.
+                  }
+                </p>
+              </p-accordion-content>
+            </p-accordion-panel>
+          }
+        </p-accordion>
+      </div>
     }
-  </ul>
-</ng-template>
+  </div>
+</section>
 
 <p-dialog
   header="New goal"

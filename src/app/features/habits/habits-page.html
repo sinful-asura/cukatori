@@ -1,58 +1,40 @@
 <section class="habits">
+  <app-page-header title="Habits" kicker="Track">
+    <p-button label="Add habit" icon="pi pi-plus" size="small" (onClick)="openCreate()" />
+  </app-page-header>
+
   <p-tabs [value]="tab()" (valueChange)="onTab($event)">
     <p-tablist>
       <p-tab value="today">Today</p-tab>
       <p-tab value="all">All</p-tab>
     </p-tablist>
-    <p-tabpanels>
-      <p-tabpanel value="today">
-        <p-card styleClass="panel">
-          <ng-template #title>
-            <div class="panel-head">
-              <span>Today</span>
-              <div class="panel-actions">
-                <p-button label="View all" [text]="true" size="small" (onClick)="showAll()" />
-                <p-button icon="pi pi-plus" [rounded]="true" [text]="true" size="small" aria-label="Add habit" (onClick)="openCreate()" />
-              </div>
-            </div>
-          </ng-template>
-          <ng-container [ngTemplateOutlet]="list" />
-        </p-card>
-      </p-tabpanel>
-      <p-tabpanel value="all">
-        <p-card styleClass="panel">
-          <ng-template #title>
-            <div class="panel-head">
-              <span>Habits</span>
-              <p-button label="Add habit" icon="pi pi-plus" [text]="true" size="small" (onClick)="openCreate()" />
-            </div>
-          </ng-template>
-          <ng-container [ngTemplateOutlet]="list" />
-        </p-card>
-      </p-tabpanel>
-    </p-tabpanels>
   </p-tabs>
-</section>
 
-<ng-template #list>
-  <ul class="checklist">
-    @for (habit of visibleHabits(); track habit.id) {
-      <li>
-        <p-checkbox
-          [inputId]="'habit-' + habit.id"
-          [binary]="true"
-          [ngModel]="habit.completedToday"
-          [readonly]="habit.completedToday"
-          (onChange)="onCheck(habit, $event)"
-        />
-        <label [attr.for]="'habit-' + habit.id" [class.done]="habit.completedToday">{{ habit.title }}</label>
-        @if (habit.xpHint > 0) {
-          <p-tag [value]="xpLabel(habit.xpHint)" severity="secondary" />
-        }
-      </li>
+  <p-card styleClass="pos-panel">
+    @if (tab() === 'today') {
+      <app-pos-panel-header title="Today" [subtitle]="streakLabel()" />
+    } @else {
+      <app-pos-panel-header title="Habits" subtitle="Every schedule — daily, weekdays, and weekly." />
     }
-  </ul>
-</ng-template>
+    <ul class="checklist">
+      @for (habit of visibleHabits(); track habit.id) {
+        <li>
+          <p-checkbox
+            [inputId]="'habit-' + habit.id"
+            [binary]="true"
+            [ngModel]="habit.completedToday"
+            [readonly]="habit.completedToday"
+            (onChange)="onCheck(habit, $event)"
+          />
+          <label [attr.for]="'habit-' + habit.id" [class.done]="habit.completedToday">{{ habit.title }}</label>
+          <p-tag [value]="xpLabel(habit.xpHint)" severity="secondary" />
+        </li>
+      } @empty {
+        <li class="empty">Nothing here yet.</li>
+      }
+    </ul>
+  </p-card>
+</section>
 
 <p-dialog
   header="New habit"

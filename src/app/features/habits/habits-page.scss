@@ -1,82 +1,40 @@
 :host {
   display: block;
-  max-width: 520px;
 }
 
-:host ::ng-deep {
-  .p-card.panel {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: none;
-    color: var(--text);
-  }
-
-  .p-card-body {
-    padding: 18px 20px 12px;
-  }
-
-  .p-card-title {
-    margin: 0;
-  }
-
-  .p-tablist {
-    margin-bottom: 14px;
-  }
-
-  .p-tag {
-    background: transparent;
-    color: var(--text-muted);
-    font-weight: 500;
-    font-size: 13px;
-    padding: 0;
-  }
-
-  .p-checkbox {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.panel-head {
+.habits {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .checklist {
   list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
+  margin: 0;
+  padding: 8px 16px 16px;
 }
 
 .checklist li {
-  display: grid;
-  grid-template-columns: 22px 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  min-height: 44px;
-  border-bottom: 1px solid var(--border);
-}
-
-.checklist li:last-child {
-  border-bottom: 0;
+  min-height: 36px;
+  padding: 6px;
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .checklist label {
+  flex: 1;
   color: var(--text);
-  font-size: 14px;
 }
 
 .checklist label.done {
+  color: var(--text-secondary);
+}
+
+.empty {
   color: var(--text-muted);
 }
 

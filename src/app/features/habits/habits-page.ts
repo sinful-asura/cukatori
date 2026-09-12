@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DEMO_HABITS, xpHintLabel, type HabitDto, type HabitSchedule } from '@ascend-os/shared/habits';
@@ -10,16 +9,19 @@ import { Dialog } from 'primeng/dialog';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
 import { HabitsApi } from '../../core/api/habits.api';
+import { MeApi } from '../../core/api/me.api';
+import { PageHeader, PosPanelHeader } from '../../shared/ui/pos';
 
 type ScheduleOption = { label: string; value: HabitSchedule };
+
+const DEMO_STREAK = 12;
 
 @Component({
   selector: 'app-habits-page',
   imports: [
-    NgTemplateOutlet,
     FormsModule,
     Button,
     Card,
@@ -31,19 +33,21 @@ type ScheduleOption = { label: string; value: HabitSchedule };
     Tabs,
     TabList,
     Tab,
-    TabPanels,
-    TabPanel,
     Tag,
+    PageHeader,
+    PosPanelHeader,
   ],
   templateUrl: './habits-page.html',
   styleUrl: './habits-page.scss',
 })
 export class HabitsPage implements OnInit {
   private readonly api = inject(HabitsApi);
+  private readonly me = inject(MeApi);
   private readonly messages = inject(MessageService);
 
   readonly habits = signal<HabitDto[]>([]);
   readonly tab = signal('today');
+  readonly streak = signal(DEMO_STREAK);
   readonly createOpen = signal(false);
   readonly saving = signal(false);
   readonly usingFallback = signal(false);
@@ -71,10 +75,13 @@ export class HabitsPage implements OnInit {
 
   readonly visibleHabits = computed(() => (this.tab() === 'all' ? this.allHabits() : this.todayHabits()));
 
+  readonly streakLabel = computed(() => `${this.streak()}-day discipline streak`);
+
   readonly xpLabel = xpHintLabel;
 
   ngOnInit(): void {
     this.load();
+    this.loadStreak();
   }
 
   load(): void {
@@ -94,10 +101,6 @@ export class HabitsPage implements OnInit {
     if (typeof value === 'string') {
       this.tab.set(value);
     }
-  }
-
-  showAll(): void {
-    this.tab.set('all');
   }
 
   onCheck(habit: HabitDto, event: CheckboxChangeEvent): void {
@@ -167,6 +170,18 @@ export class HabitsPage implements OnInit {
           this.saving.set(false);
         },
       });
+  }
+
+  private loadStreak(): void {
+    this.me.stats().subscribe({
+      next: (stats) => {
+        const current = Math.max(0, ...stats.streaks.map((row) => row.current));
+        this.streak.set(current || DEMO_STREAK);
+      },
+      error: () => {
+        this.streak.set(DEMO_STREAK);
+      },
+    });
   }
 
   private replace(habit: HabitDto): void {
