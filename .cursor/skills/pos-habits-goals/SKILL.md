@@ -15,7 +15,12 @@ Project skill only. Allowed: `api/src/modules/{habits,goals}/**`, `src/app/featu
 
 ## UI
 
-Match landing dashboard: checklist rows with XP hints; goal meters (thin bars, muted labels, 67% / 48% / 80%). Dark cards, 20px radius. Export `habits.routes.ts` and `goals.routes.ts`.
+Personal OS layout, PrimeNG chrome. Tokens from `.cursor/references/DESIGN.md`. Shared charts: `src/app/shared/ui/pos/`.
+
+- Goals: port `personal-os/modules/GoalsView.tsx` (rich file, not the SimpleViews stub). `app-page-header` Achieve / Goals. Goal cards as `p-card.pos-panel`, `p-progressbar` / thin bars, detail pane with `app-pos-line-chart`.
+- Habits: port `personal-os/modules/SimpleViews.tsx` HabitsView. Track / Habits, Today panel, checklist + XP via `p-checkbox` / `p-tag`.
+
+Export `habits.routes.ts` and `goals.routes.ts`.
 
 ## Do not
 

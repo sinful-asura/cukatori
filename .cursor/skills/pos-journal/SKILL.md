@@ -13,9 +13,9 @@ Project skill only. Allowed: `api/src/modules/journal/**`, `src/app/features/jou
 - `GET` returns ciphertext; decrypt in the client after passphrase.
 - Tags and title may be plaintext for list UI. Emit `JOURNAL_CREATED` with **no body** in payload (15 XP).
 
-## UI (A private space)
+## UI
 
-`My Journal` lock label, search, `+ New entry`, list (Great session today, Shoulder discomfort, Trip to Italy, What I'm grateful for), entry view + optional image, footer `Encrypted · only you can read`. Export `journal.routes.ts`.
+Port `personal-os/modules/JournalView.tsx` onto PrimeNG (`Tabs`, `Textarea`, `InputText`, `Dialog`, `FileUpload`, `Tag`). `app-page-header` title Journal, kicker `Write it down while it’s still clear.` Keep ciphertext + IV. Export `journal.routes.ts`.
 
 Hedged fitness language if discomfort tags appear. Not medical.
 

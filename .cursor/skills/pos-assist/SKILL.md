@@ -20,9 +20,9 @@ Deterministic tokens/regex, used by Angular and Nest:
 
 Web Speech API fills the same text field. No autonomous agent loop.
 
-## Celebrations
+## UI
 
-Lightweight toasts: new PR, first/10th workout, 7-day streak, level-up. Not a game HUD.
+Restyle quick-log + celebrations to Personal OS (`.cursor/references/DESIGN.md`). PrimeNG `CommandMenu` / `Dialog` / `InputText` / `Toast` via `MessageService`. Elevated `#222221` buttons, `#3b3a37` hairlines, Geist. No coral, no game HUD.
 
 ## Seed
 

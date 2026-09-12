@@ -1,25 +1,25 @@
 import { definePreset, palette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 
-/** Landing tokens: coral primary, deep-black surfaces. Always used in dark mode. */
+/** Personal OS 1440w warm-dark surfaces. Primary is chart blue. */
 export const ascendPreset = definePreset(Aura, {
   semantic: {
-    primary: palette('#ff4d3a'),
+    primary: palette('#0091ff'),
     colorScheme: {
       dark: {
         surface: {
-          0: '#ffffff',
-          50: '#f4f4f5',
-          100: '#e4e4e7',
-          200: '#d4d4d8',
-          300: '#a1a1aa',
-          400: '#8b8b93',
-          500: '#71717a',
-          600: '#52525b',
-          700: '#3f3f46',
-          800: '#141418',
-          900: '#101014',
-          950: '#07070b',
+          0: '#eeeeec',
+          50: '#b5b3ad',
+          100: '#7d7b74',
+          200: '#6f6d67',
+          300: '#3b3a37',
+          400: '#2a2a28',
+          500: '#222221',
+          600: '#191918',
+          700: '#191918',
+          800: '#191918',
+          900: '#111110',
+          950: '#111110',
         },
       },
     },

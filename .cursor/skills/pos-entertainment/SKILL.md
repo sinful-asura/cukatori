@@ -13,9 +13,9 @@ Project skill only. Allowed: `api/src/modules/entertainment/**`, `src/app/featur
 - `MediaProgress`: episode/pages, rating, completedAt.
 - `POST /api/media/:id/progress` → `MEDIA_PROGRESS` (20 XP page-chunk). Complete → `MEDIA_COMPLETED` (50 XP).
 
-## UI (Enjoy what you love)
+## UI
 
-Match landing library card: tabs All / Anime / Manga / Books / YouTube, **Currently watching** One Piece, **Currently reading** Dune, recently completed poster grid, stats 42 hours / 7 completed / 4.5 rating / 3 streak. `+ Add item`. Export `entertainment.routes.ts`.
+Port `personal-os/modules/EntertainmentView.tsx` onto PrimeNG (`Tabs`, `DataView`, `Gallery`, `Rating`, `Dialog`, `ProgressBar`). `app-page-header`. Keep live library data: One Piece / Dune, poster grid, `+ Add item`. Year heatmap via `app-pos-heatmap`. Export `entertainment.routes.ts`.
 
 ## Do not
 

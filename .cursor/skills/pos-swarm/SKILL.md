@@ -23,10 +23,11 @@ Read and follow:
 - /home/itkri/projects/cukatori/.cursor/skills/<skill>/SKILL.md
 - /home/itkri/projects/cukatori/.cursor/scenarios.json
 - /home/itkri/projects/cukatori/.cursor/references/DESIGN.md
-Stay in allowedPaths. Implement now. Do not start dev servers. Do not commit.
+- /home/itkri/projects/cukatori/.cursor/references/personal-os/
+Stay in allowedPaths. Implement now. Do not start dev servers.
 ```
 
-5. Attach `.cursor/references/ui-landing.jpg` when the scenario has UI. Point the agent at repo-root `AGENTS.md` (PrimeNG component picks). Isolate remaining parallel work with Cursor worktrees (`/worktree` or Agents Window). Checkouts live under `~/.cursor/worktrees/` so they are the agent workspace — do **not** add a gitignored `.worktrees/` folder inside this repo. Setup is `.cursor/worktrees.json` (copies `.env` only; do not symlink `node_modules`). Orchestrator merges the branch and deletes the worktree afterward.
+5. Point the agent at repo-root `AGENTS.md` (PrimeNG) and `src/app/shared/ui/pos/`. Isolate remaining parallel work with Cursor worktrees under `~/.cursor/worktrees/cukatori/<id>` on `design/<id>`. Setup is `.cursor/worktrees.json` (copies `.env` only; do not symlink `node_modules`). Orchestrator merges the branch and deletes the worktree afterward.
 6. After agents finish, the orchestrator only: wire hotspots, `app.module` imports, lazy routes, seed, and visual QA.
 
 ## Scenario map

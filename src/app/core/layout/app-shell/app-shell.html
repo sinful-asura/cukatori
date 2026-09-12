@@ -1,40 +1,55 @@
 <div class="shell">
   <aside class="rail">
-    <a routerLink="/os" class="brand">
-      <span class="mark"></span>
-      Ascend OS
-    </a>
-    <nav>
-      @for (link of links; track link.path) {
-        <a
-          [routerLink]="link.path"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-        >{{ link.label }}</a>
-      }
-    </nav>
+    <div class="rail-inner">
+      <a routerLink="/os" class="workspace">
+        <span class="avatar">K</span>
+        <span>Kristijan’s workspace</span>
+      </a>
+
+      <nav>
+        <div class="group primary">
+          @for (link of primary; track link.path) {
+            <a
+              [routerLink]="link.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: link.exact === true }"
+            >
+              <i [class]="link.icon"></i>
+              {{ link.label }}
+            </a>
+          }
+        </div>
+        <div class="group">
+          @for (link of secondary; track link.path) {
+            <a
+              [routerLink]="link.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: link.exact === true }"
+            >
+              <i [class]="link.icon"></i>
+              {{ link.label }}
+            </a>
+          }
+        </div>
+      </nav>
+    </div>
+
     <div class="user">
-      <span class="avatar">K</span>
-      <div>
-        <strong>Kristijan</strong>
-        <small>Level 18</small>
-      </div>
+      <span class="avatar sm">K</span>
+      <span class="name">Kristijan</span>
+      <p-button
+        icon="pi pi-search"
+        [rounded]="true"
+        [text]="true"
+        aria-label="Quick log"
+        (onClick)="openQuickLog()"
+      />
     </div>
   </aside>
-  <div class="main">
-    <header>
-      <label class="search">
-        <input
-          type="search"
-          placeholder="Search or type a command…"
-          (focus)="openQuickLog()"
-          (click)="openQuickLog()"
-        />
-      </label>
-      <time>Thu, Sep 11 2026</time>
-    </header>
-    <section class="page">
+
+  <main class="main">
+    <div class="canvas">
       <router-outlet />
-    </section>
-  </div>
+    </div>
+  </main>
 </div>

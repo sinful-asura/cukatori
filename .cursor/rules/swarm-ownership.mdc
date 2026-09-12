@@ -15,6 +15,6 @@ Read `.cursor/scenarios.json` and the named skill under `.cursor/skills/` before
 - Global CLIs only: `ng` and `nest`. No `npx @angular/cli` / `npx @nestjs/cli`. No second `ng new`.
 - Angular: standalone, SCSS, `--skip-tests` unless asked. Export `*.routes.ts` from the feature folder.
 - Nest: entities as `*.entity.ts` under your module so Mikro glob picks them up.
-- UI source of truth: `.cursor/references/ui-landing.jpg`, `AGENTS.md` PrimeNG picks, and `.cursor/skills/pos-shell/SKILL.md` tokens. Deep black canvas, red-orange hero glow, Inter. Use PrimeNG 22 — do not rebuild tables, dialogs, tabs, toasts, or meters.
+- UI source of truth: `.cursor/references/DESIGN.md` + `.cursor/references/personal-os/`. PrimeNG 22 only — map Personal OS layout onto PrimeNG. Tokens: `#111110` / `#191918` / `#222221` / `#0091ff`, Geist. Do not rebuild tables, dialogs, tabs, toasts, or meters.
 - Do not wait for other agents. Stub against existing contracts if a neighbor is unfinished.
 - Do not commit, push, or run `ng serve` / long-lived servers.

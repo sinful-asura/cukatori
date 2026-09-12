@@ -19,11 +19,13 @@ Project skill only. Allowed: `api/src/modules/{exercise,catalog}/**`, `src/app/f
 - Emit `WORKOUT_COMPLETED`. On new max weight/reps/e1RM/volume emit `PERSONAL_RECORD` (40 XP).
 - `GET /api/prs`
 
-## UI (Train smarter card)
+## UI
 
-Last session **Back & Biceps**, Wed Sep 10, 48 min, 6,420 kg, 14 sets, 3 PRs, +8% copy, muscle activation bars, log table. Tabs: Overview / Workouts / Exercises / Muscles. Export `exercise.routes.ts`.
+Port `personal-os/modules/ExerciseView.tsx` onto PrimeNG. Last session **Back & Biceps**, Wed Sep 10, 48 min, 6,420 kg, 14 sets, 3 PRs, +8% copy, muscle activation via `ProgressBar`, log `Table`. Tabs: Overview / Workouts / Exercises / Muscles. `app-page-header` + `p-card.pos-panel`. Export `exercise.routes.ts`.
 
 Hedged copy only. No medical claims.
+
+**Do not edit** `src/app/features/exercise/body-map/**` or `insights/**` (exercise-intel).
 
 ## Do not
 

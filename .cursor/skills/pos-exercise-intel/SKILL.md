@@ -18,7 +18,7 @@ Project skill only. Allowed: `api/src/modules/{photos,insights}/**`, `src/app/fe
 
 ## UI
 
-SVG BodyMap (`data-muscle` ids = catalog `primaryMuscle`). Insights tab + photos page. Hedged language only. No body-composition analysis.
+Personal OS tokens (`.cursor/references/DESIGN.md`). SVG BodyMap (`data-muscle` ids = catalog `primaryMuscle`) wrapped in `p-card.pos-panel`. Insights + photos: `app-page-header`, PrimeNG `Tabs` / `Gallery` / `Compare` / `FileUpload` / `Message` / `Tag`. Hedged language only. No body-composition analysis.
 
 ## Do not
 

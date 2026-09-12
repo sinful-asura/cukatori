@@ -1,19 +1,19 @@
 ---
 name: pos-shell
-description: Builds the Ascend OS marketing landing and app chrome to match ui-landing.jpg. Use when implementing the shell scenario, landing page, sidebar, or design tokens.
+description: Builds the Ascend OS marketing landing and app chrome to match Personal OS. Use when implementing the shell scenario, landing page, sidebar, or design tokens.
 ---
 
 # Shell + landing
 
-Project skill only. Visual source: `.cursor/references/ui-landing.jpg` and `.cursor/references/DESIGN.md`.
+Project skill only. Visual source: `.cursor/references/DESIGN.md` and `.cursor/references/personal-os/`.
 
 ## Tokens (`src/styles.scss`)
 
-Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,255,0.08)`, text `#f4f4f5`, muted `#8b8b93`, accent `#ff4d3a`, warm `#ff8a65`, radius 20px, Inter. Red-orange radial glow behind the hero. Dark first.
+Warm dark from Personal OS: canvas `#111110`, card `#191918`, elevated `#222221`, border `#3b3a37`, text `#eeeeec` / `#b5b3ad` / `#7d7b74`, accent `#0091ff`. Geist 400/500. 296px sidebar, 1200px content. No floating frame, no coral glow.
 
 ## Landing `/landing` (logged out; `/` redirects here)
 
-- Nav: coral mark + **Ascend OS**, Product / Features / Pricing / Docs, Sign in, white **Get started** pill.
+- Nav: accent-blue mark + **Ascend OS**, Product / Features / Pricing / Docs, PrimeNG Sign in + Get started.
 - Eyebrow `TRACK. IMPROVE. BECOME MORE.`
 - Headline `Your life.` / `In one place.` (second line warm fade).
 - Subcopy + `Get started →` + ghost Watch video.
@@ -23,8 +23,8 @@ Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,2
 
 ## App chrome (logged in, `/os`)
 
-- `AppShell`: left rail (Dashboard, Goals, Habits, Exercise, Finance, Entertainment, Timeline, Achievements), user chip Kristijan, top search (opens quick-log later), date.
-- Floating rounded frames, not a full-bleed grey admin theme.
+- `AppShell`: 296px rail matching `personal-os/shell/Sidebar.tsx` (workspace chip, primary + secondary nav, user row + search → quick-log).
+- Full-bleed `#111110` canvas, 1200px main column.
 - Prefer PrimeNG (`Card`, `Menu`, `Button`, `Avatar`, `Chip`) over new custom primitives. Component map: repo-root `AGENTS.md`.
 
 ## Routes

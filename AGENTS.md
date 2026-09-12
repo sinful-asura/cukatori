@@ -1,6 +1,6 @@
 # Ascend OS agent notes
 
-Read this before writing UI. Spec lives in [PROJECT.md](PROJECT.md). Visual source is [`.cursor/references/ui-landing.jpg`](.cursor/references/ui-landing.jpg). Swarm ownership is [`.cursor/rules/swarm-ownership.mdc`](.cursor/rules/swarm-ownership.mdc).
+Read this before writing UI. Spec lives in [PROJECT.md](PROJECT.md). Visual source is [`.cursor/references/DESIGN.md`](.cursor/references/DESIGN.md) (Personal OS 1440w warm-dark). Swarm ownership is [`.cursor/rules/swarm-ownership.mdc`](.cursor/rules/swarm-ownership.mdc).
 
 ## Stack
 
@@ -26,7 +26,7 @@ Wiring (already on `main`, do not re-add):
 - `providePrimeNG` + `ascendPreset` in `src/app/app.config.ts`
 - Dark mode locked via `<html class="app-dark">` and `darkModeSelector: '.app-dark'`
 - Global `<p-toast>` on `App` + `MessageService`
-- Tokens: primary `#ff4d3a`, surfaces `#07070b` / `#101014` / `#141418`
+- Tokens: primary `#0091ff`, surfaces `#111110` / `#191918` / `#222221` (Personal OS). Geist 400/500.
 
 Import only the component you use:
 

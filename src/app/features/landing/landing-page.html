@@ -8,8 +8,8 @@
       <span>Docs</span>
     </div>
     <div class="actions">
-      <a routerLink="/os">Sign in</a>
-      <a class="cta" routerLink="/os">Get started</a>
+      <p-button label="Sign in" [text]="true" routerLink="/os" />
+      <p-button label="Get started" routerLink="/os" />
     </div>
   </nav>
 
@@ -22,8 +22,8 @@
         entertainment and more — so you can live a more intentional life.
       </p>
       <div class="hero-actions">
-        <a class="cta" routerLink="/os">Get started →</a>
-        <a class="ghost" routerLink="/os">Watch video</a>
+        <p-button label="Get started →" routerLink="/os" />
+        <p-button label="Watch video" [text]="true" routerLink="/os" />
       </div>
       <div class="pillars">
         <div>
@@ -46,12 +46,34 @@
     </div>
     <a class="preview" routerLink="/os/dashboard">
       <header>
-        <strong>Good morning, Kristijan</strong>
-        <span>Small steps every day lead to big results.</span>
+        <strong>Today overview</strong>
+        <span>Track your habits, workouts, and spending over time.</span>
       </header>
       <div class="stats">
-        <span>Level 18 · 2,840 / 3,000 XP</span>
-        <span>12 day streak</span>
+        <div>
+          <span>Streak</span>
+          <strong>12</strong>
+        </div>
+        <div>
+          <span>Habits done</span>
+          <strong>1</strong>
+        </div>
+        <div>
+          <span>Workouts</span>
+          <strong>4</strong>
+        </div>
+        <div>
+          <span>Pages read</span>
+          <strong>86</strong>
+        </div>
+        <div>
+          <span>Spent</span>
+          <strong>€312</strong>
+        </div>
+        <div>
+          <span>XP</span>
+          <strong>2,840</strong>
+        </div>
       </div>
     </a>
   </section>

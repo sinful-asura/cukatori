@@ -17,7 +17,7 @@ Project skill only. Allowed: `api/src/modules/reports/**`, `src/app/features/rep
 
 ## UI
 
-This week card: 4/4 workouts, 3 PRs, books, €427, goals progressed. Not exercise-only. Export `reports.routes.ts`.
+Port `personal-os/modules/ReportsView.tsx` onto PrimeNG (`Card`, `Tabs`, `Table`, print `Button`, `Tag`) + `app-pos-bar-chart` / `app-pos-stat`. `app-page-header`. This week: workouts, PRs, pages, spend from live `/api/reports`. Not exercise-only. Export `reports.routes.ts`.
 
 ## Do not
 

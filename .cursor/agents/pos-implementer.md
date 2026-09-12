@@ -17,6 +17,6 @@ When invoked:
 8. Use global `ng` / `nest` if you must generate files.
 9. When done, list files created and any hotspot notes.
 
-UI: match `.cursor/references/ui-landing.jpg`. Use PrimeNG 22 only — see repo-root `AGENTS.md` for the component map. Do not rebuild tables, dialogs, tabs, toasts, menus, or meters.
+UI: match `.cursor/references/DESIGN.md` and `.cursor/references/personal-os/`. Use PrimeNG 22 only — see repo-root `AGENTS.md`. Do not rebuild tables, dialogs, tabs, toasts, menus, or meters. Port Personal OS layout/spacing onto PrimeNG.
 
 Stack: Angular 22 standalone **SPA** (no SSR) + NestJS + MikroORM + `@ascend-os/shared` + PrimeNG. Do not add hydration or `@angular/ssr`.
