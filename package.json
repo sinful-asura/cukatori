@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "local": "python3 scripts/cmd/local.py",
-    "build": "python3 scripts/cmd/build.py",
-    "deploy": "python3 scripts/cmd/deploy.py",
+    "local": "python scripts/cmd/local.py",
+    "build": "python scripts/cmd/build.py",
+    "deploy": "python scripts/cmd/deploy.py",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:cukatori-project": "node dist/cukatori-project/server/server.mjs"
