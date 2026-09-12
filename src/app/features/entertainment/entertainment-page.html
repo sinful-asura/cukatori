@@ -1,0 +1,275 @@
+<section class="ent">
+  <header class="claim">
+    <p class="eyebrow">Entertainment</p>
+    <h1>Enjoy what you love.</h1>
+    <p class="lead">Track movies, anime, books, and more — in one library.</p>
+  </header>
+
+  <p-card styleClass="library-card">
+    <div class="library-stack">
+    <div class="library-head">
+      <h2>Library</h2>
+      <p-button
+        label="Add item"
+        icon="pi pi-plus"
+        size="small"
+        (onClick)="openAdd()"
+      />
+    </div>
+
+    <p-tabs [value]="tab()" (valueChange)="onTabChange($event)">
+      <p-tablist>
+        <p-tab value="all">All</p-tab>
+        <p-tab value="anime">Anime</p-tab>
+        <p-tab value="manga">Manga</p-tab>
+        <p-tab value="books">Books</p-tab>
+        <p-tab value="youtube">YouTube</p-tab>
+      </p-tablist>
+    </p-tabs>
+
+    <div class="now-row">
+      <p-card styleClass="now-card">
+        <p class="kicker">Currently watching</p>
+        @if (watching()[0]; as item) {
+          <button type="button" class="now-body" (click)="openItem(item)">
+            <img [src]="poster(item)" [alt]="item.title" />
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ progressLabel(item) }}</p>
+              <p-progressbar [value]="progressPct(item)" [showValue]="false" />
+              @if (item.rating != null) {
+                <p-rating [ngModel]="item.rating" [readonly]="true" [allowHalf]="true" />
+              }
+            </div>
+          </button>
+        } @else {
+          <p class="empty">Nothing in progress.</p>
+        }
+      </p-card>
+
+      <p-card styleClass="now-card">
+        <p class="kicker">Currently reading</p>
+        @if (reading()[0]; as item) {
+          <button type="button" class="now-body" (click)="openItem(item)">
+            <img [src]="poster(item)" [alt]="item.title" />
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ progressLabel(item) }}</p>
+              <p-progressbar [value]="progressPct(item)" [showValue]="false" />
+              @if (item.rating != null) {
+                <p-rating [ngModel]="item.rating" [readonly]="true" [allowHalf]="true" />
+              }
+            </div>
+          </button>
+        } @else {
+          <p class="empty">Nothing in progress.</p>
+        }
+      </p-card>
+    </div>
+
+    <section class="recent">
+      <h3>Recently completed</h3>
+      <div class="poster-row">
+        @for (item of recent(); track item.id; let i = $index) {
+          <button type="button" class="poster" (click)="openGallery(i)">
+            <img [src]="poster(item)" [alt]="item.title" />
+            <span>{{ item.title }}</span>
+          </button>
+        }
+        @if (recent().length === 0) {
+          <p class="empty">Finish something to fill this shelf.</p>
+        }
+      </div>
+    </section>
+
+    @if (galleryOpen()) {
+      <p-gallery
+        [fullscreen]="true"
+        (onFullscreenChange)="galleryOpen.set($event)"
+        [activeIndex]="galleryIndex()"
+        (onActiveIndexChange)="onGalleryIndex($event)"
+      >
+        <p-gallery-backdrop />
+        <button type="button" pGalleryPrev aria-label="Previous poster">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <button type="button" pGalleryNext aria-label="Next poster">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+        <p-gallery-header>
+          <button type="button" class="p-gallery-action" (click)="galleryOpen.set(false)" aria-label="Close">
+            <i class="pi pi-times"></i>
+          </button>
+        </p-gallery-header>
+        <p-gallery-content>
+          @for (src of galleryImages(); track src) {
+            <p-gallery-item>
+              <img [src]="src" alt="Completed title" />
+            </p-gallery-item>
+          }
+        </p-gallery-content>
+      </p-gallery>
+    }
+
+    <div class="stats">
+      <div>
+        <strong>{{ stats().hours }}</strong>
+        <span>hours</span>
+      </div>
+      <div>
+        <strong>{{ stats().completed }}</strong>
+        <span>completed</span>
+      </div>
+      <div>
+        <strong>{{ stats().averageRating }}</strong>
+        <span>rating</span>
+      </div>
+      <div>
+        <strong>{{ stats().streak }}</strong>
+        <span>current streak</span>
+      </div>
+    </div>
+
+    <p-dataview [value]="items()" layout="grid">
+      <ng-template #header>
+        <div class="catalog-head">
+          <h3>Your titles</h3>
+          <span>{{ items().length }} in this view</span>
+        </div>
+      </ng-template>
+      <ng-template #list let-rows>
+        <div class="catalog-list">
+          @for (item of rows; track item.id) {
+            <button type="button" class="catalog-row" (click)="openItem(item)">
+              <img [src]="poster(item)" [alt]="item.title" />
+              <div>
+                <strong>{{ item.title }}</strong>
+                <small>{{ typeLabel(item.type) }} · {{ progressLabel(item) }}</small>
+              </div>
+              <p-tag [value]="statusLabel(item.status)" [severity]="statusSeverity(item.status)" />
+            </button>
+          }
+        </div>
+      </ng-template>
+      <ng-template #grid let-rows>
+        <div class="catalog-grid">
+          @for (item of rows; track item.id) {
+            <button type="button" class="tile" (click)="openItem(item)">
+              <img [src]="poster(item)" [alt]="item.title" />
+              <div class="tile-meta">
+                <strong>{{ item.title }}</strong>
+                <p-tag [value]="statusLabel(item.status)" [severity]="statusSeverity(item.status)" />
+              </div>
+            </button>
+          }
+        </div>
+      </ng-template>
+    </p-dataview>
+    </div>
+  </p-card>
+</section>
+
+<p-dialog
+  header="Add item"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [visible]="addOpen()"
+  (visibleChange)="addOpen.set($event)"
+>
+  <div class="form">
+    <label>
+      Title
+      <input pInputText [(ngModel)]="add.title" placeholder="One Piece" />
+    </label>
+    <label>
+      Type
+      <p-select
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="add.type"
+        appendTo="body"
+      />
+    </label>
+    <label>
+      Status
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        [(ngModel)]="add.status"
+        appendTo="body"
+      />
+    </label>
+    <label>
+      Poster URL
+      <input pInputText [(ngModel)]="add.posterUrl" placeholder="https://…" />
+    </label>
+    <label>
+      Subtitle
+      <input pInputText [(ngModel)]="add.subtitle" placeholder="Author or studio" />
+    </label>
+    <label>
+      Total episodes / pages
+      <p-inputnumber [(ngModel)]="add.totalUnits" [min]="1" [showButtons]="true" />
+    </label>
+  </div>
+  <ng-template #footer>
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="addOpen.set(false)" />
+    <p-button label="Add to library" [loading]="saving()" (onClick)="saveAdd()" />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="selected()?.title ?? 'Progress'"
+  [modal]="true"
+  [style]="{ width: '30rem' }"
+  [visible]="detailOpen()"
+  (visibleChange)="detailOpen.set($event)"
+>
+  @if (selected(); as item) {
+    <div class="detail">
+      <img [src]="poster(item)" [alt]="item.title" />
+      <div class="detail-copy">
+        <p-tag [value]="typeLabel(item.type)" severity="secondary" />
+        <p>{{ progressLabel(item) }}</p>
+        @if (item.subtitle) {
+          <small>{{ item.subtitle }}</small>
+        }
+      </div>
+    </div>
+    <div class="form">
+      @if (isPrint(item)) {
+        <label>
+          Pages
+          <p-inputnumber [(ngModel)]="progressPages" [min]="0" [showButtons]="true" />
+        </label>
+      } @else {
+        <label>
+          Episode
+          <p-inputnumber [(ngModel)]="progressEpisode" [min]="0" [showButtons]="true" />
+        </label>
+      }
+      <label>
+        Hours this session
+        <p-inputnumber [(ngModel)]="progressHours" [min]="0" [minFractionDigits]="0" [maxFractionDigits]="1" [step]="0.5" />
+      </label>
+      <label>
+        Rating
+        <p-rating [(ngModel)]="progressRating" [allowHalf]="true" />
+      </label>
+      <label>
+        Note
+        <input pInputText [(ngModel)]="progressNote" placeholder="Optional" />
+      </label>
+      <label class="check">
+        <input type="checkbox" [(ngModel)]="markComplete" />
+        Mark completed
+      </label>
+    </div>
+  }
+  <ng-template #footer>
+    <p-button label="Close" severity="secondary" [text]="true" (onClick)="detailOpen.set(false)" />
+    <p-button label="Log progress" [loading]="saving()" (onClick)="logSelected()" />
+  </ng-template>
+</p-dialog>

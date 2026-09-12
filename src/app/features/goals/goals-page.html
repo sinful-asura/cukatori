@@ -1,0 +1,93 @@
+<section class="goals">
+  <p-tabs [value]="tab()" (valueChange)="onTab($event)">
+    <p-tablist>
+      <p-tab value="active">Active</p-tab>
+      <p-tab value="completed">Completed</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="active">
+        <p-card styleClass="panel">
+          <ng-template #title>
+            <div class="panel-head">
+              <span>Goals</span>
+              <div class="panel-actions">
+                <p-button label="View all" [text]="true" size="small" (onClick)="showCompleted()" />
+                <p-button label="Add goal" icon="pi pi-plus" [text]="true" size="small" (onClick)="openCreate()" />
+              </div>
+            </div>
+          </ng-template>
+          <ng-container [ngTemplateOutlet]="list" />
+        </p-card>
+      </p-tabpanel>
+      <p-tabpanel value="completed">
+        <p-card styleClass="panel">
+          <ng-template #title>
+            <div class="panel-head">
+              <span>Completed</span>
+              <p-button label="Add goal" icon="pi pi-plus" [text]="true" size="small" (onClick)="openCreate()" />
+            </div>
+          </ng-template>
+          <ng-container [ngTemplateOutlet]="list" />
+        </p-card>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</section>
+
+<ng-template #list>
+  <ul class="meters">
+    @for (goal of visibleGoals(); track goal.id) {
+      <li>
+        <div class="meter-row">
+          <span class="name">{{ goal.title }}</span>
+          <span class="frac">{{ progressLabel(goal) }}</span>
+          <p-tag [value]="goal.percent + '%'" severity="secondary" />
+          @if (goal.status !== 'completed') {
+            <p-button
+              icon="pi pi-plus"
+              [rounded]="true"
+              [text]="true"
+              size="small"
+              [attr.aria-label]="'Log progress for ' + goal.title"
+              (onClick)="progress(goal)"
+            />
+          }
+        </div>
+        <p-metergroup [value]="meters(goal)" [min]="0" [max]="100" />
+      </li>
+    } @empty {
+      <li class="empty">No goals in this list.</li>
+    }
+  </ul>
+</ng-template>
+
+<p-dialog
+  header="New goal"
+  [modal]="true"
+  [visible]="createOpen()"
+  (visibleChange)="createOpen.set($event)"
+  [style]="{ width: 'min(420px, 92vw)' }"
+>
+  <div class="form">
+    <label for="goal-title">Title</label>
+    <input id="goal-title" pInputText [(ngModel)]="draft.title" placeholder="Read 12 books" />
+    <label for="goal-kind">Kind</label>
+    <p-select
+      inputId="goal-kind"
+      [options]="kindOptions"
+      optionLabel="label"
+      optionValue="value"
+      [(ngModel)]="draft.kind"
+    />
+    <label for="goal-target">Target</label>
+    <p-inputnumber inputId="goal-target" [(ngModel)]="draft.target" [min]="0" [showButtons]="false" />
+    <label for="goal-current">Current</label>
+    <p-inputnumber inputId="goal-current" [(ngModel)]="draft.current" [min]="0" [showButtons]="false" />
+    <label for="goal-unit">Unit</label>
+    <input id="goal-unit" pInputText [(ngModel)]="draft.unit" placeholder="books" />
+  </div>
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" (onClick)="createOpen.set(false)" />
+    <p-button label="Save" [loading]="saving()" (onClick)="create()" />
+  </ng-template>
+</p-dialog>

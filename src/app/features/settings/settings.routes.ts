@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { SettingsPage } from './settings-page';
 
-export const SETTINGS_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Settings' } },
-];
+export const SETTINGS_ROUTES: Routes = [{ path: '', component: SettingsPage }];

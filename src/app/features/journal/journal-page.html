@@ -1,0 +1,195 @@
+<article class="journal">
+  <header class="bar">
+    <h1>
+      <i class="pi pi-lock" aria-hidden="true"></i>
+      My Journal
+    </h1>
+    <div class="actions">
+      @if (!crypto.unlocked()) {
+        <p-button
+          label="Unlock"
+          icon="pi pi-unlock"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="openUnlock()"
+        />
+      }
+      <p-button label="New entry" icon="pi pi-plus" [rounded]="true" (onClick)="openCompose()" />
+    </div>
+  </header>
+
+  <div class="search-row">
+    <p-iconfield>
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        [fluid]="true"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        placeholder="Search"
+        aria-label="Search journal"
+      />
+    </p-iconfield>
+  </div>
+
+  @if (error()) {
+    <p-message severity="warn">{{ error() }}</p-message>
+  } @else if (loading()) {
+    <p class="muted pad">Loading entries…</p>
+  } @else {
+    <div class="panes">
+      <ul class="list">
+        @for (entry of filtered(); track entry.id) {
+          <li [class.active]="entry.id === selected()?.id">
+            <button type="button" (click)="select(entry.id)">
+              <span class="row-title">{{ entry.title }}</span>
+              <span class="row-meta">
+                @for (tag of entry.tags; track tag) {
+                  <p-tag [value]="tag" [severity]="tagSeverity(tag)" [rounded]="true" />
+                }
+                <time>{{ entry.createdAt | date: 'MMM d' }}</time>
+              </span>
+            </button>
+          </li>
+        } @empty {
+          <li class="empty muted">No entries yet.</li>
+        }
+      </ul>
+
+      <section class="detail">
+        @if (selected(); as entry) {
+          <h2>{{ entry.title }}</h2>
+          <div class="detail-meta">
+            <time>{{ entry.createdAt | date: 'MMM d' }}</time>
+            @for (tag of entry.tags; track tag) {
+              <p-tag [value]="tag" [severity]="tagSeverity(tag)" [rounded]="true" />
+            }
+          </div>
+          @if (discomfortNote(entry.title, entry.tags); as note) {
+            <p-message severity="warn" size="small">{{ note }}</p-message>
+          }
+          @if (crypto.unlocked()) {
+            @if (entry.decryptError) {
+              <p class="muted">Could not decrypt this entry with the current passphrase.</p>
+            } @else {
+              <p class="body">{{ entry.plain?.body }}</p>
+              @if (entry.imageUrl) {
+                <img class="photo" [src]="entry.imageUrl" alt="" />
+              }
+            }
+          } @else {
+            <p class="muted">Unlock to read this entry.</p>
+          }
+        } @else {
+          <p class="muted">Write a private note. Only ciphertext leaves this browser.</p>
+        }
+      </section>
+    </div>
+  }
+
+  <footer class="foot">
+    <i class="pi pi-lock" aria-hidden="true"></i>
+    Encrypted · only you can read
+  </footer>
+</article>
+
+<p-dialog
+  [header]="vaultConfigured() ? 'Unlock journal' : 'Create a passphrase'"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '26rem' }"
+  [visible]="unlockOpen()"
+  (visibleChange)="unlockOpen.set($event)"
+>
+  <p class="dialog-lead">
+    @if (vaultConfigured()) {
+      Enter the passphrase kept only on this device. Ascend OS never stores it.
+    } @else {
+      Choose a passphrase to encrypt new entries. It is never sent to the server.
+    }
+  </p>
+  <div class="stack">
+    <label for="journal-pass">Passphrase</label>
+    <input
+      id="journal-pass"
+      pInputPassword
+      [fluid]="true"
+      [(ngModel)]="passphrase"
+      autocomplete="current-password"
+      (keyup.enter)="submitUnlock()"
+    />
+    @if (!vaultConfigured()) {
+      <label for="journal-pass-confirm">Confirm</label>
+      <input
+        id="journal-pass-confirm"
+        pInputPassword
+        [fluid]="true"
+        [(ngModel)]="confirmPassphrase"
+        autocomplete="new-password"
+        (keyup.enter)="submitUnlock()"
+      />
+    }
+    @if (unlockError) {
+      <p-message severity="error" size="small">{{ unlockError }}</p-message>
+    }
+  </div>
+  <ng-template #footer>
+    <p-button
+      [label]="vaultConfigured() ? 'Unlock' : 'Create vault'"
+      [loading]="unlocking()"
+      (onClick)="submitUnlock()"
+    />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  header="New entry"
+  [modal]="true"
+  [style]="{ width: '34rem' }"
+  [visible]="composeOpen()"
+  (visibleChange)="composeOpen.set($event)"
+>
+  <div class="stack">
+    <label for="journal-title">Title</label>
+    <input id="journal-title" pInputText [fluid]="true" [(ngModel)]="draftTitle" />
+    <label for="journal-tags">Tags</label>
+    <input
+      id="journal-tags"
+      pInputText
+      [fluid]="true"
+      [(ngModel)]="draftTags"
+      placeholder="Great session, Gratitude"
+    />
+    <label for="journal-body">Entry</label>
+    <textarea
+      id="journal-body"
+      pTextarea
+      [fluid]="true"
+      [autoResize]="true"
+      rows="7"
+      [(ngModel)]="draftBody"
+    ></textarea>
+    <p-fileupload
+      mode="basic"
+      chooseLabel="Add image"
+      chooseIcon="pi pi-image"
+      accept="image/*"
+      [maxFileSize]="1500000"
+      [auto]="false"
+      [customUpload]="true"
+      (onSelect)="onImageSelect($event)"
+    />
+    @if (draftImageName) {
+      <div class="image-chip">
+        <p-tag [value]="draftImageName" severity="secondary" [rounded]="true" />
+        <p-button label="Remove" [text]="true" size="small" (onClick)="clearImage()" />
+      </div>
+    }
+  </div>
+  <ng-template #footer>
+    <p-button label="Cancel" [text]="true" (onClick)="composeOpen.set(false)" />
+    <p-button label="Save entry" [loading]="saving()" (onClick)="saveEntry()" />
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,75 @@
+.ql-dialog.p-dialog {
+  width: min(560px, calc(100vw - 32px));
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.ql-dialog .p-dialog-content {
+  padding: 0;
+  background: transparent;
+}
+
+.ql-shell {
+  background: var(--bg-card);
+}
+
+.ql-menu.p-commandmenu,
+.ql-dialog .p-commandmenu {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.ql-dialog .p-commandmenu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 14px 8px;
+  background: transparent;
+  border-color: var(--border);
+}
+
+.ql-dialog .p-commandmenu-header > input.p-commandmenu-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.ql-field {
+  width: 100%;
+}
+
+.ql-field input {
+  width: 100%;
+  background: #0c0c10;
+  border-radius: 999px;
+}
+
+.ql-preview {
+  margin: 0;
+  padding: 0 6px;
+  color: var(--accent-warm);
+  font-size: 13px;
+}
+
+.ql-hint {
+  display: block;
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.ql-dialog .p-commandmenu-footer {
+  padding: 10px 16px 14px;
+  background: transparent;
+  border-color: var(--border);
+}

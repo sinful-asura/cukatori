@@ -1,0 +1,140 @@
+<p-confirmdialog />
+
+<article class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Private</p>
+      <h1>Progress photos</h1>
+      <p class="lead">Chronological gallery and a compare slider. Auth-gated files only — no public URLs.</p>
+    </div>
+    <p-tag value="Private · signed-in only" />
+  </header>
+
+  <p-card>
+    <div class="form">
+      <label>
+        Type
+        <p-select
+          [options]="typeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="photoType()"
+          (ngModelChange)="photoType.set($event)"
+        />
+      </label>
+      <label>
+        Optional bodyweight
+        <p-inputnumber
+          [ngModel]="bodyweight()"
+          (ngModelChange)="bodyweight.set($event)"
+          [min]="0"
+          [max]="500"
+          suffix=" kg"
+        />
+      </label>
+      <label class="wide">
+        Notes
+        <textarea
+          pTextarea
+          rows="2"
+          [ngModel]="notes()"
+          (ngModelChange)="notes.set($event)"
+          placeholder="Lighting, time of day — not a body-composition note."
+        ></textarea>
+      </label>
+      <p-fileupload
+        class="wide"
+        name="file"
+        mode="basic"
+        accept="image/jpeg,image/png,image/webp"
+        [maxFileSize]="8000000"
+        [customUpload]="true"
+        [auto]="true"
+        chooseLabel="Add photo"
+        (uploadHandler)="upload($event)"
+      />
+    </div>
+    <p class="fine">Photos stay private. No body-composition analysis.</p>
+  </p-card>
+
+  <p-tabs [value]="tab()" (valueChange)="tab.set($event?.toString() ?? 'gallery')">
+    <p-tablist>
+      <p-tab value="gallery">Gallery</p-tab>
+      <p-tab value="compare">Compare</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="gallery">
+        @if (!photos().length) {
+          <p class="muted">No photos yet. Add a front, back, side, or other shot.</p>
+        } @else {
+          <p-gallery class="album">
+            <p-gallery-content>
+              @for (photo of photos(); track photo.id) {
+                <p-gallery-item>
+                  <figure>
+                    <img [src]="photo.fileUrl" [alt]="photo.type + ' progress photo'" />
+                    <figcaption>
+                      <p-tag [value]="photo.type" />
+                      <span>{{ photo.takenAt | date: 'MMM d, y' }}</span>
+                      @if (photo.bodyweight != null) {
+                        <span>{{ photo.bodyweight }} kg</span>
+                      }
+                      <p-button
+                        icon="pi pi-trash"
+                        severity="secondary"
+                        [text]="true"
+                        (onClick)="remove(photo)"
+                      />
+                    </figcaption>
+                    @if (photo.notes) {
+                      <p>{{ photo.notes }}</p>
+                    }
+                  </figure>
+                </p-gallery-item>
+              }
+            </p-gallery-content>
+          </p-gallery>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="compare">
+        <div class="compare-tools">
+          <label>
+            Before
+            <p-select
+              [options]="photoOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Earlier photo"
+              [ngModel]="beforeId()"
+              (ngModelChange)="beforeId.set($event)"
+            />
+          </label>
+          <label>
+            After
+            <p-select
+              [options]="photoOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Later photo"
+              [ngModel]="afterId()"
+              (ngModelChange)="afterId.set($event)"
+            />
+          </label>
+        </div>
+        @if (before() && after()) {
+          <p-compare class="compare">
+            <p-compare-item position="before">
+              <img [src]="before()!.fileUrl" alt="Before progress photo" />
+            </p-compare-item>
+            <p-compare-item position="after">
+              <img [src]="after()!.fileUrl" alt="After progress photo" />
+            </p-compare-item>
+          </p-compare>
+        } @else {
+          <p class="muted">Pick two photos to slide between them.</p>
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</article>

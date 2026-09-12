@@ -1,0 +1,87 @@
+<section class="home">
+  @if (store.loading()) {
+    <p-skeleton width="18rem" height="2rem" />
+    <p-skeleton width="24rem" height="1rem" />
+    <div class="stats">
+      <p-skeleton width="16rem" height="2.4rem" borderRadius="999px" />
+      <p-skeleton width="10rem" height="2.4rem" borderRadius="999px" />
+      <p-skeleton width="18rem" height="2.4rem" borderRadius="999px" />
+    </div>
+    <div class="cols">
+      <p-skeleton width="100%" height="22rem" borderRadius="20px" />
+      <p-skeleton width="100%" height="22rem" borderRadius="20px" />
+    </div>
+  } @else {
+    <header class="greet">
+      <h1>{{ store.greeting() }}</h1>
+      <p>{{ store.me().subtitle }}</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat">
+        <p-chip [label]="store.xpLabel()" icon="pi pi-circle-fill" />
+        <p-metergroup [value]="store.xpMeters()" [max]="store.me().xpNext">
+          <ng-template #label></ng-template>
+        </p-metergroup>
+        <p-tag [value]="store.weeklyXpLabel()" severity="success" />
+      </div>
+      <p-chip [label]="store.streakLabel()" icon="pi pi-bolt" />
+      <p-chip [label]="store.me().quote" icon="pi pi-comment" />
+    </div>
+
+    <div class="cols">
+      <p-card>
+        <div class="panel-head">
+          <h2>Today</h2>
+          <a routerLink="/os/habits">View all</a>
+        </div>
+        <ul class="habits">
+          @for (habit of store.habits(); track habit.id) {
+            <li>
+              <p-checkbox
+                [inputId]="habit.id"
+                [binary]="true"
+                [ngModel]="habit.completed"
+                (ngModelChange)="store.toggleHabit(habit.id, $event)"
+              />
+              <label [for]="habit.id" [class.done]="habit.completed">{{ habit.title }}</label>
+              @if (habit.xpHint) {
+                <span class="xp">+{{ habit.xpHint }} XP</span>
+              }
+            </li>
+          }
+        </ul>
+      </p-card>
+
+      <p-card>
+        <div class="panel-head">
+          <h2>Goals</h2>
+          <a routerLink="/os/goals">View all</a>
+        </div>
+        <ul class="goals">
+          @for (goal of store.goalMeters(); track goal.id) {
+            <li>
+              <div class="goal-head">
+                <span>{{ goal.title }}</span>
+                <span class="muted">{{ goal.detail }} · {{ goal.percentLabel }}</span>
+              </div>
+              <p-metergroup [value]="goal.meters" [max]="100">
+                <ng-template #label></ng-template>
+              </p-metergroup>
+            </li>
+          }
+        </ul>
+        <div class="heat-block">
+          <h2>Weekly activity</h2>
+          <div class="heat" role="img" aria-label="Weekly activity heatmap">
+            @for (day of store.heatmap(); track day.date) {
+              <span class="cell" [attr.data-count]="day.count" [title]="day.date"></span>
+            }
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <p-chip [label]="store.displayName() + ' · Level ' + store.me().level" icon="pi pi-user" />
+  }
+</section>

@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.map {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.view {
+  border: 1px solid var(--border);
+  background: #0c0c10;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.view.on {
+  color: var(--text);
+  border-color: rgba(255, 77, 58, 0.4);
+  background: rgba(255, 77, 58, 0.12);
+}
+
+.figure {
+  width: min(240px, 100%);
+  height: auto;
+}
+
+.muscle {
+  fill: rgba(96, 149, 212, 0.38);
+  stroke: rgba(168, 204, 236, 0.28);
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill 140ms ease;
+}
+
+.muscle:hover,
+.muscle:focus-visible {
+  fill: rgba(255, 77, 58, 0.5);
+  outline: none;
+}
+
+.muscle.is-selected {
+  fill: rgba(255, 77, 58, 0.72);
+}
+
+.muscle.is-flagged:not(.is-selected) {
+  fill: rgba(255, 138, 101, 0.62);
+}
+
+.caption {
+  margin: 0;
+  text-align: center;
+}
+
+.caption strong {
+  display: block;
+  font-size: 14px;
+}
+
+.caption span {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+}

@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { EntertainmentPage } from './entertainment-page';
 
-export const ENTERTAINMENT_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Entertainment' } },
-];
+export const ENTERTAINMENT_ROUTES: Routes = [{ path: '', component: EntertainmentPage }];

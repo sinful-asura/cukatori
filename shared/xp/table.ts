@@ -20,6 +20,22 @@ export function xpForLevel(level: number): number {
   return Math.round(100 * level * 1.15 ** (level - 1));
 }
 
+/** Alias used by the activity-xp skill (`xpFor(level)`). */
+export const xpFor = xpForLevel;
+
+/** Total XP consumed by levels `[1, level)`. */
+export function totalXpBeforeLevel(level: number): number {
+  let total = 0;
+  for (let current = 1; current < level; current += 1) {
+    total += xpForLevel(current);
+  }
+  return total;
+}
+
+/** Assist seeder target: Kristijan at this level, this far into the current bar. */
+export const SEED_LEVEL = 18;
+export const SEED_XP_INTO = 2840;
+
 export function levelForXp(total: number): { level: number; into: number; next: number } {
   let level = 1;
   let consumed = 0;
@@ -31,4 +47,27 @@ export function levelForXp(total: number): { level: number; into: number; next: 
     consumed += need;
     level += 1;
   }
+}
+
+export interface StreakDto {
+  kind: string;
+  current: number;
+  longest: number;
+  lastActiveAt: string | null;
+}
+
+export interface MeStatsDto {
+  level: number;
+  xp: number;
+  xpNext: number;
+  totalXp: number;
+  streaks: StreakDto[];
+}
+
+export interface AchievementDto {
+  id: string;
+  key: string;
+  title: string;
+  summary: string;
+  unlockedAt: string | null;
 }

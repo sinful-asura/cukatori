@@ -44,3 +44,11 @@ export interface ActivityEmitInput {
   occurredAt?: string;
   xp?: number;
 }
+
+export interface ActivityQuery {
+  category?: ActivityCategory;
+  type?: ActivityType;
+  from?: string;
+  to?: string;
+  tag?: string;
+}

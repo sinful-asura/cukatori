@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { TimelinePage } from './timeline-page';
 
-export const TIMELINE_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Timeline' } },
-];
+export const TIMELINE_ROUTES: Routes = [{ path: '', component: TimelinePage }];

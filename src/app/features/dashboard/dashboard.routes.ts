@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { DashboardPage } from './dashboard-page';
 
-export const DASHBOARD_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Dashboard' } },
-];
+export const DASHBOARD_ROUTES: Routes = [{ path: '', component: DashboardPage }];

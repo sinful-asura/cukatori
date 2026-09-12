@@ -1,0 +1,59 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [showHeader]="false"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="ql-dialog"
+  [contentStyle]="{ padding: '0' }"
+>
+  <div class="ql-shell">
+    <p-commandmenu
+      class="ql-menu"
+      [model]="commands()"
+      [search]="text()"
+      (searchChange)="onDraft($event)"
+      [filter]="keepExamples"
+      placeholder="Search or type a command…"
+      ariaLabel="Quick log"
+      (onSelect)="onSelect()"
+    >
+      <ng-template #header>
+        <p-iconfield class="ql-field">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            [ngModel]="text()"
+            (ngModelChange)="onDraft($event)"
+            placeholder="Search or type a command…"
+            (keydown.enter)="submit()"
+            autocomplete="off"
+          />
+          <p-inputicon>
+            <p-button
+              [icon]="listening() ? 'pi pi-stop' : 'pi pi-microphone'"
+              [rounded]="true"
+              [text]="true"
+              [disabled]="!speechSupported"
+              [attr.aria-label]="listening() ? 'Stop listening' : 'Log by voice'"
+              (onClick)="toggleListen()"
+            />
+          </p-inputicon>
+        </p-iconfield>
+        @if (preview()) {
+          <p class="ql-preview">{{ preview() }}</p>
+        }
+      </ng-template>
+      <ng-template #emptyMessage let-search>
+        Press Enter to log “{{ search }}”
+      </ng-template>
+      <ng-template #footer>
+        <span class="ql-hint">Enter to log · Esc to close · Ctrl/⌘ K · speech fills the same field</span>
+      </ng-template>
+    </p-commandmenu>
+  </div>
+</p-dialog>
