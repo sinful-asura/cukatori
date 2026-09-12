@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { PlaceholderPage } from '../../shared/ui/placeholder.page';
+import { HabitsPage } from './habits-page';
 
-export const HABITS_ROUTES: Routes = [
-  { path: '', component: PlaceholderPage, data: { title: 'Habits' } },
-];
+export const HABITS_ROUTES: Routes = [{ path: '', component: HabitsPage }];
