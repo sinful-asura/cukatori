@@ -43,6 +43,10 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
+# Python
+**/__pycache__/
+*.py[cod]
+
 # Secrets and local data
 .env
 /uploads
