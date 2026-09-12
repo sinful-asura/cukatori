@@ -1,0 +1,162 @@
+.reports-page {
+  display: grid;
+  gap: 18px;
+  color: var(--text);
+}
+
+.reports-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.reports-page h1 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.range,
+.muted,
+.summary {
+  color: var(--text-muted);
+}
+
+.range {
+  margin: 8px 0 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.week-hero,
+.reports-page .p-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpis.compact {
+  margin: 16px 0;
+}
+
+.kpi {
+  padding: 14px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #101014;
+}
+
+.kpi strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+}
+
+.kpi span {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.insight-tags,
+.insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+}
+
+.insights {
+  display: grid;
+  padding: 0;
+  list-style: none;
+}
+
+.insights li,
+.summary {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.reports-page h2,
+.reports-page h3 {
+  margin: 22px 0 10px;
+  font-weight: 560;
+}
+
+.print-only {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reports-head {
+    flex-direction: column;
+  }
+}
+
+@media print {
+  body.reports-printing {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  body.reports-printing .rail,
+  body.reports-printing .shell > .main > header,
+  body.reports-printing .p-toast,
+  body.reports-printing .no-print,
+  body.reports-printing .screen-only {
+    display: none !important;
+  }
+
+  body.reports-printing .shell {
+    display: block;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  body.reports-printing .reports-page,
+  body.reports-printing .week-hero,
+  body.reports-printing .p-card,
+  body.reports-printing .kpi {
+    background: #fff;
+    color: #111;
+    border-color: #ddd;
+  }
+
+  body.reports-printing .print-only {
+    display: block;
+  }
+
+  body.reports-printing .muted,
+  body.reports-printing .range,
+  body.reports-printing .summary,
+  body.reports-printing .kpi span {
+    color: #444;
+  }
+}

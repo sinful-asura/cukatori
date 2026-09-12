@@ -1,0 +1,250 @@
+<article class="reports-page">
+  <header class="reports-head">
+    <div>
+      <p class="eyebrow">UNDERSTAND</p>
+      <h1>Your Week</h1>
+      <p class="range">{{ rangeLabel() }}</p>
+    </div>
+    <div class="actions no-print">
+      <p-button
+        icon="pi pi-chevron-left"
+        [rounded]="true"
+        [text]="true"
+        ariaLabel="Previous week"
+        (onClick)="shiftWeek(-1)"
+      />
+      <p-button
+        icon="pi pi-chevron-right"
+        [rounded]="true"
+        [text]="true"
+        ariaLabel="Next week"
+        (onClick)="shiftWeek(1)"
+      />
+      <p-button label="Print" icon="pi pi-print" [outlined]="true" (onClick)="print()" />
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p-card>
+      <p class="muted">Building your week…</p>
+    </p-card>
+  } @else if (error()) {
+    <p-card>
+      <p class="muted">{{ error() }}</p>
+    </p-card>
+  } @else if (recap(); as week) {
+    <p-card styleClass="week-hero">
+      <div class="kpis">
+        @for (kpi of week.kpis; track kpi.id) {
+          <div class="kpi">
+            <strong>{{ kpi.value }}</strong>
+            <span>{{ kpi.label }}</span>
+          </div>
+        }
+      </div>
+      <div class="insight-tags">
+        @for (kpi of week.kpis; track kpi.id) {
+          <p-tag [value]="kpi.value + ' ' + kpi.label" severity="secondary" />
+        }
+      </div>
+      <ul class="insights">
+        @for (line of week.insights; track line) {
+          <li>{{ line }}</li>
+        }
+      </ul>
+    </p-card>
+
+    <p-tabs class="screen-only" [value]="activeTab()" (valueChange)="onTab($event)">
+      <p-tablist>
+        <p-tab value="fitness">Fitness</p-tab>
+        <p-tab value="goals">Goals</p-tab>
+        <p-tab value="habits">Habits</p-tab>
+        <p-tab value="entertainment">Entertainment</p-tab>
+        <p-tab value="finance">Finance</p-tab>
+        <p-tab value="overall">Overall</p-tab>
+        <p-tab value="coach">Coach</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        @for (section of week.sections; track section.id) {
+          <p-tabpanel [value]="section.id">
+            <p class="summary">{{ section.summary }}</p>
+            <p-table [value]="section.rows" [tableStyle]="{ 'min-width': '32rem' }">
+              <ng-template #header>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                  <th>Detail</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-row>
+                <tr>
+                  <td>{{ row.label }}</td>
+                  <td>{{ row.value }}</td>
+                  <td>{{ row.detail || '—' }}</td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="3">Nothing logged in this section.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-tabpanel>
+        }
+        <p-tabpanel value="coach">
+          @if (coach(); as report) {
+            <ng-container *ngTemplateOutlet="coachBody; context: { $implicit: report }" />
+          }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+
+    <section class="print-only">
+      @for (section of week.sections; track section.id) {
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.summary }}</p>
+        <p-table [value]="section.rows">
+          <ng-template #header>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+              <th>Detail</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-row>
+            <tr>
+              <td>{{ row.label }}</td>
+              <td>{{ row.value }}</td>
+              <td>{{ row.detail || '—' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+      @if (coach(); as report) {
+        <h2>Coach export</h2>
+        <ng-container *ngTemplateOutlet="coachBody; context: { $implicit: report }" />
+      }
+    </section>
+  }
+</article>
+
+<ng-template #coachBody let-report>
+  <p class="summary muted">
+    {{ report.periodStart | date: 'MMM d, y' : 'UTC' }} –
+    {{ report.periodEnd | date: 'MMM d, y' : 'UTC' }}
+  </p>
+  <ul class="insights">
+    @for (line of report.sentences; track line) {
+      <li>{{ line }}</li>
+    }
+  </ul>
+  <div class="kpis compact">
+    <div class="kpi">
+      <strong>{{ report.frequency.workouts }}</strong>
+      <span>Workouts</span>
+    </div>
+    <div class="kpi">
+      <strong>{{ report.frequency.perWeek }}</strong>
+      <span>Per week</span>
+    </div>
+    <div class="kpi">
+      <strong>{{ report.volume.totalKg }} kg</strong>
+      <span>Volume</span>
+    </div>
+    <div class="kpi">
+      <strong>{{ report.prs.count }}</strong>
+      <span>PRs</span>
+    </div>
+    <div class="kpi">
+      <strong>{{ report.consistency.ratePercent }}%</strong>
+      <span>Consistency</span>
+    </div>
+  </div>
+
+  <h3>Recent history</h3>
+  <p-table [value]="report.recentHistory" [tableStyle]="{ 'min-width': '36rem' }">
+    <ng-template #header>
+      <tr>
+        <th>Date</th>
+        <th>Session</th>
+        <th>Volume</th>
+        <th>Duration</th>
+        <th>PRs</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.occurredAt | date: 'MMM d' }}</td>
+        <td>{{ row.title }}</td>
+        <td>{{ row.volumeKg == null ? '—' : row.volumeKg + ' kg' }}</td>
+        <td>{{ row.durationMin == null ? '—' : row.durationMin + ' min' }}</td>
+        <td>{{ row.prs }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">No recent sessions.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3>PRs</h3>
+  <p-table [value]="report.prs.items">
+    <ng-template #header>
+      <tr>
+        <th>Exercise</th>
+        <th>Metric</th>
+        <th>Value</th>
+        <th>When</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.exercise }}</td>
+        <td>{{ row.metric }}</td>
+        <td>{{ row.value }}</td>
+        <td>{{ row.occurredAt | date: 'MMM d' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3>Progression</h3>
+  <p-table [value]="report.progression">
+    <ng-template #header>
+      <tr>
+        <th>Exercise</th>
+        <th>Metric</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Delta</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.exercise }}</td>
+        <td>{{ row.metric }}</td>
+        <td>{{ row.from }}</td>
+        <td>{{ row.to }}</td>
+        <td>{{ row.delta }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3>Muscle mix</h3>
+  <p-table [value]="report.muscleMix">
+    <ng-template #header>
+      <tr>
+        <th>Muscle</th>
+        <th>Share</th>
+        <th>Volume</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-row>
+      <tr>
+        <td>{{ row.muscle }}</td>
+        <td>{{ row.percent }}%</td>
+        <td>{{ row.volumeKg }} kg</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</ng-template>
