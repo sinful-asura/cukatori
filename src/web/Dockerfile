@@ -16,6 +16,6 @@ RUN npx ng build --configuration production
 FROM nginx:1.27-alpine
 
 COPY src/web/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/cukatori-project/browser /usr/share/nginx/html
+COPY --from=build /app/dist/ascend-os/browser /usr/share/nginx/html
 
 EXPOSE 80

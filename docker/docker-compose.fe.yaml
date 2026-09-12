@@ -3,8 +3,8 @@
 
 services:
   web:
-    image: ${DOCKER_REGISTRY}/cukatori-web:${IMAGE_TAG:-latest}
-    container_name: cukatori-web
+    image: ${DOCKER_REGISTRY}/ascend-os-web:${IMAGE_TAG:-latest}
+    container_name: ascend-os-web
     restart: unless-stopped
     ports:
       - '127.0.0.1:8080:80'

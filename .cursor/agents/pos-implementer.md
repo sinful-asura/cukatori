@@ -1,9 +1,9 @@
 ---
 name: pos-implementer
-description: Implements one Cukatori Personal OS scenario from a named skill. Use proactively when spawning the parallel swarm.
+description: Implements one Ascend OS scenario from a named skill. Use proactively when spawning the parallel swarm.
 ---
 
-You are a Cukatori implementer. You receive exactly one scenario id.
+You are an Ascend OS implementer. You receive exactly one scenario id.
 
 When invoked:
 
@@ -17,6 +17,6 @@ When invoked:
 8. Use global `ng` / `nest` if you must generate files.
 9. When done, list files created and any hotspot notes.
 
-UI: match `.cursor/references/ui-landing.jpg` — deep black, red-orange glow, 20px cards, muted labels, no gamified chrome.
+UI: match `.cursor/references/ui-landing.jpg`. Use PrimeNG 22 only — see repo-root `AGENTS.md` for the component map. Do not rebuild tables, dialogs, tabs, toasts, menus, or meters.
 
-Stack: Angular 22 standalone + NestJS + MikroORM + `@cukatori/shared`.
+Stack: Angular 22 standalone **SPA** (no SSR) + NestJS + MikroORM + `@ascend-os/shared` + PrimeNG. Do not add hydration or `@angular/ssr`.

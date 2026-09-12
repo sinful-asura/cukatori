@@ -2,19 +2,19 @@
 # Local: npm run local -- db  (adds docker-compose.db.local.yaml for :5432)
 # Prod: included by docker-compose.prod.yaml (Postgres stays on the Docker network only).
 
-name: cukatori
+name: ascend-os
 
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: cukatori-postgres
+    container_name: ascend-os-postgres
     restart: unless-stopped
     env_file:
       - ../.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-cukatori}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cukatori}
-      POSTGRES_DB: ${POSTGRES_DB:-cukatori}
+      POSTGRES_USER: ${POSTGRES_USER:-ascend}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ascend}
+      POSTGRES_DB: ${POSTGRES_DB:-ascend}
     volumes:
       - pgdata:/var/lib/postgresql
     networks:

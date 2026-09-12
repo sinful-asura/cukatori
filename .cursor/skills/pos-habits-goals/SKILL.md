@@ -1,6 +1,6 @@
 ---
 name: pos-habits-goals
-description: Implements habits and goals APIs and pages for Cukatori. Use when implementing the habits-goals scenario, habit completion, or goal progress.
+description: Implements habits and goals APIs and pages for Ascend OS. Use when implementing the habits-goals scenario, habit completion, or goal progress.
 ---
 
 # Habits + goals

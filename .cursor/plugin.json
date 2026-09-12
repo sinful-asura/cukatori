@@ -1,6 +1,6 @@
 {
-  "name": "cukatori-pos",
-  "displayName": "Cukatori Personal OS Swarm",
+  "name": "ascend-os-swarm",
+  "displayName": "Ascend OS Swarm",
   "version": "0.1.0",
   "description": "Claude-plugin-style Cursor pack: one skill per implementation scenario, spawned as parallel subagents.",
   "skills": [

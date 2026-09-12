@@ -1,6 +1,6 @@
 ---
 name: pos-foundation
-description: Scaffolds Cukatori NestJS API, MikroORM, Postgres Docker, JWT auth, and env/proxy. Use when implementing the foundation scenario or bootstrapping api/ and docker/.
+description: Scaffolds Ascend OS NestJS API, MikroORM, Postgres Docker, JWT auth, and env/proxy. Use when implementing the foundation scenario or bootstrapping api/ and docker/.
 ---
 
 # Foundation
@@ -17,9 +17,9 @@ Project skill only. Stay in `docker/**`, `api/**`, `.env.example`, `proxy.conf.j
 6. `api/src/mikro-orm.config.ts`: PostgreSQL, `entitiesTs: ['src/**/*.entity.ts']`, Migrator, SeedManager, `schemaGenerator` in non-prod.
 7. Wire `MikroOrmModule.forRoot()` + `ConfigModule` in `app.module.ts` (this scenario may edit that hotspot).
 8. `main.ts`: global prefix `api`, CORS + credentials for `:4200`, cookie parser, `ValidationPipe`.
-9. Modules: `auth`, `users`. Dual HttpOnly cookies (garage pattern): `ck_access` (path `/`, JWT + `sid`) and `ck_refresh` (path `/api/auth`, opaque SHA-256 session, not rotated — slide expiry). Never put tokens in JSON. `POST /api/auth/login|register|refresh|logout`, `GET /api/auth/me` (guarded). Angular interceptor retries once on 401 via `/auth/refresh`. SameSite=Strict. No client-held tokens.
-10. Seed user: `kristijan@local` / `cukatori` / displayName Kristijan.
-11. Path alias `@cukatori/shared` → `../shared` in `api/tsconfig.json`.
+9. Modules: `auth`, `users`. Dual HttpOnly cookies (garage pattern): `ao_access` (path `/`, JWT + `sid`) and `ao_refresh` (path `/api/auth`, opaque SHA-256 session, not rotated — slide expiry). Never put tokens in JSON. `POST /api/auth/login|register|refresh|logout`, `GET /api/auth/me` (guarded). Angular interceptor retries once on 401 via `/auth/refresh`. SameSite=Strict. No client-held tokens.
+10. Seed user: `kristijan@local` / `ascend` / displayName Kristijan.
+11. Path alias `@ascend-os/shared` → `../shared` in `api/tsconfig.json`.
 12. On boot (dev): run pending migrations + `updateSchema`.
 
 ## Do not

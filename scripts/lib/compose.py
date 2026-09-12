@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 COMPOSE_ALL_PROD = "docker-compose.prod.yaml"
-COMPOSE_PROJECT = "cukatori"
+COMPOSE_PROJECT = "ascend-os"
 MANAGED_CONTAINERS = (
-    "cukatori-postgres",
-    "cukatori-api",
-    "cukatori-web",
+    "ascend-os-postgres",
+    "ascend-os-api",
+    "ascend-os-web",
 )
 
 

@@ -1,6 +1,6 @@
 ---
 name: pos-shell
-description: Builds the Cukatori marketing landing and app chrome to match ui-landing.jpg. Use when implementing the shell scenario, landing page, sidebar, or design tokens.
+description: Builds the Ascend OS marketing landing and app chrome to match ui-landing.jpg. Use when implementing the shell scenario, landing page, sidebar, or design tokens.
 ---
 
 # Shell + landing
@@ -13,7 +13,7 @@ Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,2
 
 ## Landing `/landing` (logged out; `/` redirects here)
 
-- Nav: coral mark + **Personal OS**, Product / Features / Pricing / Docs, Sign in, white **Get started** pill.
+- Nav: coral mark + **Ascend OS**, Product / Features / Pricing / Docs, Sign in, white **Get started** pill.
 - Eyebrow `TRACK. IMPROVE. BECOME MORE.`
 - Headline `Your life.` / `In one place.` (second line warm fade).
 - Subcopy + `Get started →` + ghost Watch video.
@@ -25,7 +25,7 @@ Deep black `#07070b`, elevated `#101014`, card `#141418`, border `rgba(255,255,2
 
 - `AppShell`: left rail (Dashboard, Goals, Habits, Exercise, Finance, Entertainment, Timeline, Achievements), user chip Kristijan, top search (opens quick-log later), date.
 - Floating rounded frames, not a full-bleed grey admin theme.
-- Shared primitives in `src/app/shared/ui/`: `pos-card`, `stat-tile`, `meter-bar`, `heatmap-grid`, `activity-row`.
+- Prefer PrimeNG (`Card`, `Menu`, `Button`, `Avatar`, `Chip`) over new custom primitives. Component map: repo-root `AGENTS.md`.
 
 ## Routes
 
@@ -34,4 +34,4 @@ Export lazy `*.routes.ts` from feature folders if missing. You may edit `app.rou
 ## Do not
 
 - Build full feature business logic.
-- Use PrimeNG or game-like XP chrome.
+- Reimplement PrimeNG controls or add game-like XP chrome.

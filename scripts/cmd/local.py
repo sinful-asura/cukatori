@@ -40,7 +40,7 @@ _procs: list[subprocess.Popen[bytes]] = []
 _owned_ports: set[int] = set()
 _stop_compose_on_exit = False
 _cleaned = False
-POSTGRES_CONTAINER = "cukatori-postgres"
+POSTGRES_CONTAINER = "ascend-os-postgres"
 
 
 def _postgres_inspect() -> str:

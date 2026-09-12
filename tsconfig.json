@@ -14,8 +14,8 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@cukatori/shared": ["./shared/index.ts"],
-      "@cukatori/shared/*": ["./shared/*"]
+      "@ascend-os/shared": ["./shared/index.ts"],
+      "@ascend-os/shared/*": ["./shared/*"]
     }
   },
   "angularCompilerOptions": {

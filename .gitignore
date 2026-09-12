@@ -48,6 +48,9 @@ Thumbs.db
 **/__pycache__/
 *.py[cod]
 
+# Isolated swarm checkouts
+.worktrees/
+
 # Secrets and local data
 .env
 /uploads

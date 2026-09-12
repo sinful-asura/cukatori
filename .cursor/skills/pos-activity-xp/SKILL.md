@@ -7,7 +7,7 @@ description: Implements ActivityBus, activity events, XP, levels, streaks, achie
 
 Project skill only. Allowed: `api/src/modules/{activity,gamification,notes,notifications}/**`, `src/app/core/api/activity.api.ts`, `src/app/core/api/me.api.ts`.
 
-If `shared/activity` or `shared/xp` are missing, add types there (additive). Prefer existing `@cukatori/shared` exports.
+If `shared/activity` or `shared/xp` are missing, add types there (additive). Prefer existing `@ascend-os/shared` exports.
 
 ## Backend
 

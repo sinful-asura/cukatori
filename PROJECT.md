@@ -10,7 +10,7 @@ Prioritize modularity, clear ownership boundaries, reusable components, and stab
 
 Do not respond by simply telling us to build fewer features.
 
-The application should be treated as a complete multi-module Personal OS MVP.
+The application should be treated as a complete multi-module Ascend OS MVP.
 
 ---
 
@@ -136,7 +136,7 @@ Users should be able to:
 - search notes
 - see tagged events
 
-Design the underlying Note/Tag model so notes can eventually be used across the Personal OS.
+Design the underlying Note/Tag model so notes can eventually be used across Ascend OS.
 
 ---
 
@@ -399,7 +399,7 @@ This timeline should be powered directly by the centralized ActivityEvent system
 
 # EXPANDED SYSTEM ARCHITECTURE
 
-The Personal OS should be organized into:
+Ascend OS should be organized into:
 
 TRACK:
 - Entertainment

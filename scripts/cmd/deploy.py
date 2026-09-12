@@ -9,7 +9,7 @@ Local laptop never runs API/FE in Docker. This command builds production
 images (and pushes when DOCKER_REGISTRY is set), then applies the compose
 stack + host nginx the same way Knežević Garage does.
 
-Set CUKATORI_SSH_HOST and CUKATORI_REMOTE_DIR for a real server.
+Set ASCEND_SSH_HOST and ASCEND_REMOTE_DIR for a real server.
 """
 
 from __future__ import annotations
@@ -62,11 +62,11 @@ _REMOTE_SVC = {"api": "api", "db": "postgres", "fe": "web"}
 
 
 def deploy_remote_stack(services: tuple[str, ...]) -> None:
-    host = os.environ.get("CUKATORI_SSH_HOST", "").strip()
-    remote = os.environ.get("CUKATORI_REMOTE_DIR", "/opt/cukatori").strip()
+    host = os.environ.get("ASCEND_SSH_HOST", "").strip()
+    remote = os.environ.get("ASCEND_REMOTE_DIR", "/opt/ascend-os").strip()
     if not host:
         print(
-            "  CUKATORI_SSH_HOST unset — skip remote compose. "
+            "  ASCEND_SSH_HOST unset — skip remote compose. "
             "Images are built; on the server run:\n"
             f"    cd docker && {prod_compose_cmd()} up -d",
         )
@@ -94,9 +94,9 @@ def main() -> int:
 
     try:
         if "api" in services:
-            build_and_maybe_push("cukatori-api", REPO / "api" / "Dockerfile")
+            build_and_maybe_push("ascend-os-api", REPO / "api" / "Dockerfile")
         if "fe" in services:
-            build_and_maybe_push("cukatori-web", REPO / "src" / "web" / "Dockerfile")
+            build_and_maybe_push("ascend-os-web", REPO / "src" / "web" / "Dockerfile")
         if "db" in services or "api" in services or "fe" in services:
             deploy_remote_stack(services)
         if "nginx" in services:

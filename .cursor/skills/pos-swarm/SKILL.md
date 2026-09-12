@@ -1,9 +1,9 @@
 ---
 name: pos-swarm
-description: Orchestrates the Cukatori Personal OS parallel swarm. Use when spawning subagents, assigning implementation scenarios, or continuing the hackathon build.
+description: Orchestrates the Ascend OS parallel swarm. Use when spawning subagents, assigning implementation scenarios, or continuing the hackathon build.
 ---
 
-# Personal OS swarm
+# Ascend OS swarm
 
 **Scope:** these skills live only in this repo at `.cursor/skills/`. Never copy them to `~/.cursor/skills/` or `~/.cursor/agents/`.
 
@@ -17,7 +17,7 @@ Claude-plugin pattern: **one scenario → one project skill → one subagent**.
 4. Prompt template:
 
 ```
-You are the Cukatori pos-implementer for scenario "<id>".
+You are the Ascend OS pos-implementer for scenario "<id>".
 Read and follow:
 - /home/itkri/projects/cukatori/.cursor/agents/pos-implementer.md
 - /home/itkri/projects/cukatori/.cursor/skills/<skill>/SKILL.md
@@ -26,7 +26,7 @@ Read and follow:
 Stay in allowedPaths. Implement now. Do not start dev servers. Do not commit.
 ```
 
-5. Attach `.cursor/references/ui-landing.jpg` when the scenario has UI.
+5. Attach `.cursor/references/ui-landing.jpg` when the scenario has UI. Point the agent at repo-root `AGENTS.md` (PrimeNG component picks). Prefer an isolated git worktree (`swarm/<id>`) so scenarios do not collide; orchestrator merges and removes worktrees afterward.
 6. After agents finish, the orchestrator only: wire hotspots, `app.module` imports, lazy routes, seed, and visual QA.
 
 ## Scenario map

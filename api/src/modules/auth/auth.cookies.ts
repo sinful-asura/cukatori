@@ -11,8 +11,8 @@ import type { CookieOptions, Response } from 'express';
  * Access covers `/` (every API call). Refresh is scoped to `/api/auth` so the
  * long-lived credential never rides on ordinary data requests.
  */
-export const ACCESS_COOKIE = 'ck_access';
-export const REFRESH_COOKIE = 'ck_refresh';
+export const ACCESS_COOKIE = 'ao_access';
+export const REFRESH_COOKIE = 'ao_refresh';
 
 const SITE_PATH = '/';
 const REFRESH_PATH = '/api/auth';

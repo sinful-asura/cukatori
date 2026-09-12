@@ -11,14 +11,14 @@ from pathlib import Path
 from lib.paths import REPO
 
 SITE_SRC = REPO / "src" / "nginx" / "nginx.conf"
-HOST = os.environ.get("CUKATORI_SSH_HOST", "root@starlabs.rs")
+HOST = os.environ.get("ASCEND_SSH_HOST", "root@starlabs.rs")
 REMOTE_SITE = os.environ.get(
-    "CUKATORI_NGINX_SITE",
-    "/etc/nginx/sites-available/cukatori",
+    "ASCEND_NGINX_SITE",
+    "/etc/nginx/sites-available/ascend-os",
 )
 SITE_ENABLED = os.environ.get(
-    "CUKATORI_NGINX_ENABLED",
-    "/etc/nginx/sites-enabled/cukatori",
+    "ASCEND_NGINX_ENABLED",
+    "/etc/nginx/sites-enabled/ascend-os",
 )
 
 

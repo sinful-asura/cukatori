@@ -8,7 +8,7 @@ Earlier module boards (dark + light app chrome) are secondary. When they conflic
 
 - Deep black canvas (`#07070b`).
 - Soft red-orange orb behind the hero (radial gradient, top-center, not a hard circle).
-- Top nav: small coral mark + wordmark **Personal OS**, text links (Product, Features, Pricing, Docs), **Sign in** (ghost), **Get started** (white pill).
+- Top nav: small coral mark + wordmark **Ascend OS**, text links (Product, Features, Pricing, Docs), **Sign in** (ghost), **Get started** (white pill).
 - Eyebrow: `TRACK. IMPROVE. BECOME MORE.` (11–12px, tracked out, muted).
 - Headline: `Your life.` / `In one place.` — 64–80px, tight leading, white, extra-light/regular. Second line may fade to warm peach.
 - Subcopy: 16–18px muted gray, max ~42ch.
@@ -18,7 +18,7 @@ Earlier module boards (dark + light app chrome) are secondary. When they conflic
 ## Product chrome (dashboard + module cards)
 
 - App frame sits on the black canvas as a **floating rounded card** (`#101014`, 20–24px radius, 1px `#ffffff10` border, soft shadow).
-- Left rail: Personal OS mark, Dashboard / Goals / Habits / Exercise / Finance / Entertainment / Timeline / Achievements, user chip at bottom.
+- Left rail: Ascend OS mark, Dashboard / Goals / Habits / Exercise / Finance / Entertainment / Timeline / Achievements, user chip at bottom.
 - Greeting: `Good morning, Kristijan` + one-line subtitle.
 - Level + streak pills in a single row (not chunky game badges).
 - Today checklist + Goals meters side by side.

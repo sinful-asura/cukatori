@@ -1,10 +1,10 @@
-# Cukatori — Personal OS
+# Ascend OS
 
 A private life OS for one person: habits, goals, workouts, entertainment, finance, an encrypted journal, and a weekly recap. Activity from every module goes through one bus so XP, streaks, and the timeline stay consistent. Demo user is **Kristijan** (level 18, 12-day streak).
 
-Stack: Angular 22, NestJS, PostgreSQL 18. Same local/deploy split as Knežević Garage — **Docker only for Postgres on the laptop**; Nest and `ng serve` stay on the host. Production images wrap all three.
+Stack: Angular 22 **SPA** (no server-side rendering), NestJS, PostgreSQL 18. Same local/deploy split as Knežević Garage — **Docker only for Postgres on the laptop**; Nest and `ng serve` stay on the host. Production images wrap all three. The FE image is static files behind nginx.
 
-Full spec: [PROJECT.md](PROJECT.md).
+Full spec: [PROJECT.md](PROJECT.md). Agent UI rules and PrimeNG component picks: [AGENTS.md](AGENTS.md). PrimeNG 22 needs a [community license key](https://primeui.dev/licenses/community) in `src/app/core/environment.ts` (`primeNgLicense`) or the app shows a license badge.
 
 ## Local
 

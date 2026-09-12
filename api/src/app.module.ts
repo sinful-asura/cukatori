@@ -34,12 +34,16 @@ export class AppModule implements OnModuleInit {
     const em = this.orm.em.fork();
     const email = 'kristijan@local';
     const existing = await em.findOne(User, { email });
+    const passwordHash = await bcrypt.hash('ascend', 10);
     if (!existing) {
       em.create(User, {
         email,
-        passwordHash: await bcrypt.hash('cukatori', 10),
+        passwordHash,
         displayName: 'Kristijan',
       });
+      await em.flush();
+    } else {
+      existing.passwordHash = passwordHash;
       await em.flush();
     }
   }

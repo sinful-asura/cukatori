@@ -1,6 +1,6 @@
 ---
 name: pos-reports
-description: Implements unified weekly recap and coach-style reports across all Personal OS modules. Use when implementing the reports scenario or Your Week aggregation.
+description: Implements unified weekly recap and coach-style reports across all Ascend OS modules. Use when implementing the reports scenario or Your Week aggregation.
 ---
 
 # Reports

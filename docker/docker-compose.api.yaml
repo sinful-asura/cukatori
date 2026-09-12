@@ -2,8 +2,8 @@
 
 services:
   api:
-    image: ${DOCKER_REGISTRY}/cukatori-api:${IMAGE_TAG:-latest}
-    container_name: cukatori-api
+    image: ${DOCKER_REGISTRY}/ascend-os-api:${IMAGE_TAG:-latest}
+    container_name: ascend-os-api
     restart: unless-stopped
     depends_on:
       postgres:

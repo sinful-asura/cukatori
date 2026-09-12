@@ -1,6 +1,6 @@
-# Cukatori Cursor pack (project-scoped)
+# Ascend OS Cursor pack (project-scoped)
 
-This directory is the **only** home for Cukatori skills, agents, and swarm rules.
+This directory is the **only** home for Ascend OS skills, agents, and swarm rules.
 
 - Skills: `.cursor/skills/<name>/SKILL.md`
 - Agents: `.cursor/agents/`

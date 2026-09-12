@@ -1,9 +1,9 @@
 ---
-description: Personal OS product rules for Cukatori.
+description: Ascend OS product rules.
 alwaysApply: true
 ---
 
-# Personal OS
+# Ascend OS
 
 Modules must not become isolated apps. Every write emits an `ActivityEvent` via `ActivityBus`.
 

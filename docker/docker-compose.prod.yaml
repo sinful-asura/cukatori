@@ -10,4 +10,4 @@ include:
   - path: docker-compose.api.yaml
   - path: docker-compose.fe.yaml
 
-name: cukatori
+name: ascend-os

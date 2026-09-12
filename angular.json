@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "cukatori-project": {
+    "ascend-os": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -30,13 +30,8 @@
               }
             ],
             "styles": ["src/styles.scss"],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts"
             }
           },
           "configurations": {
@@ -71,10 +66,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "cukatori-project:build:production"
+              "buildTarget": "ascend-os:build:production"
             },
             "development": {
-              "buildTarget": "cukatori-project:build:development"
+              "buildTarget": "ascend-os:build:development"
             }
           },
           "defaultConfiguration": "development"

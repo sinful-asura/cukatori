@@ -5,7 +5,7 @@ import { SeedManager } from '@mikro-orm/seeder';
 
 const clientUrl =
   process.env.DATABASE_URL ??
-  'postgresql://cukatori:cukatori@localhost:5432/cukatori';
+  'postgresql://ascend:ascend@localhost:5432/ascend';
 
 export default defineConfig({
   clientUrl,

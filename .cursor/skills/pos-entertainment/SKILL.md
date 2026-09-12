@@ -1,6 +1,6 @@
 ---
 name: pos-entertainment
-description: Implements the media library (anime, manga, books, movies, YouTube) for Cukatori. Use when implementing the entertainment scenario or Library card.
+description: Implements the media library (anime, manga, books, movies, YouTube) for Ascend OS. Use when implementing the entertainment scenario or Library card.
 ---
 
 # Entertainment

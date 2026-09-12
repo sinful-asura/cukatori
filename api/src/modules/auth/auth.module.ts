@@ -11,7 +11,7 @@ import { AuthSessionService } from './auth-session.service.js';
   imports: [
     UsersModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'dev-cukatori-secret',
+      secret: process.env.JWT_SECRET ?? 'dev-ascend-secret',
       signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN ?? '1d') as `${number}${'d' | 'h' | 'm'}` },
     }),
   ],
