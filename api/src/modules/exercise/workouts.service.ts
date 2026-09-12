@@ -30,6 +30,14 @@ const SECONDARY_WEIGHT = 0.35;
 const WORKOUT_XP = 180;
 const PR_XP = 40;
 
+function iso(value: Date | string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
 const LAST_SESSION_SETS: Array<{ slug: string; sets: Array<[number, number]> }> = [
   { slug: 'lat-pulldown', sets: [[70, 8], [70, 8], [70, 6]] },
   { slug: 'barbell-row', sets: [[80, 10], [80, 10], [80, 10]] },
@@ -283,7 +291,7 @@ export class WorkoutsService {
       value: row.value,
       unit: row.unit,
       workoutId: row.workout?.id ?? null,
-      occurredAt: row.occurredAt.toISOString(),
+      occurredAt: iso(row.occurredAt) ?? new Date().toISOString(),
     }));
   }
 
@@ -441,8 +449,8 @@ export class WorkoutsService {
       title: workout.title,
       status: workout.status,
       notes: workout.notes,
-      startedAt: workout.startedAt.toISOString(),
-      completedAt: workout.completedAt?.toISOString() ?? null,
+      startedAt: iso(workout.startedAt) ?? new Date().toISOString(),
+      completedAt: iso(workout.completedAt),
       durationMin: workout.durationMin,
       volumeKg: workout.volumeKg,
       setCount: workout.setCount || sets.length,
@@ -494,6 +502,14 @@ export class WorkoutsService {
     for (const baseline of DEMO_PR_BASELINES) {
       const exercise = await this.em.findOne(Exercise, { slug: baseline.slug });
       if (!exercise) {
+        continue;
+      }
+      const already = await this.em.findOne(PersonalRecord, {
+        user,
+        exercise,
+        kind: baseline.kind,
+      });
+      if (already) {
         continue;
       }
       this.em.create(PersonalRecord, {
