@@ -1,0 +1,283 @@
+<section class="library">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">EXERCISE</p>
+      <h1>Exercise library.</h1>
+      <p class="lead">
+        Browse movements by muscle, equipment and difficulty, straight from MuscleWiki.
+      </p>
+    </div>
+    <div class="count">
+      <strong>{{ total() }}</strong>
+      <span>exercises</span>
+    </div>
+  </header>
+
+  @if (fallbackNotice(); as notice) {
+    <p-message severity="warn" styleClass="notice">{{ notice }}</p-message>
+  }
+
+  <div class="filters">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        placeholder="Search exercises…"
+        [ngModel]="search"
+        (ngModelChange)="onSearch($event)"
+      />
+    </p-iconfield>
+
+    <p-select
+      [(ngModel)]="muscle"
+      [options]="muscleOptions()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All muscles"
+      [showClear]="true"
+      (onChange)="reload()"
+    />
+
+    <p-select
+      [(ngModel)]="category"
+      [options]="categoryOptions()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All equipment"
+      [showClear]="true"
+      (onChange)="reload()"
+    />
+
+    <p-select
+      [(ngModel)]="difficulty"
+      [options]="difficultyOptions()"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Any difficulty"
+      [showClear]="true"
+      (onChange)="reload()"
+    />
+
+    @if (filtered) {
+      <p-button label="Clear" severity="secondary" [text]="true" (onClick)="clearFilters()" />
+    }
+  </div>
+
+  @if (error()) {
+    <div class="state">
+      <p class="muted">{{ error() }}</p>
+      <p-button label="Try again" severity="secondary" (onClick)="reload()" />
+    </div>
+  } @else if (loading()) {
+    <p class="muted">Loading movements…</p>
+  } @else if (exercises().length === 0) {
+    <div class="state">
+      <p class="muted">No exercises match those filters.</p>
+      <p-button label="Clear filters" severity="secondary" (onClick)="clearFilters()" />
+    </div>
+  } @else {
+    <div class="grid">
+      @for (exercise of exercises(); track exercise.id) {
+        <p-card
+          styleClass="exercise-card"
+          [class.active]="selected()?.id === exercise.id"
+          (click)="select(exercise)"
+        >
+          <h3>{{ exercise.name }}</h3>
+          <p class="muted">{{ muscleLabel(exercise) }}</p>
+          <div class="tags">
+            @if (exercise.category) {
+              <p-tag [value]="exercise.category" severity="secondary" />
+            }
+            @if (exercise.difficulty) {
+              <p-tag [value]="exercise.difficulty" severity="danger" />
+            }
+            @if (exercise.mechanic) {
+              <p-tag [value]="exercise.mechanic" severity="secondary" />
+            }
+          </div>
+        </p-card>
+      }
+    </div>
+
+    @if (hasMore()) {
+      <div class="more">
+        <p-button
+          [label]="loadingMore() ? 'Loading…' : 'Load more'"
+          severity="secondary"
+          [disabled]="loadingMore()"
+          (onClick)="loadMore()"
+        />
+      </div>
+    }
+  }
+
+  @if (selected(); as exercise) {
+    <p-card styleClass="detail-card">
+      <div class="detail-head">
+        <div>
+          <h2>{{ exercise.name }}</h2>
+          <p class="muted">{{ muscleLabel(exercise) }}</p>
+        </div>
+        <div class="detail-actions">
+          <p-button
+            label="Log workout"
+            icon="pi pi-plus"
+            (onClick)="openLog(exercise)"
+          />
+          <p-button
+            icon="pi pi-times"
+            severity="secondary"
+            [text]="true"
+            ariaLabel="Close"
+            (onClick)="closeDetail()"
+          />
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-media">
+          @if (activeVideo(); as video) {
+            <video
+              class="demo"
+              [src]="video.url"
+              [poster]="video.thumbnail ?? ''"
+              controls
+              autoplay
+              muted
+              loop
+              playsinline
+            ></video>
+            @if (exercise.videos.length > 1) {
+              <div class="angles">
+                @for (clip of exercise.videos; track clip.url; let i = $index) {
+                  <p-button
+                    [label]="clip.variant ?? 'Clip ' + (i + 1)"
+                    size="small"
+                    [severity]="i === videoIndex() ? 'primary' : 'secondary'"
+                    [outlined]="i !== videoIndex()"
+                    (onClick)="showVideo(i)"
+                  />
+                }
+              </div>
+            }
+          } @else {
+            <div class="no-media">
+              <i class="pi pi-video"></i>
+              <p class="muted">No demonstration clip published for this movement.</p>
+            </div>
+          }
+        </div>
+
+        <div class="detail-info">
+          @if (detailFacts().length) {
+            <dl class="facts">
+              @for (fact of detailFacts(); track fact.label) {
+                <div>
+                  <dt>{{ fact.label }}</dt>
+                  <dd>{{ fact.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          <h3>Muscles worked</h3>
+          <div class="tags">
+            @for (muscle of exercise.primaryMuscles; track muscle) {
+              <p-tag [value]="muscle" severity="secondary" />
+            }
+          </div>
+
+          <h3>How to perform</h3>
+          @if (exercise.steps.length) {
+            <ol class="steps">
+              @for (step of exercise.steps; track step) {
+                <li>{{ step }}</li>
+              }
+            </ol>
+          } @else {
+            <p class="muted">No coaching steps recorded for this movement.</p>
+          }
+        </div>
+      </div>
+    </p-card>
+  }
+
+  <p-dialog
+    header="Log workout"
+    [visible]="logOpen()"
+    (visibleChange)="logOpen.set($event)"
+    [modal]="true"
+    [style]="{ width: '30rem' }"
+  >
+    @if (logError(); as message) {
+      <p-message severity="warn" styleClass="notice">{{ message }}</p-message>
+    }
+
+    <div class="log-form">
+      <label>
+        <span>Session</span>
+        <input pInputText type="text" [(ngModel)]="logTitle" />
+      </label>
+
+      <label>
+        <span>Exercise</span>
+        <p-select
+          [(ngModel)]="logExerciseId"
+          [options]="catalogOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Pick a lift"
+          [filter]="true"
+          filterBy="label"
+          appendTo="body"
+        />
+      </label>
+
+      <div class="log-row">
+        <label>
+          <span>Weight (kg)</span>
+          <p-inputnumber [(ngModel)]="logWeight" [min]="0" [max]="500" [step]="2.5" />
+        </label>
+        <label>
+          <span>Reps</span>
+          <p-inputnumber [(ngModel)]="logReps" [min]="1" [max]="100" />
+        </label>
+      </div>
+
+      <p-button
+        label="Add set"
+        icon="pi pi-plus"
+        severity="secondary"
+        [disabled]="logSaving() || !logExerciseId"
+        (onClick)="addSet()"
+      />
+
+      @if (draft(); as workout) {
+        <div class="draft">
+          <h4>{{ workout.title }}</h4>
+          <ul>
+            @for (set of workout.sets; track set.id) {
+              <li>
+                <span>{{ set.exerciseName }}</span>
+                <span class="muted">{{ set.weightKg }} kg × {{ set.reps }}</span>
+              </li>
+            }
+          </ul>
+          <p class="muted">{{ workout.setCount }} sets · {{ workout.volumeKg }} kg volume</p>
+        </div>
+      }
+    </div>
+
+    <ng-template #footer>
+      <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="closeLog()" />
+      <p-button
+        label="Finish workout"
+        icon="pi pi-check"
+        [disabled]="logSaving() || !draft()"
+        (onClick)="finishWorkout()"
+      />
+    </ng-template>
+  </p-dialog>
+</section>

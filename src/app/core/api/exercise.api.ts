@@ -13,6 +13,7 @@ import type {
 } from '@ascend-os/shared/exercise';
 import { environment } from '../environment';
 
+/** `/exercises` is the MuscleWiki library; the loggable lifts live under `/catalog`. */
 @Injectable({ providedIn: 'root' })
 export class ExerciseApi {
   private readonly http = inject(HttpClient);
@@ -26,11 +27,11 @@ export class ExerciseApi {
     if (query.q) {
       params = params.set('q', query.q);
     }
-    return this.http.get<ExerciseDto[]>(`${this.base}/exercises`, { params });
+    return this.http.get<ExerciseDto[]>(`${this.base}/catalog/exercises`, { params });
   }
 
   getExercise(id: string): Observable<ExerciseDto> {
-    return this.http.get<ExerciseDto>(`${this.base}/exercises/${id}`);
+    return this.http.get<ExerciseDto>(`${this.base}/catalog/exercises/${id}`);
   }
 
   listWorkouts(query: WorkoutListQuery = {}): Observable<WorkoutDto[]> {
