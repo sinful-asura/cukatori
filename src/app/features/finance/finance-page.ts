@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import type {
   BudgetDto,
+  CategorySpendDto,
   FinanceCategoryDto,
   FinanceOverviewDto,
   ImportResultDto,
@@ -20,16 +21,18 @@ import { FileUpload } from 'primeng/fileupload';
 import type { FileUploadHandlerEvent } from 'primeng/types/fileupload';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
-import { MeterGroup } from 'primeng/metergroup';
+import { ProgressBar } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
 import { Table } from 'primeng/table';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
 import { FinanceApi } from '../../core/api/finance.api';
-
-type MeterItem = { label: string; value: number; color: string };
+import { PageHeader, PosBarChart, PosDonutChart, PosPanelHeader, type PosDonutSegment } from '../../shared/ui/pos';
 
 const DEMO_MONTH = new Date(2026, 8, 1);
+const HIGHLIGHT_SLUGS = ['food', 'shopping', 'entertainment', 'transport'] as const;
+
+type FinanceTab = 'overview' | 'transactions' | 'budgets' | 'categories' | 'import';
 
 @Component({
   selector: 'app-finance-page',
@@ -43,7 +46,11 @@ const DEMO_MONTH = new Date(2026, 8, 1);
     FileUpload,
     InputNumber,
     InputText,
-    MeterGroup,
+    PageHeader,
+    PosBarChart,
+    PosDonutChart,
+    PosPanelHeader,
+    ProgressBar,
     Select,
     Table,
     Tabs,
@@ -62,7 +69,7 @@ export class FinancePage implements OnInit {
   private readonly messages = inject(MessageService);
   private readonly confirm = inject(ConfirmationService);
 
-  activeTab: string | number = 'overview';
+  activeTab: FinanceTab | string | number = 'overview';
   readonly monthDate = signal<Date>(DEMO_MONTH);
   readonly loading = signal(false);
   readonly overview = signal<FinanceOverviewDto | null>(null);
@@ -72,17 +79,28 @@ export class FinancePage implements OnInit {
   readonly importResult = signal<ImportResultDto | null>(null);
 
   readonly monthKey = computed(() => toMonthKey(this.monthDate()));
-  readonly spendMeter = computed<MeterItem[]>(() =>
+  readonly highlightSpend = computed<CategorySpendDto[]>(() => {
+    const rows = this.overview()?.byCategory ?? [];
+    const picked = HIGHLIGHT_SLUGS.map((slug) => rows.find((row) => row.category.slug === slug)).filter(
+      (row): row is CategorySpendDto => !!row,
+    );
+    return picked.length ? picked : rows.slice(0, 4);
+  });
+  readonly recentExpenses = computed(() => (this.overview()?.recent ?? []).slice(0, 4));
+  readonly spendValues = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.amount));
+  readonly spendLabels = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.category.name));
+  readonly spendColors = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.category.color));
+  readonly spendAxis = computed(() => euroAxis(Math.max(0, ...this.spendValues())));
+  readonly donutSegments = computed<PosDonutSegment[]>(() =>
     (this.overview()?.byCategory ?? []).map((row) => ({
       label: row.category.name,
-      value: row.percent,
+      value: row.amount,
       color: row.category.color,
+      pct: Math.round(row.percent),
     })),
   );
-  readonly donutStyle = computed(() => conicFrom(this.overview()?.byCategory ?? []));
-  readonly expenseCategories = computed(() =>
-    this.categories().filter((item) => item.kind === 'expense'),
-  );
+  readonly donutTotal = computed(() => this.euro(this.overview()?.totalSpent ?? 0));
+  readonly expenseCategories = computed(() => this.categories().filter((item) => item.kind === 'expense'));
   readonly kindOptions = [
     { label: 'Expense', value: 'expense' },
     { label: 'Income', value: 'income' },
@@ -100,6 +118,10 @@ export class FinancePage implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
+  }
+
+  showTab(tab: FinanceTab): void {
+    this.activeTab = tab;
   }
 
   onMonthChange(value: Date | null): void {
@@ -169,8 +191,8 @@ export class FinancePage implements OnInit {
             severity: created.budgetOvershoot ? 'warn' : 'success',
             summary: created.budgetOvershoot ? 'Budget overshoot' : 'Logged',
             detail: created.budgetOvershoot
-              ? `${created.category.name} is over the ${this.monthKey()} limit by ${this.eur(created.overBy ?? 0, 2)}`
-              : `${created.merchant} · ${this.eur(created.amount, 2)}`,
+              ? `${created.category.name} is over the ${this.monthKey()} limit by ${this.euro(created.overBy ?? 0, 2)}`
+              : `${created.merchant} · ${this.euro(created.amount, 2)}`,
           });
           this.refresh();
         },
@@ -227,7 +249,7 @@ export class FinancePage implements OnInit {
           this.messages.add({
             severity: 'success',
             summary: 'Budget',
-            detail: `${budget.category.name} · ${this.eur(budget.limit)}`,
+            detail: `${budget.category.name} · ${this.euro(budget.limit)}`,
           });
           this.refresh();
         },
@@ -290,27 +312,64 @@ export class FinancePage implements OnInit {
     });
   }
 
-  budgetMeter(row: BudgetDto): MeterItem[] {
-    return [
-      {
-        label: row.category.name,
-        value: Math.min(row.utilization, 100),
-        color: row.overLimit ? '#ff4d3a' : row.category.color,
-      },
-    ];
+  euro(value: number, digits?: number): string {
+    const fraction = digits ?? (Number.isInteger(value) ? 0 : 2);
+    return `€${Math.abs(value).toLocaleString('en-IE', {
+      minimumFractionDigits: fraction,
+      maximumFractionDigits: fraction,
+    })}`;
   }
 
-  eur(value: number, digits = 0): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    }).format(value);
+  signedEuro(row: TransactionDto): string {
+    const signed = row.kind === 'income' ? row.amount : -row.amount;
+    const abs = this.euro(row.amount, Number.isInteger(row.amount) ? 0 : 2);
+    if (signed < 0) {
+      return `−${abs}`;
+    }
+    if (signed > 0) {
+      return `+${abs}`;
+    }
+    return abs;
   }
 
   when(iso: string): string {
-    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(iso));
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(iso));
+  }
+
+  mark(row: TransactionDto): string {
+    if (row.kind === 'income') {
+      return '€';
+    }
+    return row.merchant.trim().charAt(0).toUpperCase() || '·';
+  }
+
+  pct(value: number): number {
+    return Math.min(100, Math.max(0, Math.round(value)));
+  }
+
+  barStyle(color: string): Record<string, string> {
+    return {
+      '--p-progressbar-value-background': color,
+      '--p-progressbar-value-bg': color,
+      '--p-progressbar-background': '#2a2a28',
+      '--p-progressbar-border-radius': '999px',
+      '--p-progressbar-height': '4px',
+      height: '4px',
+    };
+  }
+
+  budgetColor(row: BudgetDto): string {
+    if (row.overLimit || row.utilization >= 95) {
+      return '#f43f5e';
+    }
+    if (row.utilization >= 80) {
+      return '#eab308';
+    }
+    return '#34d56b';
   }
 }
 
@@ -318,19 +377,23 @@ function toMonthKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function conicFrom(rows: FinanceOverviewDto['byCategory']): string {
-  if (!rows.length) {
-    return 'conic-gradient(#1b1b22 0deg 360deg)';
+function euroAxis(max: number): string[] {
+  const top = niceCeil(max || 100);
+  return [`€${whole(top)}`, `€${whole((top * 2) / 3)}`, `€${whole(top / 3)}`, '€0'];
+}
+
+function niceCeil(value: number): number {
+  if (value <= 0) {
+    return 100;
   }
-  const total = rows.reduce((sum, row) => sum + row.amount, 0) || 1;
-  let cursor = 0;
-  const stops = rows.map((row) => {
-    const start = (cursor / total) * 360;
-    cursor += row.amount;
-    const end = (cursor / total) * 360;
-    return `${row.category.color} ${start}deg ${end}deg`;
-  });
-  return `conic-gradient(${stops.join(', ')})`;
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  const normalized = value / magnitude;
+  const nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  return nice * magnitude;
+}
+
+function whole(value: number): string {
+  return Math.round(value).toLocaleString('en-IE', { maximumFractionDigits: 0 });
 }
 
 function httpDetail(error: unknown, fallback: string): string {
