@@ -5,67 +5,47 @@
 .achievements {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 920px;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   gap: 16px;
-}
-
-h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-}
-
-h2 {
-  margin: 8px 0 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-header p,
-p,
-time {
-  color: var(--text-muted);
-}
-
-header p {
-  margin: 6px 0 0;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+.card-body {
+  padding: 14px;
 }
 
-p {
-  margin: 0 0 8px;
-  font-size: 14px;
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-secondary);
 }
 
 time {
-  font-size: 12px;
-}
-
-p-card {
   display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-p-card.locked {
-  opacity: 0.72;
+:host ::ng-deep p-card.locked,
+:host ::ng-deep p-card.locked .p-card {
+  opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

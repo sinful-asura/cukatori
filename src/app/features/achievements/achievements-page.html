@@ -1,44 +1,27 @@
 <section class="achievements">
-  <header>
-    <div>
-      <h1>Achievements</h1>
-      <p>Milestones you’ve reached — and the ones still open.</p>
-    </div>
+  <app-page-header title="Achievements" kicker="Achieve">
     @if (!loading()) {
       <p-badge [value]="unlocked().length + ' unlocked'" />
     }
-  </header>
+  </app-page-header>
 
   @if (loading()) {
     <div class="grid">
       @for (n of [1, 2, 3, 4]; track n) {
-        <p-skeleton width="100%" height="8rem" borderRadius="20px" />
+        <p-skeleton width="100%" height="5.5rem" borderRadius="16px" />
       }
     </div>
   } @else {
-    <h2>Unlocked</h2>
     <div class="grid">
-      @for (item of unlocked(); track item.id) {
-        <p-card>
-          <div class="card-head">
-            <strong>{{ item.title }}</strong>
-            <p-tag value="Unlocked" severity="success" />
+      @for (item of grid(); track item.id) {
+        <p-card styleClass="pos-panel" [class.locked]="!item.unlockedAt">
+          <div class="card-body">
+            <p class="title">{{ item.title }}</p>
+            <p class="desc">{{ item.description }}</p>
+            @if (item.unlockedAt) {
+              <time>{{ item.unlockedAt | date: 'MMM d, y' }}</time>
+            }
           </div>
-          <p>{{ item.description }}</p>
-          <time>{{ item.unlockedAt | date: 'MMM d, y' }}</time>
-        </p-card>
-      }
-    </div>
-
-    <h2>Still open</h2>
-    <div class="grid">
-      @for (item of locked(); track item.id) {
-        <p-card class="locked">
-          <div class="card-head">
-            <strong>{{ item.title }}</strong>
-            <p-tag value="Locked" severity="secondary" />
-          </div>
-          <p>{{ item.description }}</p>
         </p-card>
       }
     </div>

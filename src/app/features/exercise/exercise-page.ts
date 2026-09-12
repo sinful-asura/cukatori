@@ -9,6 +9,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
 import { ProgressBar } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
 import { Table } from 'primeng/table';
@@ -22,14 +23,26 @@ import {
   type MuscleSlug,
   type PersonalRecordDto,
   type WorkoutDto,
+  type WorkoutSetDto,
 } from '@ascend-os/shared/exercise';
 import { ExerciseApi } from '../../core/api/exercise.api';
+import { PageHeader } from '../../shared/ui/page-header/page-header';
+import { PosPanelHeader } from '../../shared/ui/pos/pos-panel-header';
+import { PosStat } from '../../shared/ui/pos/pos-stat';
 import {
   FALLBACK_CATALOG,
   FALLBACK_LAST_SESSION,
   FALLBACK_PREVIOUS_SESSION,
   FALLBACK_PRS,
 } from './exercise-fallback';
+
+export type SessionLift = {
+  name: string;
+  slug: string;
+  initials: string;
+  detail: string;
+  volumeKg: number;
+};
 
 @Component({
   selector: 'app-exercise-page',
@@ -43,6 +56,7 @@ import {
     InputIcon,
     InputNumber,
     InputText,
+    Message,
     ProgressBar,
     Select,
     Table,
@@ -52,6 +66,9 @@ import {
     TabPanels,
     TabPanel,
     Tag,
+    PageHeader,
+    PosPanelHeader,
+    PosStat,
   ],
   templateUrl: './exercise-page.html',
   styleUrl: './exercise-page.scss',
@@ -84,6 +101,87 @@ export class ExercisePage implements OnInit {
       .filter((workout) => workout.status === 'completed')
       .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''));
     return completed[0] ?? null;
+  });
+
+  readonly previousEquivalent = computed(() => {
+    const last = this.lastSession();
+    if (!last) {
+      return null;
+    }
+    return (
+      this.workouts()
+        .filter(
+          (workout) =>
+            workout.status === 'completed' &&
+            workout.id !== last.id &&
+            workout.title === last.title,
+        )
+        .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))[0] ?? null
+    );
+  });
+
+  readonly pageTitle = computed(() => this.lastSession()?.title ?? 'Exercise');
+
+  readonly pageKicker = computed(() => {
+    const session = this.lastSession();
+    if (!session?.completedAt) {
+      return 'Catalog, sessions, and personal records';
+    }
+    const when = new Date(session.completedAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    return `Last session · ${when}`;
+  });
+
+  readonly sessionLifts = computed(() => groupLifts(this.lastSession()?.sets ?? []));
+
+  readonly featuredLifts = computed(() => this.sessionLifts().slice(0, 3));
+
+  readonly sessionMuscles = computed(() => this.lastSession()?.summary?.muscleMix?.slice(0, 4) ?? []);
+
+  readonly volumeValue = computed(() => {
+    const session = this.lastSession();
+    return session ? Math.round(session.volumeKg).toLocaleString('en-US') : '0';
+  });
+
+  readonly volumeDelta = computed(() => {
+    const pct = this.lastSession()?.summary?.volumeChangePct;
+    if (pct == null) {
+      return '';
+    }
+    const signed = pct > 0 ? `+${pct}` : `${pct}`;
+    return `Possible ${signed}% vs last time`;
+  });
+
+  readonly setsValue = computed(() => String(this.lastSession()?.setCount ?? 0));
+
+  readonly durationValue = computed(() => String(this.lastSession()?.durationMin ?? 0));
+
+  readonly prsValue = computed(() => String(this.lastSession()?.prCount ?? 0));
+
+  readonly recapCopy = computed(() => {
+    const session = this.lastSession();
+    if (!session) {
+      return '';
+    }
+    const pct = session.summary?.volumeChangePct;
+    const change =
+      pct == null
+        ? 'No prior equivalent session to compare'
+        : `Possible ${pct > 0 ? '+' : ''}${pct}% volume vs last equivalent session`;
+    const prs = session.prCount;
+    const prBit =
+      prs > 0 ? `, with ${prs} personal record${prs === 1 ? '' : 's'}` : '';
+    const names = this.highlightLifts();
+    const liftBit =
+      names.length === 0
+        ? '.'
+        : names.length === 1
+          ? `. ${names[0]} showed the biggest possible improvement.`
+          : `. ${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} showed the biggest possible improvements.`;
+    return `${change}${prBit}${liftBit}`;
   });
 
   readonly filteredCatalog = computed(() => {
@@ -125,7 +223,7 @@ export class ExercisePage implements OnInit {
       .sort((a, b) => b.volumeKg - a.volumeKg);
   });
 
-  readonly recentPrs = computed(() => this.prs().slice(0, 6));
+  readonly recentPrs = computed(() => this.prs().slice(0, 8));
 
   ngOnInit(): void {
     this.reload();
@@ -165,15 +263,6 @@ export class ExercisePage implements OnInit {
 
   muscleName(slug: string): string {
     return muscleLabel(slug);
-  }
-
-  changeCopy(workout: WorkoutDto | null): string {
-    const pct = workout?.summary?.volumeChangePct;
-    if (pct == null) {
-      return 'No prior equivalent session to compare.';
-    }
-    const signed = pct > 0 ? `+${pct}` : `${pct}`;
-    return `Possible ${signed}% vs last equivalent session.`;
   }
 
   openLog(): void {
@@ -304,4 +393,74 @@ export class ExercisePage implements OnInit {
         return kind;
     }
   }
+
+  prValue(pr: PersonalRecordDto): string {
+    const rounded = Number.isInteger(pr.value) ? String(pr.value) : pr.value.toFixed(1);
+    return `${rounded} ${pr.unit}`;
+  }
+
+  private highlightLifts(): string[] {
+    const last = this.lastSession();
+    const previous = this.previousEquivalent();
+    if (!last) {
+      return [];
+    }
+    if (!previous) {
+      return this.sessionLifts()
+        .slice(0, 2)
+        .map((lift) => lift.name);
+    }
+    const lastVol = volumeByExercise(last.sets);
+    const prevVol = volumeByExercise(previous.sets);
+    return [...lastVol.entries()]
+      .map(([name, volumeKg]) => ({ name, delta: volumeKg - (prevVol.get(name) ?? 0) }))
+      .filter((row) => row.delta > 0)
+      .sort((a, b) => b.delta - a.delta)
+      .slice(0, 2)
+      .map((row) => row.name);
+  }
+}
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+function groupLifts(sets: WorkoutSetDto[]): SessionLift[] {
+  const order: string[] = [];
+  const groups = new Map<string, WorkoutSetDto[]>();
+  for (const set of sets) {
+    if (!groups.has(set.exerciseId)) {
+      order.push(set.exerciseId);
+      groups.set(set.exerciseId, []);
+    }
+    groups.get(set.exerciseId)!.push(set);
+  }
+  return order.map((id) => {
+    const rows = groups.get(id)!;
+    const first = rows[0];
+    const weights = [...new Set(rows.map((row) => row.weightKg))];
+    const reps = rows.map((row) => row.reps).join(', ');
+    const weightLabel =
+      weights.length === 1 ? `${weights[0]}kg` : `${Math.min(...weights)}–${Math.max(...weights)}kg`;
+    return {
+      name: first.exerciseName,
+      slug: first.exerciseSlug,
+      initials: initials(first.exerciseName),
+      detail: `${weightLabel} × ${reps}`,
+      volumeKg: rows.reduce((sum, row) => sum + row.volumeKg, 0),
+    };
+  });
+}
+
+function volumeByExercise(sets: WorkoutSetDto[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const set of sets) {
+    totals.set(set.exerciseName, (totals.get(set.exerciseName) ?? 0) + set.volumeKg);
+  }
+  return totals;
 }

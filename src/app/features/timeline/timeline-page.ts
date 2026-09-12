@@ -3,10 +3,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import type { ActivityCategory, ActivityType } from '@ascend-os/shared';
 import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { Select } from 'primeng/select';
 import { Skeleton } from 'primeng/skeleton';
 import { Tag } from 'primeng/tag';
 import { Timeline } from 'primeng/timeline';
+import { PageHeader, PosPanelHeader } from '../../shared/ui/pos';
 import { SettingsStore } from '../settings/settings.store';
 import { TimelineStore, type DatePreset } from './timeline.store';
 
@@ -14,7 +16,18 @@ type FilterOption<T> = { label: string; value: T };
 
 @Component({
   selector: 'app-timeline-page',
-  imports: [DatePipe, FormsModule, Button, Select, Skeleton, Tag, Timeline],
+  imports: [
+    DatePipe,
+    FormsModule,
+    Button,
+    Card,
+    Select,
+    Skeleton,
+    Tag,
+    Timeline,
+    PageHeader,
+    PosPanelHeader,
+  ],
   templateUrl: './timeline-page.html',
   styleUrl: './timeline-page.scss',
 })
@@ -75,9 +88,9 @@ export class TimelinePage implements OnInit {
   severity(category: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
     switch (category) {
       case 'exercise':
-        return 'danger';
-      case 'finance':
         return 'info';
+      case 'finance':
+        return 'success';
       case 'entertainment':
         return 'warn';
       case 'habit':

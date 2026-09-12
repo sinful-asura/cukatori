@@ -1,16 +1,19 @@
-<div class="map">
-  <div class="toolbar">
-    <button type="button" class="view" [class.on]="view() === 'front'" (click)="view.set('front')">
-      Front
-    </button>
-    <button type="button" class="view" [class.on]="view() === 'back'" (click)="view.set('back')">
-      Back
-    </button>
-  </div>
+<p-card styleClass="pos-panel">
+  <app-pos-panel-header title="Body map" subtitle="Tap a region. This is not a medical map.">
+    <p-selectbutton
+      [options]="viewOptions"
+      optionLabel="label"
+      optionValue="value"
+      size="small"
+      [(ngModel)]="view"
+      aria-label="Body map view"
+    />
+  </app-pos-panel-header>
 
+  <div class="map">
   @if (view() === 'front') {
     <svg class="figure" viewBox="0 0 280 520" role="img" aria-label="Front body map">
-      <g class="silhouette" fill="#16161d">
+      <g class="silhouette">
         <ellipse cx="140" cy="40" rx="24" ry="28" />
         <path
           d="M128 64c0 0 4 18 12 18s12-18 12-18c8 4 48 14 62 48 8 20 10 48 8 78l-8 86c-2 16-16 26-34 28l-8 2v14c-10 4-22 6-32 6s-22-2-32-6v-14l-8-2c-18-2-32-12-34-28l-8-86c-2-30 0-58 8-78 14-34 54-44 62-48z"
@@ -145,7 +148,7 @@
     </svg>
   } @else {
     <svg class="figure" viewBox="0 0 280 520" role="img" aria-label="Back body map">
-      <g class="silhouette" fill="#16161d">
+      <g class="silhouette">
         <ellipse cx="140" cy="40" rx="24" ry="28" />
         <path
           d="M128 64c0 0 4 18 12 18s12-18 12-18c8 4 48 14 62 48 8 20 10 48 8 78l-8 86c-2 16-16 26-34 28l-8 2v14c-10 4-22 6-32 6s-22-2-32-6v-14l-8-2c-18-2-32-12-34-28l-8-86c-2-30 0-58 8-78 14-34 54-44 62-48z"
@@ -294,6 +297,7 @@
 
   <p class="caption">
     <strong>{{ label(selected()) }}</strong>
-    <span>Tap a region. This is not a medical map.</span>
+    <span>Hedged notes only — not a diagnosis.</span>
   </p>
-</div>
+  </div>
+</p-card>

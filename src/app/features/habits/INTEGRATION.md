@@ -2,6 +2,8 @@
 
 Routes `/os/habits` and `/os/goals` already lazy-load `HABITS_ROUTES` / `GOALS_ROUTES`. Do not edit `app.routes.ts`.
 
+Pages use Personal OS chrome: `app-page-header`, `p-card.pos-panel`, PrimeNG `Checkbox` / `ProgressBar` / `Tabs` / `Select` / `Tag` / `Button`, plus read-only `app-pos-stat` / `app-pos-line-chart`.
+
 ## Nest (`api/src/app.module.ts`)
 
 ```ts

@@ -137,3 +137,28 @@ export function coachVolumeSentence(input: { totalKg: number; deltaPercent: numb
 export function coachConsistencySentence(input: { ratePercent: number; daysTrained: number }): string {
   return `Consistency ${input.ratePercent}% (${input.daysTrained} training ${plural(input.daysTrained, 'day')}).`;
 }
+
+export function yearSentence(input: {
+  workouts: number;
+  prs: number;
+  books: number;
+  bookTarget: number | null;
+  spent: number;
+  volumeDeltaPercent: number | null;
+  topCategory: string | null;
+}): string {
+  const books =
+    input.bookTarget != null
+      ? `${input.books} of ${input.bookTarget} books`
+      : `${input.books} ${plural(input.books, 'book')}`;
+  const parts = [
+    `${input.workouts} ${plural(input.workouts, 'workout')}, ${input.prs} ${plural(input.prs, 'PR')}, ${books}, and ${formatEur(input.spent)} spent.`,
+  ];
+  if (input.volumeDeltaPercent != null) {
+    parts.push(`Volume is ${input.volumeDeltaPercent >= 0 ? 'up' : 'down'} versus last quarter.`);
+  }
+  if (input.topCategory) {
+    parts.push(`${input.topCategory} is the largest spend category.`);
+  }
+  return parts.join(' ');
+}

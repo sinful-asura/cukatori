@@ -12,6 +12,8 @@ import {
   UpdateMediaItemDto,
 } from './media.dto.js';
 
+const HEATMAP_DAYS = 182;
+
 const PRINT_TYPES = new Set(['book', 'manga', 'novel']);
 const WATCH_TYPES = new Set(['anime', 'movie', 'youtube']);
 const DEMO_EMAIL = 'kristijan@local';
@@ -118,6 +120,7 @@ export class EntertainmentService {
         averageRating,
         streak: await this.streak(user),
       },
+      heatmap: await this.heatmap(user, items),
     };
   }
 
@@ -312,6 +315,39 @@ export class EntertainmentService {
       throw new NotFoundException('Media item not found');
     }
     return item;
+  }
+
+  private async heatmap(user: User, items: MediaItem[]): Promise<number[]> {
+    const counts = new Array<number>(HEATMAP_DAYS).fill(0);
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - (HEATMAP_DAYS - 1));
+
+    const logs = await this.em.find(MediaProgress, { media: { user } }, { limit: 4000 });
+    for (const log of logs) {
+      const idx = this.dayOffset(log.createdAt, start);
+      if (idx >= 0 && idx < HEATMAP_DAYS) {
+        counts[idx] += 1;
+      }
+    }
+
+    for (const item of items) {
+      if (!item.completedAt) {
+        continue;
+      }
+      const idx = this.dayOffset(item.completedAt, start);
+      if (idx >= 0 && idx < HEATMAP_DAYS) {
+        counts[idx] += 1;
+      }
+    }
+
+    return counts.map((n) => (n <= 0 ? 0 : Math.min(4, n)));
+  }
+
+  private dayOffset(date: Date, start: Date): number {
+    const cursor = new Date(date);
+    cursor.setHours(0, 0, 0, 0);
+    return Math.round((cursor.getTime() - start.getTime()) / 86_400_000);
   }
 
   private async streak(user: User): Promise<number> {

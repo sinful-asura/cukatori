@@ -9,11 +9,14 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { FileUpload } from 'primeng/fileupload';
 import { Gallery, GalleryContent, GalleryItem } from 'primeng/gallery';
 import { InputNumber } from 'primeng/inputnumber';
+import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
 import { Textarea } from 'primeng/textarea';
 import { PHOTO_TYPES, PhotoDto, PhotosApi, PhotoType } from '../../core/api/photos.api';
+import { PageHeader } from '../../shared/ui/page-header/page-header';
+import { PosPanelHeader } from '../../shared/ui/pos';
 
 @Component({
   selector: 'ascend-photos-page',
@@ -30,6 +33,9 @@ import { PHOTO_TYPES, PhotoDto, PhotosApi, PhotoType } from '../../core/api/phot
     GalleryContent,
     GalleryItem,
     InputNumber,
+    Message,
+    PageHeader,
+    PosPanelHeader,
     Select,
     Tabs,
     TabList,

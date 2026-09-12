@@ -28,6 +28,8 @@ Entities are `*.entity.ts` under `api/src/modules/finance/` and are already cove
 
 HTTP client: `src/app/core/api/finance.api.ts`.
 
+UI ports Personal OS `FinanceView` onto PrimeNG (`Tabs`, `Table`, `Select`, `DatePicker`, `InputNumber`, `FileUpload`, `ProgressBar`, `Tag`) plus `app-page-header`, `p-card.pos-panel`, `app-pos-bar-chart`, and `app-pos-donut-chart`. Charts live in `src/app/shared/ui/pos/` (shell). Do not add PrimeNG `Chart`.
+
 ## Shared
 
 DTOs live in `shared/finance`. The feature imports `@ascend-os/shared/finance`. Optionally re-export from `shared/index.ts`:

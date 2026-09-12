@@ -1,87 +1,141 @@
-<section class="home">
+<section class="dash">
+  <app-page-header
+    title="Today overview"
+    kicker="Track your habits, workouts, and spending over time."
+  >
+    <div class="header-actions">
+      <p-select
+        [options]="moduleOptions"
+        [ngModel]="store.module()"
+        (ngModelChange)="store.module.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        aria-label="Module"
+      />
+      <p-select
+        [options]="rangeOptions"
+        [ngModel]="store.range()"
+        (ngModelChange)="store.range.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        aria-label="Date range"
+      />
+    </div>
+  </app-page-header>
+
   @if (store.loading()) {
-    <p-skeleton width="18rem" height="2rem" />
-    <p-skeleton width="24rem" height="1rem" />
     <div class="stats">
-      <p-skeleton width="16rem" height="2.4rem" borderRadius="999px" />
-      <p-skeleton width="10rem" height="2.4rem" borderRadius="999px" />
-      <p-skeleton width="18rem" height="2.4rem" borderRadius="999px" />
+      @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+        <p-skeleton width="4.5rem" height="4.5rem" />
+      }
     </div>
-    <div class="cols">
-      <p-skeleton width="100%" height="22rem" borderRadius="20px" />
-      <p-skeleton width="100%" height="22rem" borderRadius="20px" />
+    <div class="charts">
+      <p-skeleton width="100%" height="16rem" borderRadius="16px" />
+      <p-skeleton width="100%" height="16rem" borderRadius="16px" />
     </div>
+    <p-skeleton width="100%" height="18rem" borderRadius="16px" />
   } @else {
-    <header class="greet">
-      <h1>{{ store.greeting() }}</h1>
-      <p>{{ store.me().subtitle }}</p>
-    </header>
-
     <div class="stats">
-      <div class="stat">
-        <p-chip [label]="store.xpLabel()" icon="pi pi-circle-fill" />
-        <p-metergroup [value]="store.xpMeters()" [max]="store.me().xpNext">
-          <ng-template #label></ng-template>
-        </p-metergroup>
-        <p-tag [value]="store.weeklyXpLabel()" severity="success" />
-      </div>
-      <p-chip [label]="store.streakLabel()" icon="pi pi-bolt" />
-      <p-chip [label]="store.me().quote" icon="pi pi-comment" />
+      @for (stat of store.stats(); track stat.label) {
+        <app-pos-stat [label]="stat.label" [value]="stat.value" />
+      }
     </div>
 
-    <div class="cols">
-      <p-card>
-        <div class="panel-head">
-          <h2>Today</h2>
-          <a routerLink="/os/habits">View all</a>
-        </div>
-        <ul class="habits">
-          @for (habit of store.habits(); track habit.id) {
-            <li>
-              <p-checkbox
-                [inputId]="habit.id"
-                [binary]="true"
-                [ngModel]="habit.completed"
-                (ngModelChange)="store.toggleHabit(habit.id, $event)"
-              />
-              <label [for]="habit.id" [class.done]="habit.completed">{{ habit.title }}</label>
-              @if (habit.xpHint) {
-                <span class="xp">+{{ habit.xpHint }} XP</span>
-              }
-            </li>
+    <div class="charts">
+      <p-card styleClass="pos-panel">
+        <app-pos-panel-header title="Activity this week" [subtitle]="store.activitySubtitle()">
+          <app-pos-chart-toggle [(mode)]="activityMode" />
+        </app-pos-panel-header>
+        <div class="chart-body">
+          @if (activityMode() === 'line') {
+            <app-pos-line-chart
+              [labels]="store.weekLabels"
+              [yLabels]="store.yLabels()"
+              [height]="140"
+              [series]="store.activitySeries()"
+            />
+          } @else {
+            <app-pos-bar-chart
+              [labels]="store.weekLabels"
+              [yLabels]="store.yLabels()"
+              [height]="140"
+              [values]="store.weekActivity()"
+            />
           }
-        </ul>
+          <div class="legend">
+            <span class="swatch accent"></span>
+            <span>{{ store.moduleLabel() }}</span>
+          </div>
+        </div>
       </p-card>
 
-      <p-card>
-        <div class="panel-head">
-          <h2>Goals</h2>
-          <a routerLink="/os/goals">View all</a>
-        </div>
-        <ul class="goals">
-          @for (goal of store.goalMeters(); track goal.id) {
-            <li>
-              <div class="goal-head">
-                <span>{{ goal.title }}</span>
-                <span class="muted">{{ goal.detail }} · {{ goal.percentLabel }}</span>
-              </div>
-              <p-metergroup [value]="goal.meters" [max]="100">
-                <ng-template #label></ng-template>
-              </p-metergroup>
-            </li>
+      <p-card styleClass="pos-panel">
+        <app-pos-panel-header title="Category mix" [subtitle]="store.mixSubtitle()">
+          <app-pos-chart-toggle [(mode)]="mixMode" />
+        </app-pos-panel-header>
+        <div class="chart-body">
+          @if (mixMode() === 'line') {
+            <app-pos-line-chart
+              [labels]="store.weekLabels"
+              [yLabels]="store.yLabels()"
+              [height]="140"
+              [series]="store.mixSeries()"
+            />
+          } @else {
+            <app-pos-bar-chart
+              [labels]="store.weekLabels"
+              [yLabels]="store.yLabels()"
+              [height]="140"
+              [series]="store.mixSeries()"
+            />
           }
-        </ul>
-        <div class="heat-block">
-          <h2>Weekly activity</h2>
-          <div class="heat" role="img" aria-label="Weekly activity heatmap">
-            @for (day of store.heatmap(); track day.date) {
-              <span class="cell" [attr.data-count]="day.count" [title]="day.date"></span>
+          <div class="legend wrap">
+            @for (series of store.mixSeries(); track series.label) {
+              <div class="legend-item">
+                <span class="swatch" [style.background]="series.color"></span>
+                <span>{{ series.label }}</span>
+              </div>
             }
           </div>
         </div>
       </p-card>
     </div>
 
-    <p-chip [label]="store.displayName() + ' · Level ' + store.me().level" icon="pi pi-user" />
+    <section class="hourly">
+      <div class="hourly-head">
+        <div>
+          <h2>Hourly breakdown</h2>
+          <p>Hour-by-hour breakdown of your Personal OS activity</p>
+        </div>
+        <p-button label="Export as CSV" (onClick)="store.exportHourlyCsv()" />
+      </div>
+
+      <div class="table-wrap">
+        <p-table [value]="store.hourlyRows()" styleClass="pos-hourly">
+          <ng-template #header>
+            <tr>
+              <th>Time</th>
+              <th>Habit</th>
+              <th>Exercise</th>
+              <th>Media</th>
+              <th>Spend</th>
+              <th>XP</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-row>
+            <tr>
+              <td class="time">{{ row.time }}</td>
+              <td>{{ row.habit }}</td>
+              <td>{{ row.exercise }}</td>
+              <td>{{ row.media }}</td>
+              <td>{{ row.spend }}</td>
+              <td class="xp">{{ row.xp }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <p class="range">{{ store.tableRangeLabel() }}</p>
+    </section>
   }
 </section>

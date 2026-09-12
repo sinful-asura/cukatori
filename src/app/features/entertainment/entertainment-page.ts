@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
+import { Checkbox } from 'primeng/checkbox';
 import { DataView } from 'primeng/dataview';
 import { Dialog } from 'primeng/dialog';
 import { GalleryModule } from 'primeng/gallery';
@@ -11,8 +12,8 @@ import { InputText } from 'primeng/inputtext';
 import { ProgressBar } from 'primeng/progressbar';
 import { Rating } from 'primeng/rating';
 import { Select } from 'primeng/select';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
-import { TabsModule } from 'primeng/tabs';
 import type {
   CreateMediaItemRequest,
   MediaItemDto,
@@ -21,8 +22,9 @@ import type {
   MediaType,
 } from '@ascend-os/shared/media';
 import { MediaApi } from '../../core/api/media.api';
+import { PageHeader, PosHeatmap, PosPanelHeader } from '../../shared/ui/pos';
 
-export type LibraryTab = 'all' | 'anime' | 'manga' | 'books' | 'youtube';
+export type LibraryTab = 'all' | 'anime' | 'manga' | 'youtube';
 
 type Option<T extends string> = { label: string; value: T };
 
@@ -32,16 +34,22 @@ type Option<T extends string> = { label: string; value: T };
     FormsModule,
     Button,
     Card,
+    Checkbox,
     DataView,
     Dialog,
     GalleryModule,
     InputNumber,
     InputText,
+    PageHeader,
+    PosHeatmap,
+    PosPanelHeader,
     ProgressBar,
     Rating,
     Select,
+    Tab,
+    TabList,
+    Tabs,
     Tag,
-    TabsModule,
   ],
   templateUrl: './entertainment-page.html',
   styleUrl: './entertainment-page.scss',
@@ -87,22 +95,14 @@ export class EntertainmentPage {
   markComplete = false;
 
   readonly items = computed(() => this.filterItems(this.library()?.items ?? []));
-  readonly watching = computed(() => this.filterItems(this.library()?.currentlyWatching ?? []));
-  readonly reading = computed(() => this.filterItems(this.library()?.currentlyReading ?? []));
-  readonly recent = computed(() => this.filterItems(this.library()?.recentlyCompleted ?? []).slice(0, 4));
+  readonly watching = computed(() => this.library()?.currentlyWatching?.[0] ?? null);
+  readonly reading = computed(() => this.library()?.currentlyReading?.[0] ?? null);
+  readonly recent = computed(() => (this.library()?.recentlyCompleted ?? []).slice(0, 4));
+  readonly heatmap = computed(() => this.library()?.heatmap ?? []);
   readonly galleryImages = computed(() =>
     this.recent()
       .map((item) => item.posterUrl)
       .filter((url): url is string => !!url),
-  );
-  readonly stats = computed(
-    () =>
-      this.library()?.stats ?? {
-        hours: 0,
-        completed: 0,
-        averageRating: 0,
-        streak: 0,
-      },
   );
 
   constructor() {
@@ -121,13 +121,7 @@ export class EntertainmentPage {
   }
 
   onTabChange(value: string | number | undefined): void {
-    if (
-      value === 'all' ||
-      value === 'anime' ||
-      value === 'manga' ||
-      value === 'books' ||
-      value === 'youtube'
-    ) {
+    if (value === 'all' || value === 'anime' || value === 'manga' || value === 'youtube') {
       this.tab.set(value);
     }
   }
@@ -175,7 +169,14 @@ export class EntertainmentPage {
   }
 
   openGallery(index: number): void {
-    this.galleryIndex.set(index);
+    if (!this.galleryImages().length) {
+      const item = this.recent()[index];
+      if (item) {
+        this.openItem(item);
+      }
+      return;
+    }
+    this.galleryIndex.set(Math.min(index, this.galleryImages().length - 1));
     this.galleryOpen.set(true);
   }
 
@@ -232,6 +233,22 @@ export class EntertainmentPage {
       });
   }
 
+  watchLabel(item: MediaItemDto): string {
+    if (item.currentEpisode != null) {
+      return `Episode ${item.currentEpisode}`;
+    }
+    return this.statusLabel(item.status);
+  }
+
+  readLabel(item: MediaItemDto): string {
+    if (item.currentPages != null) {
+      return item.totalUnits
+        ? `Page ${item.currentPages} / ${item.totalUnits}`
+        : `Page ${item.currentPages}`;
+    }
+    return this.statusLabel(item.status);
+  }
+
   progressLabel(item: MediaItemDto): string {
     if (this.isPrint(item) && item.currentPages != null) {
       return item.totalUnits
@@ -248,7 +265,7 @@ export class EntertainmentPage {
 
   progressPct(item: MediaItemDto): number {
     if (!item.totalUnits) {
-      return 0;
+      return item.status === 'watching' ? 72 : 0;
     }
     const current = this.isPrint(item) ? (item.currentPages ?? 0) : (item.currentEpisode ?? 0);
     return Math.min(100, Math.round((current / item.totalUnits) * 100));
@@ -282,17 +299,10 @@ export class EntertainmentPage {
     return item.type === 'book' || item.type === 'manga' || item.type === 'novel';
   }
 
-  poster(item: MediaItemDto): string {
-    return item.posterUrl || 'https://covers.openlibrary.org/b/id/10958382-L.jpg';
-  }
-
   private filterItems(items: MediaItemDto[]): MediaItemDto[] {
     const tab = this.tab();
     if (tab === 'all') {
       return items;
-    }
-    if (tab === 'books') {
-      return items.filter((item) => item.type === 'book' || item.type === 'novel');
     }
     return items.filter((item) => item.type === tab);
   }

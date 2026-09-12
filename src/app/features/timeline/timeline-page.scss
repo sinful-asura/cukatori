@@ -5,40 +5,30 @@
 .timeline-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 760px;
+  gap: 16px;
 }
 
-h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-}
-
-header p,
-.empty,
-.xp,
-time + span {
-  color: var(--text-muted);
-}
-
-header p {
-  margin: 6px 0 0;
-}
-
-.filters {
+.header-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
 }
 
-.filters p-select {
-  min-width: 160px;
+.header-actions p-select {
+  min-width: 148px;
+}
+
+.stream {
+  padding: 16px 24px 24px;
 }
 
 .empty {
   margin: 0;
+  padding: 16px 24px 24px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-muted);
 }
 
 .event {
@@ -57,15 +47,25 @@ header p {
 }
 
 .event strong {
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.event p {
+.event p,
+.xp,
+time + span {
   margin: 0;
   color: var(--text-muted);
 }
 
+.xp {
+  font-size: 12px;
+  color: var(--accent-positive);
+}
+
 time {
   display: block;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
 }

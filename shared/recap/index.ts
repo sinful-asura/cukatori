@@ -4,9 +4,13 @@ export type {
   CoachPrItem,
   CoachProgressionItem,
   CoachReportDto,
+  PeriodRecapDto,
+  RecapHighlight,
   RecapKpi,
+  RecapPeriodRange,
   RecapRow,
   RecapSection,
   RecapSectionId,
+  RecapSeries,
   WeekRecapDto,
 } from './types';

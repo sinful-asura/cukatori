@@ -12,6 +12,7 @@ export const MEDIA_STATUSES = [
 export type MediaStatus = (typeof MEDIA_STATUSES)[number];
 
 export const MEDIA_PAGE_CHUNK = 20;
+export const MEDIA_HEATMAP_DAYS = 182;
 
 export interface MediaItemDto {
   id: string;
@@ -103,4 +104,6 @@ export interface MediaLibraryDto {
   currentlyReading: MediaItemDto[];
   recentlyCompleted: MediaItemDto[];
   stats: MediaLibraryStatsDto;
+  /** Last 6 months of watch/read intensity (0–4), oldest first. */
+  heatmap: number[];
 }

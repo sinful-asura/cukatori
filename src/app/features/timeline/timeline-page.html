@@ -1,77 +1,82 @@
 <section class="timeline-page">
-  <header>
-    <h1>Timeline</h1>
-    <p>Everything you logged, in one chronological feed.</p>
-  </header>
+  <app-page-header title="Timeline" kicker="Understand">
+    <div class="header-actions">
+      <p-select
+        [options]="categories"
+        [ngModel]="store.category()"
+        (ngModelChange)="store.category.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Category"
+        [showClear]="true"
+      />
+      <p-select
+        [options]="types"
+        [ngModel]="store.type()"
+        (ngModelChange)="store.type.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Type"
+        [showClear]="true"
+      />
+      <p-select
+        [options]="tagOptions()"
+        [ngModel]="store.tag()"
+        (ngModelChange)="store.tag.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Tag"
+        [showClear]="true"
+      />
+      <p-select
+        [options]="dates"
+        [ngModel]="store.date()"
+        (ngModelChange)="store.date.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Date"
+      />
+      <p-button label="Clear" [outlined]="true" (onClick)="store.clearFilters()" />
+    </div>
+  </app-page-header>
 
-  <div class="filters">
-    <p-select
-      [options]="categories"
-      [ngModel]="store.category()"
-      (ngModelChange)="store.category.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Category"
-      [showClear]="true"
-    />
-    <p-select
-      [options]="types"
-      [ngModel]="store.type()"
-      (ngModelChange)="store.type.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Type"
-      [showClear]="true"
-    />
-    <p-select
-      [options]="tagOptions()"
-      [ngModel]="store.tag()"
-      (ngModelChange)="store.tag.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Tag"
-      [showClear]="true"
-    />
-    <p-select
-      [options]="dates"
-      [ngModel]="store.date()"
-      (ngModelChange)="store.date.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="Date"
-    />
-    <p-button label="Clear" [outlined]="true" (onClick)="store.clearFilters()" />
-  </div>
+  <p-card styleClass="pos-panel">
+    <app-pos-panel-header title="Today" subtitle="Unified activity stream" />
 
-  @if (store.loading()) {
-    <p-skeleton width="100%" height="16rem" borderRadius="20px" />
-  } @else if (store.filtered().length === 0) {
-    <p class="empty">No events match these filters.</p>
-  } @else {
-    <p-timeline [value]="store.filtered()" align="left">
-      <ng-template #opposite let-event>
-        <time>{{ event.occurredAt | date: 'HH:mm' }}</time>
-        <span>{{ event.occurredAt | date: 'MMM d' }}</span>
-      </ng-template>
-      <ng-template #content let-event>
-        <article class="event">
-          <div class="event-head">
-            <p-tag [value]="typeLabel(event.type)" [severity]="severity(event.category)" />
-            @if (event.xpAwarded) {
-              <span class="xp">+{{ event.xpAwarded }} XP</span>
-            }
-          </div>
-          <strong>{{ event.title }}</strong>
-          <p>{{ event.summary }}</p>
-          @if (event.tags.length) {
-            <div class="tags">
-              @for (tag of event.tags; track tag) {
-                <p-tag [value]="'#' + tag" severity="secondary" />
+    @if (store.loading()) {
+      <div class="stream">
+        <p-skeleton width="100%" height="16rem" borderRadius="16px" />
+      </div>
+    } @else if (store.filtered().length === 0) {
+      <p class="empty">No events match these filters.</p>
+    } @else {
+      <div class="stream">
+        <p-timeline [value]="store.filtered()" align="left">
+          <ng-template #opposite let-event>
+            <time>{{ event.occurredAt | date: 'HH:mm' }}</time>
+            <span>{{ event.occurredAt | date: 'MMM d' }}</span>
+          </ng-template>
+          <ng-template #content let-event>
+            <article class="event">
+              <div class="event-head">
+                <p-tag [value]="typeLabel(event.type)" [severity]="severity(event.category)" />
+                @if (event.xpAwarded) {
+                  <span class="xp">+{{ event.xpAwarded }} XP</span>
+                }
+              </div>
+              <strong>{{ event.title }}</strong>
+              <p>{{ event.summary }}</p>
+              @if (event.tags.length) {
+                <div class="tags">
+                  @for (tag of event.tags; track tag) {
+                    <p-tag [value]="'#' + tag" severity="secondary" />
+                  }
+                </div>
               }
-            </div>
-          }
-        </article>
-      </ng-template>
-    </p-timeline>
-  }
+            </article>
+          </ng-template>
+        </p-timeline>
+      </div>
+    }
+  </p-card>
 </section>

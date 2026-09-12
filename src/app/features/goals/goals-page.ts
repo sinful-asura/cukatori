@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -10,38 +9,57 @@ import {
   type GoalKind,
 } from '@ascend-os/shared/goals';
 import { MessageService } from 'primeng/api';
-import type { MeterItem } from 'primeng/types/metergroup';
+import { AccordionModule } from 'primeng/accordion';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Dialog } from 'primeng/dialog';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
-import { MeterGroup } from 'primeng/metergroup';
+import { ProgressBar } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
 import { GoalsApi } from '../../core/api/goals.api';
+import {
+  PageHeader,
+  PosBarChart,
+  PosChartToggle,
+  PosLineChart,
+  PosStat,
+  type PosChartMode,
+  type PosChartSeries,
+} from '../../shared/ui/pos';
+import {
+  GOAL_MONTHS,
+  chartYLabels,
+  isOnPace,
+  toGoalView,
+  type GoalView,
+} from './goal-presentation';
 
 type KindOption = { label: string; value: GoalKind };
 
 @Component({
   selector: 'app-goals-page',
   imports: [
-    NgTemplateOutlet,
     FormsModule,
+    AccordionModule,
     Button,
     Card,
     Dialog,
     InputNumber,
     InputText,
-    MeterGroup,
+    ProgressBar,
     Select,
     Tabs,
     TabList,
     Tab,
-    TabPanels,
-    TabPanel,
     Tag,
+    PageHeader,
+    PosBarChart,
+    PosChartToggle,
+    PosLineChart,
+    PosStat,
   ],
   templateUrl: './goals-page.html',
   styleUrl: './goals-page.scss',
@@ -52,9 +70,14 @@ export class GoalsPage implements OnInit {
 
   readonly goals = signal<GoalDto[]>([]);
   readonly tab = signal('active');
+  readonly selectedId = signal<string | null>(null);
+  readonly chartMode = signal<PosChartMode>('line');
+  readonly milestoneOpen = signal<string | number | (string | number)[] | undefined>('m0');
   readonly createOpen = signal(false);
   readonly saving = signal(false);
   readonly usingFallback = signal(false);
+
+  readonly monthLabels = GOAL_MONTHS;
 
   readonly kindOptions: KindOption[] = [
     { label: 'Count', value: 'count' },
@@ -70,23 +93,39 @@ export class GoalsPage implements OnInit {
     unit: 'books',
   };
 
-  readonly activeGoals = computed(() =>
-    this.goals()
+  readonly views = computed(() => this.goals().map(toGoalView));
+
+  readonly activeViews = computed(() =>
+    this.views()
       .filter((goal) => goal.status !== 'completed')
       .sort((a, b) => a.sortOrder - b.sortOrder),
   );
 
-  readonly completedGoals = computed(() =>
-    this.goals()
+  readonly completedViews = computed(() =>
+    this.views()
       .filter((goal) => goal.status === 'completed')
       .sort((a, b) => a.sortOrder - b.sortOrder),
   );
 
-  readonly visibleGoals = computed(() =>
-    this.tab() === 'completed' ? this.completedGoals() : this.activeGoals(),
+  readonly visibleViews = computed(() =>
+    this.tab() === 'completed' ? this.completedViews() : this.activeViews(),
   );
 
-  readonly progressLabel = formatGoalProgress;
+  readonly selected = computed(() => {
+    const list = this.visibleViews();
+    const id = this.selectedId();
+    return list.find((goal) => goal.id === id) ?? list[0] ?? null;
+  });
+
+  readonly activeCount = computed(() => String(this.activeViews().length));
+  readonly averagePct = computed(() => {
+    const rows = this.views();
+    if (!rows.length) {
+      return '0';
+    }
+    return String(Math.round(rows.reduce((sum, goal) => sum + goal.percent, 0) / rows.length));
+  });
+  readonly onPaceCount = computed(() => String(this.views().filter((goal) => isOnPace(goal)).length));
 
   ngOnInit(): void {
     this.load();
@@ -96,11 +135,11 @@ export class GoalsPage implements OnInit {
     this.api.list().subscribe({
       next: (rows) => {
         this.usingFallback.set(false);
-        this.goals.set(rows);
+        this.setGoals(rows);
       },
       error: () => {
         this.usingFallback.set(true);
-        this.goals.set(DEMO_GOALS.map((goal) => ({ ...goal })));
+        this.setGoals(DEMO_GOALS.map((goal) => ({ ...goal })));
       },
     });
   }
@@ -111,12 +150,18 @@ export class GoalsPage implements OnInit {
     }
   }
 
-  showCompleted(): void {
-    this.tab.set('completed');
+  select(id: string): void {
+    this.selectedId.set(id);
+    this.chartMode.set('line');
+    this.milestoneOpen.set('m0');
   }
 
-  meters(goal: GoalDto): MeterItem[] {
-    return [{ value: goal.percent, color: '#34d399' }];
+  series(goal: GoalView): PosChartSeries[] {
+    return [{ label: goal.title, color: goal.color, values: goal.series }];
+  }
+
+  yLabels(goal: GoalView): string[] {
+    return chartYLabels(goal);
   }
 
   deltaFor(goal: GoalDto): number {
@@ -183,6 +228,7 @@ export class GoalsPage implements OnInit {
         sortOrder: this.goals().length,
       };
       this.goals.update((rows) => [...rows, next]);
+      this.selectedId.set(next.id);
       this.saving.set(false);
       this.createOpen.set(false);
       return;
@@ -190,6 +236,7 @@ export class GoalsPage implements OnInit {
     this.api.create({ ...this.draft, title }).subscribe({
       next: (goal) => {
         this.goals.update((rows) => [...rows, goal]);
+        this.selectedId.set(goal.id);
         this.saving.set(false);
         this.createOpen.set(false);
       },
@@ -197,6 +244,13 @@ export class GoalsPage implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  private setGoals(rows: GoalDto[]): void {
+    this.goals.set(rows);
+    if (!this.selectedId() && rows[0]) {
+      this.selectedId.set(rows[0].id);
+    }
   }
 
   private replace(goal: GoalDto): void {

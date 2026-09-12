@@ -4,38 +4,28 @@ Do not edit these from the reports worktree. Orchestrator-only.
 
 ## API (`api/src/app.module.ts`)
 
-Import `ReportsModule`:
+Import `ReportsModule` (already on this branch):
 
 ```ts
 import { ReportsModule } from './modules/reports/reports.module.js';
-
-@Module({
-  imports: [
-    // …
-    ReportsModule,
-  ],
-})
-export class AppModule {}
 ```
 
 No new entities. Aggregation reads `ActivityEvent` via `EntityManager` (no feature-service imports).
 
 ## Shared (`shared/index.ts`)
 
-Optional barrel:
-
 ```ts
 export * from './recap';
 ```
 
-The frontend already imports `@ascend-os/shared/recap` via the existing path alias.
+Frontend imports `@ascend-os/shared/recap`.
 
 ## Shell (`src/app/core/layout/app-shell/app-shell.ts`)
 
-Add a rail link (Understand group):
+Rail link (already present):
 
 ```ts
-{ path: '/os/reports', label: 'Reports' }
+{ path: '/os/reports', label: 'Reports', icon: 'pi pi-chart-bar' }
 ```
 
 ## Routes
@@ -44,8 +34,12 @@ Add a rail link (Understand group):
 
 ## Print
 
-The page calls `window.print()` and toggles `body.reports-printing`. Feature CSS hides the rail/header while printing. Optional global print rules can live in `src/styles.scss` later.
+The page calls `window.print()` and toggles `body.reports-printing`. Feature CSS hides the rail while printing.
 
 ## Contracts
 
-`GET /api/reports/week?start=YYYY-MM-DD` and `GET /api/reports/coach` are cookie-auth. Week start is UTC Monday when `start` is omitted. Copy is deterministic templates over `ActivityEvent` payloads — no LLM.
+Cookie-auth, deterministic templates, no LLM:
+
+- `GET /api/reports/week?start=YYYY-MM-DD` — week KPIs (workouts, PRs, pages, spend), activity bars, highlights, sections
+- `GET /api/reports/period?range=month|year&start=YYYY-MM-DD` — month/year aggregation for the Reports tabs
+- `GET /api/reports/coach` — print/export JSON (frequency, volume, PRs, progression, muscle mix, consistency, history)

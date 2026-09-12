@@ -1,64 +1,53 @@
 <section class="settings">
-  <header>
-    <h1>Settings</h1>
-    <p>Theme, units, and currency for this device.</p>
-  </header>
+  <app-page-header title="Settings" kicker="System" />
 
-  <p-card>
-    <div class="row">
-      <div>
-        <h2>Appearance</h2>
-        <p>Dark matches the Ascend OS canvas. Light is available if you need it.</p>
+  <p-card styleClass="pos-panel">
+    <div class="rows">
+      <div class="row">
+        <span>Theme</span>
+        <p-togglebutton
+          [ngModel]="dark"
+          (ngModelChange)="setTheme($event)"
+          onLabel="Dark"
+          offLabel="Light"
+          onIcon="pi pi-moon"
+          offIcon="pi pi-sun"
+        />
       </div>
-      <p-togglebutton
-        [ngModel]="dark"
-        (ngModelChange)="setTheme($event)"
-        onLabel="Dark"
-        offLabel="Light"
-        onIcon="pi pi-moon"
-        offIcon="pi pi-sun"
-      />
-    </div>
 
-    <div class="row">
-      <div>
-        <h2>Preferred name</h2>
-        <p>Used on the home greeting when you are not signed in.</p>
+      <div class="row">
+        <span>Units</span>
+        <p-select
+          [options]="unitOptions"
+          [ngModel]="store.settings().units"
+          (ngModelChange)="setUnits($event)"
+          optionLabel="label"
+          optionValue="value"
+          aria-label="Units"
+        />
       </div>
-      <input
-        pInputText
-        [ngModel]="store.settings().displayName"
-        (ngModelChange)="setDisplayName($event)"
-        aria-label="Preferred name"
-      />
-    </div>
 
-    <div class="row">
-      <div>
-        <h2>Units</h2>
-        <p>Default mass unit for exercise logging.</p>
+      <div class="row">
+        <span>Currency</span>
+        <p-select
+          [options]="currencyOptions"
+          [ngModel]="store.settings().currency"
+          (ngModelChange)="setCurrency($event)"
+          optionLabel="label"
+          optionValue="value"
+          aria-label="Currency"
+        />
       </div>
-      <p-select
-        [options]="unitOptions"
-        [ngModel]="store.settings().units"
-        (ngModelChange)="setUnits($event)"
-        optionLabel="label"
-        optionValue="value"
-      />
-    </div>
 
-    <div class="row">
-      <div>
-        <h2>Currency</h2>
-        <p>Default currency for finance.</p>
+      <div class="row">
+        <span>Preferred name</span>
+        <input
+          pInputText
+          [ngModel]="store.settings().displayName"
+          (ngModelChange)="setDisplayName($event)"
+          aria-label="Preferred name"
+        />
       </div>
-      <p-select
-        [options]="currencyOptions"
-        [ngModel]="store.settings().currency"
-        (ngModelChange)="setCurrency($event)"
-        optionLabel="label"
-        optionValue="value"
-      />
     </div>
 
     <div class="actions">

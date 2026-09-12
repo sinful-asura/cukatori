@@ -126,6 +126,7 @@ export class GoalsService {
         type: 'GOAL_COMPLETED',
         title: goal.title,
         summary: `Reached ${goal.target} ${goal.unit}`.trim(),
+        xp: 60,
         payload: { goalId: goal.id, current: goal.current, target: goal.target },
         tags: ['goal'],
       });
@@ -135,6 +136,7 @@ export class GoalsService {
         type: 'GOAL_PROGRESSED',
         title: goal.title,
         summary: `${goal.current}/${goal.target} ${goal.unit}`.trim(),
+        xp: 10,
         payload: { goalId: goal.id, current: goal.current, target: goal.target },
         tags: ['goal'],
       });

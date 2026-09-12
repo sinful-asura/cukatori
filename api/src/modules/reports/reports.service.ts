@@ -28,6 +28,7 @@ import {
   goalsSentence,
   habitsSentence,
   overallSentence,
+  yearSentence,
 } from './recap.templates.js';
 import type {
   CoachHistoryRow,
@@ -35,18 +36,34 @@ import type {
   CoachPrItem,
   CoachProgressionItem,
   CoachReportDto,
+  PeriodRecapDto,
+  RecapHighlight,
+  RecapKpi,
+  RecapPeriodRange,
   RecapRow,
   RecapSection,
+  RecapSeries,
   WeekRecapDto,
 } from './recap.types.js';
 import {
   addUtcDays,
+  addUtcMonths,
+  addUtcYears,
   inRange,
   isoDateUtc,
   levelForXp,
   longestConsecutiveDays,
+  monthWeekSlices,
+  parseAnchor,
   resolveWeekStart,
+  seriesYLabels,
+  startOfUtcMonth,
+  startOfUtcQuarter,
+  startOfUtcYear,
   uniqueIsoDays,
+  utcMonthLabel,
+  weekdayCounts,
+  WEEKDAY_LABELS,
 } from './recap.week.js';
 
 const DEFAULT_PLANNED_DAYS = 4;
@@ -86,31 +103,28 @@ export class ReportsService {
 
     const sections = [fitness, goals, habits, entertainment, finance, overall];
     const insights = this.insights(sections, thisWeek, lastWeek);
-    const workoutDays = this.workoutDays(thisWeek).length;
-    const planned = this.plannedDays(thisWeek);
-    const prs = this.byType(thisWeek, 'PERSONAL_RECORD').length;
-    const books = this.completedMedia(thisWeek, ['book', 'novel']);
-    const spent = this.sumMoney(thisWeek, 'EXPENSE_CREATED');
-    const progressed = this.byType(thisWeek, 'GOAL_PROGRESSED').length;
+    const kpis = this.headlineKpis(thisWeek);
 
     return {
       start: isoDateUtc(weekStart),
       end: isoDateUtc(addUtcDays(weekStart, 6)),
       headline: 'Your Week',
-      kpis: [
-        { id: 'workouts', label: 'Workouts', value: `${workoutDays}/${planned}`, hint: 'planned days' },
-        { id: 'prs', label: 'PRs', value: String(prs) },
-        { id: 'books', label: 'Books', value: String(books) },
-        { id: 'spent', label: 'Spent', value: formatEur(spent) },
-        {
-          id: 'goals',
-          label: 'Goals',
-          value: progressed > 0 ? `${progressed} progressed` : '0 progressed',
-        },
-      ],
+      insight: this.composeInsight(sections, thisWeek, lastWeek),
+      kpis,
       insights,
       sections,
+      activity: this.weekActivity(thisWeek),
+      highlights: this.highlights(sections, thisWeek),
     };
+  }
+
+  async period(user: User, range: RecapPeriodRange, start?: string): Promise<PeriodRecapDto> {
+    const anchor = parseAnchor(start);
+    const events = await this.loadEvents(user.id);
+    if (range === 'year') {
+      return this.yearPeriod(events, anchor);
+    }
+    return this.monthPeriod(events, anchor);
   }
 
   async coach(user: User): Promise<CoachReportDto> {
@@ -174,6 +188,174 @@ export class ReportsService {
       recentHistory: this.recentHistory(workouts, prEvents),
       sentences,
     };
+  }
+
+  private monthPeriod(events: EventRow[], anchor: Date): PeriodRecapDto {
+    const monthStart = startOfUtcMonth(anchor);
+    const monthEnd = addUtcMonths(monthStart, 1);
+    const window = events.filter((event) => inRange(event.occurredAt, monthStart, monthEnd));
+    const slices = monthWeekSlices(monthStart, monthEnd);
+    const values = slices.map(
+      (slice) => window.filter((event) => inRange(event.occurredAt, slice.start, slice.end)).length,
+    );
+    const monthName = utcMonthLabel(monthStart);
+    return {
+      range: 'month',
+      start: isoDateUtc(monthStart),
+      end: isoDateUtc(addUtcDays(monthEnd, -1)),
+      label: `${monthName} weeks`,
+      insight: '',
+      kpis: this.headlineKpis(window),
+      activity: {
+        title: `${monthName} weeks`,
+        labels: slices.map((slice) => slice.label),
+        values,
+        yLabels: seriesYLabels(values),
+      },
+    };
+  }
+
+  private yearPeriod(events: EventRow[], anchor: Date): PeriodRecapDto {
+    const yearStart = startOfUtcYear(anchor);
+    const nextYear = addUtcYears(yearStart, 1);
+    const now = new Date();
+    const isCurrentYear = now >= yearStart && now < nextYear;
+    const exclusiveEnd = isCurrentYear ? now : nextYear;
+    const asOf = isCurrentYear ? now : addUtcDays(nextYear, -1);
+    const window = events.filter((event) => inRange(event.occurredAt, yearStart, exclusiveEnd));
+    return {
+      range: 'year',
+      start: isoDateUtc(yearStart),
+      end: isoDateUtc(asOf),
+      label: isCurrentYear ? 'Year to date' : String(yearStart.getUTCFullYear()),
+      insight: this.yearInsight(window, events, asOf),
+      kpis: this.headlineKpis(window),
+      activity: null,
+    };
+  }
+
+  private headlineKpis(events: EventRow[]): RecapKpi[] {
+    return [
+      { id: 'workouts', label: 'Workouts', value: String(this.byType(events, 'WORKOUT_COMPLETED').length) },
+      { id: 'prs', label: 'PRs', value: String(this.byType(events, 'PERSONAL_RECORD').length) },
+      { id: 'pages', label: 'Pages read', value: String(this.pagesLogged(events)) },
+      { id: 'spent', label: 'Spent', value: formatEur(this.sumMoney(events, 'EXPENSE_CREATED')) },
+    ];
+  }
+
+  private weekActivity(events: EventRow[]): RecapSeries {
+    const values = weekdayCounts(events.map((event) => event.occurredAt));
+    return {
+      title: 'Activity',
+      labels: [...WEEKDAY_LABELS],
+      values,
+      yLabels: seriesYLabels(values),
+    };
+  }
+
+  private highlights(sections: RecapSection[], week: EventRow[]): RecapHighlight[] {
+    const titles: Record<string, string> = {
+      fitness: 'Training',
+      entertainment: 'Reading',
+      finance: 'Spending',
+      goals: 'Goals',
+      habits: 'Habits',
+      overall: 'Overall',
+    };
+    const workouts = this.byType(week, 'WORKOUT_COMPLETED').length;
+    const pages = this.pagesLogged(week);
+    const spent = formatEur(this.sumMoney(week, 'EXPENSE_CREATED'));
+    const progressed = this.byType(week, 'GOAL_PROGRESSED').length;
+    const habits = this.byType(week, 'HABIT_COMPLETED').length;
+    const xp = week.reduce((sum, event) => sum + event.xpAwarded, 0);
+    const meta: Record<string, string> = {
+      fitness: `${workouts} ${workouts === 1 ? 'session' : 'sessions'}`,
+      entertainment: `${pages} pages`,
+      finance: spent,
+      goals: `${progressed} progressed`,
+      habits: `${habits} check-ins`,
+      overall: `${xp.toLocaleString('en-GB')} XP`,
+    };
+    const order = ['fitness', 'entertainment', 'finance', 'goals', 'habits', 'overall'];
+    return order.flatMap((id) => {
+      const section = sections.find((row) => row.id === id);
+      if (!section) {
+        return [];
+      }
+      return [
+        {
+          id,
+          title: titles[id] ?? section.title,
+          meta: meta[id] ?? '',
+          content: section.summary,
+        },
+      ];
+    });
+  }
+
+  private composeInsight(sections: RecapSection[], week: EventRow[], lastWeek: EventRow[]): string {
+    const fitness = sections.find((section) => section.id === 'fitness')?.summary ?? '';
+    const pages = this.pagesLogged(week);
+    const financeExtra = financeSentence({
+      spent: this.sumMoney(week, 'EXPENSE_CREATED'),
+      income: this.sumMoney(week, 'INCOME_CREATED'),
+      ...(() => {
+        const shift = this.largestCategoryShift(week, lastWeek);
+        return { category: shift?.category, categoryDeltaPercent: shift?.delta };
+      })(),
+    });
+    const parts = [fitness];
+    if (pages > 0) {
+      parts.push(`${pages} pages this week.`);
+    }
+    if (financeExtra && !financeExtra.startsWith('No spending')) {
+      parts.push(financeExtra);
+    }
+    return parts.filter((line) => line.length > 0).join(' ');
+  }
+
+  private yearInsight(window: EventRow[], all: EventRow[], asOf: Date): string {
+    const goal = this.bookGoalProgress(all);
+    const quarterStart = startOfUtcQuarter(asOf);
+    const prevQuarterStart = addUtcMonths(quarterStart, -3);
+    const thisQuarter = all.filter((event) => inRange(event.occurredAt, quarterStart, addUtcDays(asOf, 1)));
+    const lastQuarter = all.filter((event) => inRange(event.occurredAt, prevQuarterStart, quarterStart));
+    const categories = this.categoryTotals(this.byType(window, 'EXPENSE_CREATED'));
+    const top = [...categories.entries()].sort((a, b) => b[1] - a[1])[0];
+    return yearSentence({
+      workouts: this.byType(window, 'WORKOUT_COMPLETED').length,
+      prs: this.byType(window, 'PERSONAL_RECORD').length,
+      books: goal?.current ?? this.completedMedia(window, ['book', 'novel']),
+      bookTarget: goal?.target ?? null,
+      spent: this.sumMoney(window, 'EXPENSE_CREATED'),
+      volumeDeltaPercent: percentDelta(this.sumVolume(thisQuarter), this.sumVolume(lastQuarter)),
+      topCategory: top?.[0] ?? null,
+    });
+  }
+
+  private pagesLogged(events: EventRow[]): number {
+    return [...this.byType(events, 'MEDIA_COMPLETED'), ...this.byType(events, 'MEDIA_PROGRESS')].reduce(
+      (sum, event) => sum + (payloadNumber(asPayload(event.payload), 'pages', 'pageDelta', 'pagesRead') ?? 0),
+      0,
+    );
+  }
+
+  private bookGoalProgress(events: EventRow[]): { current: number; target: number } | null {
+    const goalEvents = [...this.byType(events, 'GOAL_PROGRESSED'), ...this.byType(events, 'GOAL_COMPLETED')];
+    for (const event of [...goalEvents].reverse()) {
+      const payload = asPayload(event.payload);
+      const title = payloadString(payload, 'title', 'name') ?? event.title;
+      const unit = (payloadString(payload, 'unit') ?? '').toLowerCase();
+      if (!/book/i.test(title) && !unit.includes('book')) {
+        continue;
+      }
+      const current = payloadNumber(payload, 'current', 'value');
+      const target = payloadNumber(payload, 'target');
+      if (current != null && target != null && target > 0) {
+        return { current, target };
+      }
+    }
+    return null;
   }
 
   private async loadEvents(userId: string): Promise<EventRow[]> {
@@ -347,10 +529,7 @@ export class ReportsService {
     const movies = completed.filter((event) => mediaKind(asPayload(event.payload)) === 'movie').length;
     const anime = completed.filter((event) => mediaKind(asPayload(event.payload)) === 'anime').length;
     const manga = completed.filter((event) => mediaKind(asPayload(event.payload)) === 'manga').length;
-    const pages = [...completed, ...progress].reduce(
-      (sum, event) => sum + (payloadNumber(asPayload(event.payload), 'pages', 'pageDelta') ?? 0),
-      0,
-    );
+    const pages = this.pagesLogged(week);
     const rows: RecapRow[] = [...completed, ...progress].map((event) => {
       const payload = asPayload(event.payload);
       return {

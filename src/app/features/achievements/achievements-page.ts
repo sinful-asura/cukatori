@@ -4,17 +4,17 @@ import { timeout } from 'rxjs';
 import { Badge } from 'primeng/badge';
 import { Card } from 'primeng/card';
 import { Skeleton } from 'primeng/skeleton';
-import { Tag } from 'primeng/tag';
 import {
   AchievementsApi,
   SEED_ACHIEVEMENTS,
   type AchievementDto,
 } from '../../core/api/achievements.api';
+import { PageHeader } from '../../shared/ui/pos';
 import { SettingsStore } from '../settings/settings.store';
 
 @Component({
   selector: 'app-achievements-page',
-  imports: [DatePipe, Badge, Card, Skeleton, Tag],
+  imports: [DatePipe, Badge, Card, Skeleton, PageHeader],
   templateUrl: './achievements-page.html',
   styleUrl: './achievements-page.scss',
 })
@@ -27,6 +27,7 @@ export class AchievementsPage implements OnInit {
 
   readonly unlocked = computed(() => this.items().filter((item) => item.unlockedAt));
   readonly locked = computed(() => this.items().filter((item) => !item.unlockedAt));
+  readonly grid = computed(() => [...this.unlocked(), ...this.locked()]);
 
   ngOnInit(): void {
     this.settings.applyTheme(this.settings.settings().theme);

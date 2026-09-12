@@ -20,6 +20,8 @@ export class AppModule {}
 
 `/os/journal` already lazy-loads `JOURNAL_ROUTES`. Optional: `export * from './journal'` in `shared/index.ts` if you want `@ascend-os/shared` root re-exports. Feature code imports `@ascend-os/shared/journal`.
 
+UI: `app-page-header` title **Journal**, kicker `Write it down while it’s still clear.` PrimeNG `Tabs` (Entries / This week), `Card` (`pos-panel`), `Tag`, `Dialog`, `Textarea`, `InputText`, `FileUpload`. Bodies stay ciphertext + IV; the client decrypts after passphrase. “This week” KPIs are a local stub until Reports is wired.
+
 ## Activity
 
 `POST /api/journal` emits `JOURNAL_CREATED` through `ActivityBus` with `{ entryId }` only — no body, no ciphertext. XP comes from the shared table (15). This module does not write `XpLedger` or `Streak`.
