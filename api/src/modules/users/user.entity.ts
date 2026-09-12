@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 @Entity({ tableName: 'users' })
 export class User {
-  [OptionalProps]?: 'timezone' | 'theme' | 'createdAt';
+  [OptionalProps]?: 'timezone' | 'theme' | 'createdAt' | 'googleId' | 'pictureUrl' | 'passwordHash';
 
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
@@ -13,8 +13,15 @@ export class User {
   @Unique()
   email!: string;
 
-  @Property({ hidden: true })
-  passwordHash!: string;
+  @Property({ hidden: true, nullable: true })
+  passwordHash?: string | null;
+
+  @Property({ nullable: true })
+  @Unique()
+  googleId?: string | null;
+
+  @Property({ nullable: true })
+  pictureUrl?: string | null;
 
   @Property()
   displayName!: string;

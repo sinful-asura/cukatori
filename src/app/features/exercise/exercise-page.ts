@@ -5,8 +5,6 @@ import { MessageService } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Dialog } from 'primeng/dialog';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
@@ -18,9 +16,8 @@ import { Tag } from 'primeng/tag';
 import {
   formatKg,
   muscleLabel,
-  MUSCLE_LABELS,
   type ExerciseDto,
-  type MuscleSlug,
+  type LibraryExerciseDto,
   type PersonalRecordDto,
   type WorkoutDto,
   type WorkoutSetDto,
@@ -29,12 +26,18 @@ import { ExerciseApi } from '../../core/api/exercise.api';
 import { PageHeader } from '../../shared/ui/page-header/page-header';
 import { PosPanelHeader } from '../../shared/ui/pos/pos-panel-header';
 import { PosStat } from '../../shared/ui/pos/pos-stat';
+import { ExerciseLibrary } from './library/exercise-library';
 import {
   FALLBACK_CATALOG,
   FALLBACK_LAST_SESSION,
   FALLBACK_PREVIOUS_SESSION,
   FALLBACK_PRS,
 } from './exercise-fallback';
+import {
+  DEFAULT_EXERCISE_SWAPS,
+  exerciseMediaUrl,
+  type ExerciseSwap,
+} from './exercise-media';
 
 export type SessionLift = {
   name: string;
@@ -42,6 +45,7 @@ export type SessionLift = {
   initials: string;
   detail: string;
   volumeKg: number;
+  imageUrl: string | null;
 };
 
 @Component({
@@ -52,8 +56,6 @@ export type SessionLift = {
     Button,
     Card,
     Dialog,
-    IconField,
-    InputIcon,
     InputNumber,
     InputText,
     Message,
@@ -69,6 +71,7 @@ export type SessionLift = {
     PageHeader,
     PosPanelHeader,
     PosStat,
+    ExerciseLibrary,
   ],
   templateUrl: './exercise-page.html',
   styleUrl: './exercise-page.scss',
@@ -84,9 +87,6 @@ export class ExercisePage implements OnInit {
   readonly workouts = signal<WorkoutDto[]>([]);
   readonly catalog = signal<ExerciseDto[]>([]);
   readonly prs = signal<PersonalRecordDto[]>([]);
-
-  readonly catalogQuery = signal('');
-  readonly catalogMuscle = signal<string | null>(null);
 
   readonly logOpen = signal(false);
   readonly saving = signal(false);
@@ -184,26 +184,9 @@ export class ExercisePage implements OnInit {
     return `${change}${prBit}${liftBit}`;
   });
 
-  readonly filteredCatalog = computed(() => {
-    const q = this.catalogQuery().trim().toLowerCase();
-    const muscle = this.catalogMuscle();
-    return this.catalog().filter((exercise) => {
-      if (muscle && exercise.primaryMuscle !== muscle && !exercise.secondaryMuscles.includes(muscle as MuscleSlug)) {
-        return false;
-      }
-      if (!q) {
-        return true;
-      }
-      const haystack = [exercise.name, exercise.slug, ...exercise.aliases].join(' ').toLowerCase();
-      return haystack.includes(q);
-    });
-  });
-
   readonly exerciseOptions = computed(() =>
     this.catalog().map((exercise) => ({ label: exercise.name, value: exercise.id })),
   );
-
-  readonly muscleOptions = Object.entries(MUSCLE_LABELS).map(([value, label]) => ({ label, value }));
 
   readonly muscleVolume = computed(() => {
     const totals = new Map<string, number>();
@@ -224,6 +207,7 @@ export class ExercisePage implements OnInit {
   });
 
   readonly recentPrs = computed(() => this.prs().slice(0, 8));
+  readonly swaps = signal<ExerciseSwap[]>(DEFAULT_EXERCISE_SWAPS);
 
   ngOnInit(): void {
     this.reload();
@@ -265,7 +249,7 @@ export class ExercisePage implements OnInit {
     return muscleLabel(slug);
   }
 
-  openLog(): void {
+  openLog(fromLibrary?: LibraryExerciseDto): void {
     if (this.usingFallback()) {
       this.messages.add({
         severity: 'info',
@@ -274,9 +258,13 @@ export class ExercisePage implements OnInit {
       });
       return;
     }
-    this.logTitle = 'Back & Biceps';
+    this.logTitle = fromLibrary
+      ? `${fromLibrary.primaryMuscles[0] ?? 'Full body'} session`
+      : 'Back & Biceps';
     this.draft.set(null);
-    this.draftExerciseId = this.catalog()[0]?.id ?? null;
+    this.draftExerciseId = fromLibrary
+      ? matchCatalogId(fromLibrary, this.catalog())
+      : (this.catalog()[0]?.id ?? null);
     this.logOpen.set(true);
   }
 
@@ -453,8 +441,22 @@ function groupLifts(sets: WorkoutSetDto[]): SessionLift[] {
       initials: initials(first.exerciseName),
       detail: `${weightLabel} × ${reps}`,
       volumeKg: rows.reduce((sum, row) => sum + row.volumeKg, 0),
+      imageUrl: exerciseMediaUrl(first.exerciseName),
     };
   });
+}
+
+function matchCatalogId(exercise: LibraryExerciseDto, rows: ExerciseDto[]): string | null {
+  const norm = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const target = norm(exercise.name);
+  const exact = rows.find((row) => norm(row.name) === target);
+  if (exact) {
+    return exact.id;
+  }
+  const partial = rows.find(
+    (row) => norm(row.name).includes(target) || target.includes(norm(row.name)),
+  );
+  return partial?.id ?? rows[0]?.id ?? null;
 }
 
 function volumeByExercise(sets: WorkoutSetDto[]): Map<string, number> {

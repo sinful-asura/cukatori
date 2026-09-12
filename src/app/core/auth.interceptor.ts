@@ -11,8 +11,11 @@ import { environment } from './environment';
 const SESSION_LIFECYCLE = [
   '/auth/login',
   '/auth/register',
+  '/auth/google',
+  '/auth/config',
   '/auth/refresh',
   '/auth/logout',
+  '/auth/me',
 ];
 
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {

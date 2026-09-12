@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { AuthCookies, REFRESH_COOKIE } from './auth.cookies.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
-import { LoginRequest, RegisterRequest } from './auth.dto.js';
+import { GoogleAuthRequest, LoginRequest, RegisterRequest } from './auth.dto.js';
 import { CurrentUser } from './current-user.decorator.js';
 import type { User } from '../users/user.entity.js';
 
@@ -13,6 +13,11 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly cookies: AuthCookies,
   ) {}
+
+  @Get('config')
+  config() {
+    return this.auth.config();
+  }
 
   @Post('register')
   async register(
@@ -31,6 +36,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: LoginRequest, @Res({ passthrough: true }) res: Response) {
     const issued = await this.auth.login(body.email, body.password);
+    this.cookies.issue(res, issued.accessToken, issued.refreshToken);
+    return { user: issued.user };
+  }
+
+  @Post('google')
+  async google(@Body() body: GoogleAuthRequest, @Res({ passthrough: true }) res: Response) {
+    const issued = await this.auth.googleSignIn(body.credential);
     this.cookies.issue(res, issued.accessToken, issued.refreshToken);
     return { user: issued.user };
   }

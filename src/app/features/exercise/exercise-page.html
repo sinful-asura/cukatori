@@ -14,7 +14,7 @@
     <p class="muted">Loading sessions…</p>
   }
 
-  <p-tabs [value]="tab()" (valueChange)="onTabChange($event)">
+  <p-tabs styleClass="pos-tabs" [value]="tab()" (valueChange)="onTabChange($event)">
     <p-tablist>
       <p-tab value="overview">Overview</p-tab>
       <p-tab value="workouts">Workouts</p-tab>
@@ -29,7 +29,11 @@
               <div class="featured">
                 @for (lift of featuredLifts(); track lift.slug) {
                   <article class="thumb-card">
-                    <div class="thumb" aria-hidden="true">{{ lift.initials }}</div>
+                    @if (lift.imageUrl) {
+                      <img class="thumb" [src]="lift.imageUrl" [alt]="lift.name" />
+                    } @else {
+                      <div class="thumb" aria-hidden="true">{{ lift.initials }}</div>
+                    }
                     <div class="thumb-meta">
                       <p class="name">{{ lift.name }}</p>
                       <p class="detail">{{ lift.detail }}</p>
@@ -86,7 +90,11 @@
                 <ul class="lift-list">
                   @for (lift of sessionLifts(); track lift.slug) {
                     <li>
-                      <div class="lift-thumb" aria-hidden="true">{{ lift.initials }}</div>
+                      @if (lift.imageUrl) {
+                        <img class="lift-thumb" [src]="lift.imageUrl" [alt]="lift.name" />
+                      } @else {
+                        <div class="lift-thumb" aria-hidden="true">{{ lift.initials }}</div>
+                      }
                       <div class="min">
                         <p class="name">{{ lift.name }}</p>
                         <p class="detail">{{ lift.detail }}</p>
@@ -120,6 +128,33 @@
                 </ng-template>
               </p-table>
             </p-card>
+
+            <p-card styleClass="pos-panel">
+              <app-pos-panel-header
+                title="Exercise Substitutions"
+                subtitle="Chest · scored alternatives"
+              />
+              <div class="swaps">
+                @for (swap of swaps(); track swap.name) {
+                  <div class="swap">
+                    @if (swap.imageUrl) {
+                      <img [src]="swap.imageUrl" [alt]="swap.name" />
+                    } @else {
+                      <div class="lift-thumb">{{ swap.name }}</div>
+                    }
+                    <div class="min">
+                      <p class="name">{{ swap.name }}</p>
+                      <p class="match">{{ swap.match }}%</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </p-card>
+
+            <p class="media-note">
+              Exercise GIFs from ExerciseDB. Still photos fall back to initials when a clip is
+              missing.
+            </p>
 
             @if (recentPrs().length) {
               <p-card styleClass="pos-panel">
@@ -195,57 +230,7 @@
       </p-tabpanel>
 
       <p-tabpanel value="exercises">
-        <p-card styleClass="pos-panel">
-          <app-pos-panel-header title="Catalog" subtitle="Search local lifts by name or muscle." />
-          <div class="filters">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input
-                pInputText
-                type="text"
-                placeholder="Search lifts"
-                [ngModel]="catalogQuery()"
-                (ngModelChange)="catalogQuery.set($event)"
-              />
-            </p-iconfield>
-            <p-select
-              [options]="muscleOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Muscle"
-              [showClear]="true"
-              [ngModel]="catalogMuscle()"
-              (ngModelChange)="catalogMuscle.set($event)"
-            />
-          </div>
-          <p-table
-            [value]="filteredCatalog()"
-            [paginator]="true"
-            [rows]="12"
-            [tableStyle]="{ 'min-width': '44rem' }"
-          >
-            <ng-template #header>
-              <tr>
-                <th>Exercise</th>
-                <th>Primary</th>
-                <th>Equipment</th>
-                <th>Pattern</th>
-                <th>Type</th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-row>
-              <tr>
-                <td>{{ row.name }}</td>
-                <td>
-                  <p-tag [value]="muscleName(row.primaryMuscle)" severity="secondary" />
-                </td>
-                <td>{{ row.equipment }}</td>
-                <td>{{ row.pattern }}</td>
-                <td>{{ row.kind }}</td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </p-card>
+        <app-exercise-library (log)="openLog($event)" />
       </p-tabpanel>
 
       <p-tabpanel value="muscles">

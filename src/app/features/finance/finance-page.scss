@@ -39,6 +39,18 @@
   color: var(--text-secondary);
 }
 
+.kpi-delta {
+  margin: 12px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+
+.kpi-delta.up {
+  color: var(--accent-positive);
+}
+
 .kpi-meter {
   display: flex;
   align-items: center;

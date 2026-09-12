@@ -9,6 +9,7 @@ import { ActivityModule } from './modules/activity/activity.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { CatalogModule } from './modules/catalog/catalog.module.js';
 import { EntertainmentModule } from './modules/entertainment/entertainment.module.js';
+import { ExerciseLibraryModule } from './modules/exercise-library/exercise-library.module.js';
 import { ExerciseModule } from './modules/exercise/exercise.module.js';
 import { FinanceModule } from './modules/finance/finance.module.js';
 import { GamificationModule } from './modules/gamification/gamification.module.js';
@@ -39,6 +40,7 @@ import { seedKristijan } from './seeders/seed-kristijan.js';
     HabitsModule,
     GoalsModule,
     CatalogModule,
+    ExerciseLibraryModule,
     ExerciseModule,
     InsightsModule,
     PhotosModule,
@@ -56,7 +58,14 @@ export class AppModule implements OnModuleInit {
 
   async onModuleInit() {
     if (process.env.NODE_ENV !== 'production') {
-      await this.orm.schema.update();
+      try {
+        await this.orm.schema.update();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!message.includes('already exists')) {
+          throw error;
+        }
+      }
       await seedKristijan(this.orm.em.fork());
     }
   }

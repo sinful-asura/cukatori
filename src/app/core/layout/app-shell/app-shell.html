@@ -2,8 +2,8 @@
   <aside class="rail">
     <div class="rail-inner">
       <a routerLink="/os" class="workspace">
-        <span class="avatar">K</span>
-        <span>Kristijan’s workspace</span>
+        <span class="avatar">{{ initials() }}</span>
+        <span>{{ workspaceLabel() }}</span>
       </a>
 
       <nav>
@@ -34,17 +34,69 @@
       </nav>
     </div>
 
-    <div class="user">
-      <span class="avatar sm">K</span>
-      <span class="name">Kristijan</span>
-      <p-button
-        icon="pi pi-search"
-        [rounded]="true"
-        [text]="true"
-        aria-label="Quick log"
-        (onClick)="openQuickLog()"
-      />
+    <div class="user-wrap">
+      <div class="user-row">
+        <div class="account-wrap" [class.open]="accountOpen()" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="account-chip"
+            [attr.aria-expanded]="accountOpen()"
+            aria-label="Account"
+            (click)="toggleAccount($event)"
+          >
+            <span class="face" aria-hidden="true">
+              @if (pictureUrl(); as src) {
+                <img [src]="src" alt="" referrerpolicy="no-referrer" width="28" height="28" />
+              } @else {
+                {{ initials() }}
+              }
+            </span>
+            <span class="name">{{ displayName() }}</span>
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          @if (accountOpen()) {
+            <div class="account-menu" role="menu">
+              <p class="account-email">{{ session.user()?.email }}</p>
+              <a routerLink="/os/settings" role="menuitem" (click)="accountOpen.set(false)">
+                <i class="pi pi-cog"></i>
+                Settings
+              </a>
+              <button type="button" role="menuitem" (click)="openQuickLog()">
+                <i class="pi pi-search"></i>
+                Quick log
+              </button>
+              <div class="account-sep" aria-hidden="true"></div>
+              <button type="button" role="menuitem" (click)="logout($event)">Log out</button>
+            </div>
+          }
+        </div>
+
+        <button type="button" class="icon-btn bell" aria-label="Notifications" (click)="openNotes($event)">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
+          @if (unread() > 0) {
+            <span class="badge">{{ unread() }}</span>
+          }
+        </button>
+      </div>
     </div>
+    <p-popover #notes appendTo="body">
+      <div class="notes">
+        @for (note of inbox(); track note.id) {
+          <button type="button" class="note" [class.read]="!!note.readAt" (click)="readNote(note)">
+            <p class="note-title">{{ note.title }}</p>
+            <p class="note-body">{{ note.body }}</p>
+          </button>
+        } @empty {
+          <p class="notes-empty">You’re caught up.</p>
+        }
+      </div>
+    </p-popover>
   </aside>
 
   <main class="main">

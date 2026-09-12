@@ -14,7 +14,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  const origins = (process.env.CORS_ORIGINS ?? 'http://localhost:4200')
+  const origins = (process.env.CORS_ORIGINS ?? 'http://localhost:4200,http://127.0.0.1:4200')
     .split(',')
     .map((origin) => origin.trim());
   app.enableCors({

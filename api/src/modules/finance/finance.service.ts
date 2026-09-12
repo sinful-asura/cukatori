@@ -9,7 +9,8 @@ import { ActivityBus } from '../activity/activity.bus.js';
 import { User } from '../users/user.entity.js';
 import { Budget } from './budget.entity.js';
 import { DEFAULT_CATEGORIES } from './default-categories.js';
-import { seedTakeControlDemo } from './demo-seed.js';
+import { replaceTakeControlDemo, seedTakeControlDemo } from './demo-seed.js';
+import { KRISTIJAN_EMAIL } from '../../seeders/kristijan-demo.js';
 import type {
   BudgetDto,
   FinanceCategoryDto,
@@ -372,6 +373,16 @@ export class FinanceService {
     return budget;
   }
 
+  private async needsPosFinanceResync(user: User): Promise<boolean> {
+    const merkur = await this.em.findOne(Transaction, { user, merchant: 'Merkur' });
+    const oldHousingRent = await this.em.findOne(Transaction, {
+      user,
+      merchant: 'Rent',
+      amountCents: 85000,
+    });
+    return !merkur || !!oldHousingRent;
+  }
+
   private async ensureReady(user: User): Promise<FinanceCategory[]> {
     let categories = await this.em.find(FinanceCategory, { user }, { orderBy: { sortOrder: 'ASC' } });
     if (categories.length === 0) {
@@ -382,10 +393,30 @@ export class FinanceService {
       categories = await this.em.find(FinanceCategory, { user }, { orderBy: { sortOrder: 'ASC' } });
     }
 
+    const food = categories.find((item) => item.slug === 'food');
+    if (food && food.name !== 'Food & Dining') {
+      food.name = 'Food & Dining';
+      await this.em.flush();
+    }
+
+    const billsDef = DEFAULT_CATEGORIES.find((item) => item.slug === 'bills');
+    const bills = await this.em.findOne(FinanceCategory, { user, slug: 'bills' });
+    if (billsDef && !bills) {
+      try {
+        this.em.create(FinanceCategory, { user, ...billsDef });
+        await this.em.flush();
+      } catch {
+        this.em.clear();
+      }
+      categories = await this.em.find(FinanceCategory, { user }, { orderBy: { sortOrder: 'ASC' } });
+    }
+
+    const bySlug = new Map(categories.map((item) => [item.slug, item]));
     const txnCount = await this.em.count(Transaction, { user });
     if (txnCount === 0) {
-      const bySlug = new Map(categories.map((item) => [item.slug, item]));
       await seedTakeControlDemo(this.em, user, bySlug);
+    } else if (user.email === KRISTIJAN_EMAIL && (await this.needsPosFinanceResync(user))) {
+      await replaceTakeControlDemo(this.em, user, bySlug);
     }
     return categories;
   }

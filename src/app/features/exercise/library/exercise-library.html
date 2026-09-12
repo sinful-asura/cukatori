@@ -1,0 +1,197 @@
+<div class="library">
+  <p-card styleClass="pos-panel">
+    <app-pos-panel-header title="Library" [subtitle]="subtitle()" />
+
+    @if (fallbackNotice(); as notice) {
+      <p-message severity="secondary" styleClass="notice">{{ notice }}</p-message>
+    }
+
+    <div class="filters">
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Search movements"
+          [ngModel]="search"
+          (ngModelChange)="onSearch($event)"
+        />
+      </p-iconfield>
+
+      <p-select
+        [(ngModel)]="muscle"
+        [options]="muscleOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Muscle"
+        [showClear]="true"
+        (onChange)="reload()"
+      />
+
+      <p-select
+        [(ngModel)]="category"
+        [options]="categoryOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Equipment"
+        [showClear]="true"
+        (onChange)="reload()"
+      />
+
+      <p-select
+        [(ngModel)]="difficulty"
+        [options]="difficultyOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Difficulty"
+        [showClear]="true"
+        (onChange)="reload()"
+      />
+
+      @if (filtered) {
+        <p-button label="Clear" [text]="true" (onClick)="clearFilters()" />
+      }
+    </div>
+
+    @if (error()) {
+      <div class="state">
+        <p class="muted">{{ error() }}</p>
+        <p-button label="Try again" severity="secondary" (onClick)="reload()" />
+      </div>
+    } @else if (loading()) {
+      <p class="muted">Loading movements…</p>
+    } @else if (exercises().length === 0) {
+      <div class="state">
+        <p class="muted">No exercises match those filters.</p>
+        <p-button label="Clear filters" severity="secondary" (onClick)="clearFilters()" />
+      </div>
+    } @else {
+      <div class="grid">
+        @for (exercise of exercises(); track exercise.id) {
+          <article
+            class="thumb-card"
+            [class.active]="selected()?.id === exercise.id"
+            (click)="select(exercise)"
+          >
+            <div class="thumb" aria-hidden="true">
+              @if (preview(exercise); as media) {
+                @if (media.kind === 'video') {
+                  <video [src]="media.src" muted loop playsinline autoplay></video>
+                } @else {
+                  <img [src]="media.src" alt="" />
+                }
+              } @else {
+                {{ initials(exercise.name) }}
+              }
+            </div>
+            <div class="thumb-meta">
+              <p class="name">{{ exercise.name }}</p>
+              <p class="detail">{{ muscleLabel(exercise) }}</p>
+              <div class="tags">
+                @if (exercise.category) {
+                  <p-tag [value]="exercise.category" severity="secondary" />
+                }
+                @if (exercise.difficulty) {
+                  <p-tag [value]="exercise.difficulty" severity="secondary" />
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      @if (hasMore()) {
+        <div class="more">
+          <p-button
+            [label]="loadingMore() ? 'Loading…' : 'Load more'"
+            severity="secondary"
+            [disabled]="loadingMore()"
+            (onClick)="loadMore()"
+          />
+        </div>
+      }
+    }
+  </p-card>
+
+  @if (selected(); as exercise) {
+    <p-card styleClass="pos-panel">
+      <app-pos-panel-header [title]="exercise.name" [subtitle]="muscleLabel(exercise)">
+        <div class="detail-actions">
+          <p-button label="Log workout" icon="pi pi-plus" (onClick)="log.emit(exercise)" />
+          <p-button
+            icon="pi pi-times"
+            [text]="true"
+            [rounded]="true"
+            ariaLabel="Close"
+            (onClick)="closeDetail()"
+          />
+        </div>
+      </app-pos-panel-header>
+
+      <div class="detail-body">
+        <div class="detail-media">
+          @if (activeVideo(); as video) {
+            <video
+              class="demo"
+              [src]="video.url"
+              [poster]="video.thumbnail ?? ''"
+              controls
+              autoplay
+              muted
+              loop
+              playsinline
+            ></video>
+            @if (exercise.videos.length > 1) {
+              <div class="angles">
+                @for (clip of exercise.videos; track clip.url; let i = $index) {
+                  <p-button
+                    [label]="clip.variant ?? 'Clip ' + (i + 1)"
+                    size="small"
+                    [severity]="i === videoIndex() ? undefined : 'secondary'"
+                    [outlined]="i !== videoIndex()"
+                    (onClick)="showVideo(i)"
+                  />
+                }
+              </div>
+            }
+          } @else {
+            <div class="no-media">
+              <p class="muted">No demonstration clip published for this movement.</p>
+            </div>
+          }
+        </div>
+
+        <div class="detail-info">
+          @if (detailFacts().length) {
+            <dl class="facts">
+              @for (fact of detailFacts(); track fact.label) {
+                <div>
+                  <dt>{{ fact.label }}</dt>
+                  <dd>{{ fact.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          <h3>Muscles worked</h3>
+          <div class="tags">
+            @for (muscle of exercise.primaryMuscles; track muscle) {
+              <p-tag [value]="muscle" severity="secondary" />
+            }
+          </div>
+
+          <h3>How to perform</h3>
+          @if (exercise.steps.length) {
+            <ol class="steps">
+              @for (step of exercise.steps; track step) {
+                <li>{{ step }}</li>
+              }
+            </ol>
+          } @else {
+            <p class="muted">No coaching steps recorded for this movement.</p>
+          }
+        </div>
+      </div>
+    </p-card>
+  }
+</div>

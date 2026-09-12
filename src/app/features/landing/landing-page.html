@@ -1,6 +1,9 @@
 <div class="landing">
   <nav class="top">
-    <a routerLink="/" class="brand"><span class="mark"></span> Ascend OS</a>
+    <a routerLink="/" class="brand">
+      <img src="/logo.svg" alt="" width="18" height="18" />
+      <span>Ascend OS</span>
+    </a>
     <div class="links">
       <span>Product</span>
       <span>Features</span>
@@ -8,8 +11,12 @@
       <span>Docs</span>
     </div>
     <div class="actions">
-      <p-button label="Sign in" [text]="true" routerLink="/os" />
-      <p-button label="Get started" routerLink="/os" />
+      @if (session.isLoggedIn()) {
+        <p-button label="Open app" routerLink="/os" />
+      } @else {
+        <p-button label="Sign in" [text]="true" routerLink="/login" />
+        <p-button label="Get started" routerLink="/register" />
+      }
     </div>
   </nav>
 
@@ -22,8 +29,12 @@
         entertainment and more — so you can live a more intentional life.
       </p>
       <div class="hero-actions">
-        <p-button label="Get started →" routerLink="/os" />
-        <p-button label="Watch video" [text]="true" routerLink="/os" />
+        @if (session.isLoggedIn()) {
+          <p-button label="Open app →" routerLink="/os" />
+        } @else {
+          <app-google-sign-in text="signup_with" [width]="280" (signedIn)="onGoogleSignedIn()" />
+          <p-button label="Watch video" [text]="true" routerLink="/login" />
+        }
       </div>
       <div class="pillars">
         <div>

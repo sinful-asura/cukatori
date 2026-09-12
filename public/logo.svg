@@ -1,0 +1,16 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  fill="none"
+  role="img"
+  aria-labelledby="ascend-logo-title ascend-logo-description"
+>
+  <title id="ascend-logo-title">Ascend OS</title>
+  <desc id="ascend-logo-description">Connected geometric forms rising into an abstract letter A.</desc>
+  <path
+    fill="#0091FF"
+    d="M21.5 62V21.6L.94 42.16A3.2 3.2 0 0 0 0 44.42V62.4A1.6 1.6 0 0 0 1.6 64h18.3a1.6 1.6 0 0 0 1.6-1.6V62Zm41.56-41.16L42 0v62.4a1.6 1.6 0 0 0 1.6 1.6h18.8a1.6 1.6 0 0 0 1.6-1.6V23.1a3.2 3.2 0 0 0-.94-2.26ZM21.5 1.6A1.6 1.6 0 0 1 23.1 0H42v21.6H21.5v-20Z"
+  />
+</svg>

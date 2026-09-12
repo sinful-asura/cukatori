@@ -30,7 +30,38 @@ import { FinanceApi } from '../../core/api/finance.api';
 import { PageHeader, PosBarChart, PosDonutChart, PosPanelHeader, type PosDonutSegment } from '../../shared/ui/pos';
 
 const DEMO_MONTH = new Date(2026, 8, 1);
-const HIGHLIGHT_SLUGS = ['food', 'shopping', 'entertainment', 'transport'] as const;
+const CHART_ORDER = ['food', 'transport', 'shopping', 'entertainment', 'bills', 'health', 'other'] as const;
+const CHART_LABELS: Record<(typeof CHART_ORDER)[number], string> = {
+  food: 'Food',
+  transport: 'Transport',
+  shopping: 'Shopping',
+  entertainment: 'Entertainment',
+  bills: 'Bills',
+  health: 'Health',
+  other: 'Other',
+};
+const HIGHLIGHTS = [
+  { slug: 'food', label: 'Food & Dining', meter: '#f43f5e' },
+  { slug: 'shopping', label: 'Shopping', meter: '#f43f5e' },
+  { slug: 'entertainment', label: 'Entertainment', meter: '#f43f5e' },
+  { slug: 'transport', label: 'Transport', meter: '#3b82f6' },
+] as const;
+const BUDGET_TONES: Record<string, string> = {
+  food: '#34d56b',
+  entertainment: '#22d3ee',
+  shopping: '#f43f5e',
+  transport: '#eab308',
+};
+const MERCHANT_MARKS: Record<string, { mark: string; color: string }> = {
+  "mcdonald's": { mark: 'M', color: '#ef4444' },
+  merkur: { mark: 'M', color: '#f43f5e' },
+  nis: { mark: 'N', color: '#6366f1' },
+  steam: { mark: 'S', color: '#2563eb' },
+  konzum: { mark: 'K', color: '#16a34a' },
+  spotify: { mark: 'S', color: '#22c55e' },
+  zara: { mark: 'Z', color: '#111110' },
+};
+const GROCERY_MERCHANTS = new Set(['merkur']);
 
 type FinanceTab = 'overview' | 'transactions' | 'budgets' | 'categories' | 'import';
 
@@ -73,33 +104,69 @@ export class FinancePage implements OnInit {
   readonly monthDate = signal<Date>(DEMO_MONTH);
   readonly loading = signal(false);
   readonly overview = signal<FinanceOverviewDto | null>(null);
+  readonly prevSpent = signal<number | null>(null);
   readonly transactions = signal<TransactionDto[]>([]);
   readonly budgets = signal<BudgetDto[]>([]);
   readonly categories = signal<FinanceCategoryDto[]>([]);
   readonly importResult = signal<ImportResultDto | null>(null);
 
   readonly monthKey = computed(() => toMonthKey(this.monthDate()));
-  readonly highlightSpend = computed<CategorySpendDto[]>(() => {
+  readonly highlightSpend = computed(() => {
     const rows = this.overview()?.byCategory ?? [];
-    const picked = HIGHLIGHT_SLUGS.map((slug) => rows.find((row) => row.category.slug === slug)).filter(
-      (row): row is CategorySpendDto => !!row,
-    );
-    return picked.length ? picked : rows.slice(0, 4);
+    return HIGHLIGHTS.map((item) => {
+      const row = rows.find((entry) => entry.category.slug === item.slug);
+      return {
+        slug: item.slug,
+        label: item.label,
+        meter: item.meter,
+        amount: row?.amount ?? 0,
+        percent: row?.percent ?? 0,
+      };
+    });
   });
+  readonly spendDelta = computed(() => {
+    const current = this.overview()?.totalSpent ?? 0;
+    const prev = this.prevSpent();
+    if (prev == null || prev <= 0) {
+      return '';
+    }
+    const pct = Math.round(((current - prev) / prev) * 100);
+    const arrow = pct >= 0 ? '↑' : '↓';
+    return `${arrow} ${Math.abs(pct)}% vs last month`;
+  });
+  readonly spendDeltaUp = computed(() => this.spendDelta().startsWith('↑'));
   readonly recentExpenses = computed(() => (this.overview()?.recent ?? []).slice(0, 4));
-  readonly spendValues = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.amount));
-  readonly spendLabels = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.category.name));
-  readonly spendColors = computed(() => (this.overview()?.byCategory ?? []).map((row) => row.category.color));
+  readonly chartRows = computed(() => {
+    const rows = this.overview()?.byCategory ?? [];
+    const bySlug = new Map(rows.map((row) => [row.category.slug, row]));
+    const ordered = CHART_ORDER.map((slug) => bySlug.get(slug)).filter(
+      (row): row is CategorySpendDto => !!row && row.amount > 0,
+    );
+    return ordered.length ? ordered : rows;
+  });
+  readonly spendValues = computed(() => this.chartRows().map((row) => row.amount));
+  readonly spendLabels = computed(() =>
+    this.chartRows().map((row) => CHART_LABELS[row.category.slug as (typeof CHART_ORDER)[number]] ?? row.category.name),
+  );
+  readonly spendColors = computed(() => this.chartRows().map((row) => row.category.color));
   readonly spendAxis = computed(() => euroAxis(Math.max(0, ...this.spendValues())));
   readonly donutSegments = computed<PosDonutSegment[]>(() =>
-    (this.overview()?.byCategory ?? []).map((row) => ({
-      label: row.category.name,
+    this.chartRows().map((row) => ({
+      label: CHART_LABELS[row.category.slug as (typeof CHART_ORDER)[number]] ?? row.category.name,
       value: row.amount,
       color: row.category.color,
       pct: Math.round(row.percent),
     })),
   );
   readonly donutTotal = computed(() => this.euro(this.overview()?.totalSpent ?? 0));
+  readonly overviewBudgets = computed(() => {
+    const rows = this.budgets();
+    const preferred = ['food', 'entertainment', 'shopping', 'transport'];
+    const picked = preferred
+      .map((slug) => rows.find((row) => row.category.slug === slug))
+      .filter((row): row is BudgetDto => !!row);
+    return picked.length ? picked : rows.slice(0, 4);
+  });
   readonly expenseCategories = computed(() => this.categories().filter((item) => item.kind === 'expense'));
   readonly kindOptions = [
     { label: 'Expense', value: 'expense' },
@@ -118,6 +185,15 @@ export class FinancePage implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
+  }
+
+  private loadPrevSpent(month: string): void {
+    const [year, part] = month.split('-').map(Number);
+    const prev = new Date(year, part - 2, 1);
+    this.api.overview(toMonthKey(prev)).subscribe({
+      next: (row) => this.prevSpent.set(row.totalSpent),
+      error: () => this.prevSpent.set(null),
+    });
   }
 
   showTab(tab: FinanceTab): void {
@@ -146,6 +222,7 @@ export class FinancePage implements OnInit {
         this.transactions.set(transactions);
         this.budgets.set(budgets);
         this.categories.set(categories);
+        this.loadPrevSpent(month);
         if (!this.txnCategoryId && categories.length) {
           this.txnCategoryId = categories.find((item) => item.kind === 'expense')?.id ?? categories[0].id;
         }
@@ -344,7 +421,32 @@ export class FinancePage implements OnInit {
     if (row.kind === 'income') {
       return '€';
     }
-    return row.merchant.trim().charAt(0).toUpperCase() || '·';
+    return this.merchantMark(row).mark;
+  }
+
+  markColor(row: TransactionDto): string {
+    if (row.kind === 'income') {
+      return '#10a142';
+    }
+    return this.merchantMark(row).color;
+  }
+
+  categoryLabel(row: TransactionDto): string {
+    if (GROCERY_MERCHANTS.has(row.merchant.trim().toLowerCase())) {
+      return 'Groceries';
+    }
+    return row.category.name;
+  }
+
+  private merchantMark(row: TransactionDto): { mark: string; color: string } {
+    const known = MERCHANT_MARKS[row.merchant.trim().toLowerCase()];
+    if (known) {
+      return known;
+    }
+    return {
+      mark: row.merchant.trim().charAt(0).toUpperCase() || '·',
+      color: row.category.color,
+    };
   }
 
   pct(value: number): number {
@@ -363,13 +465,7 @@ export class FinancePage implements OnInit {
   }
 
   budgetColor(row: BudgetDto): string {
-    if (row.overLimit || row.utilization >= 95) {
-      return '#f43f5e';
-    }
-    if (row.utilization >= 80) {
-      return '#eab308';
-    }
-    return '#34d56b';
+    return BUDGET_TONES[row.category.slug] ?? row.category.color;
   }
 }
 
@@ -388,7 +484,7 @@ function niceCeil(value: number): number {
   }
   const magnitude = 10 ** Math.floor(Math.log10(value));
   const normalized = value / magnitude;
-  const nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  const nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : normalized <= 6 ? 6 : 10;
   return nice * magnitude;
 }
 

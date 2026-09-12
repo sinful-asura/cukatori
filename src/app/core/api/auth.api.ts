@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, finalize, map, shareReplay, tap, throwError } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../environment';
 import { SessionService, SessionUser } from '../session.service';
 
@@ -9,12 +9,30 @@ export interface AuthResponse {
   user: SessionUser;
 }
 
+export interface AuthConfig {
+  googleClientId: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
   private readonly http = inject(HttpClient);
   private readonly session = inject(SessionService);
   private readonly base = `${environment.apiUrl}/auth`;
   private refreshInFlight: Observable<SessionUser> | null = null;
+  private configInFlight: Observable<AuthConfig> | null = null;
+
+  getConfig(): Observable<AuthConfig> {
+    this.configInFlight ??= this.http
+      .get<AuthConfig>(`${this.base}/config`)
+      .pipe(shareReplay({ bufferSize: 1, refCount: false }));
+    return this.configInFlight;
+  }
+
+  googleSignIn(credential: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.base}/google`, { credential })
+      .pipe(tap((res) => this.storeSession(res)));
+  }
 
   register(email: string, password: string, displayName?: string): Observable<AuthResponse> {
     return this.http
@@ -29,12 +47,10 @@ export class AuthApi {
   }
 
   me(): Observable<SessionUser> {
-    return this.http
-      .get<AuthResponse>(`${this.base}/me`)
-      .pipe(
-        tap((res) => this.session.setFromApi(res.user)),
-        map((res) => res.user),
-      );
+    return this.http.get<AuthResponse>(`${this.base}/me`).pipe(
+      tap((res) => this.session.setFromApi(res.user)),
+      map((res) => res.user),
+    );
   }
 
   hasSession(): boolean {
@@ -63,12 +79,17 @@ export class AuthApi {
   }
 
   restore(): void {
-    this.me().subscribe({ error: () => undefined });
+    this.me().subscribe({
+      error: () => this.clearSession(),
+    });
   }
 
-  logout(): void {
-    this.http.post<{ ok: true }>(`${this.base}/logout`, null).subscribe({ error: () => undefined });
-    this.clearSession();
+  logout(): Observable<void> {
+    return this.http.post<{ ok: true }>(`${this.base}/logout`, null).pipe(
+      catchError(() => of({ ok: true as const })),
+      tap(() => this.clearSession()),
+      map(() => undefined),
+    );
   }
 
   private clearSession(): void {

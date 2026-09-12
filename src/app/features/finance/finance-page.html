@@ -15,7 +15,7 @@
     />
   </app-page-header>
 
-  <p-tabs [(value)]="activeTab">
+  <p-tabs styleClass="pos-underline" [(value)]="activeTab">
     <p-tablist>
       <p-tab value="overview">Overview</p-tab>
       <p-tab value="transactions">Transactions</p-tab>
@@ -31,18 +31,21 @@
               <div class="kpi-body">
                 <p class="kpi-value">{{ euro(overview()?.totalSpent ?? 0) }}</p>
                 <p class="kpi-label">Total spending</p>
+                @if (spendDelta()) {
+                  <p class="kpi-delta" [class.up]="spendDeltaUp()">{{ spendDelta() }}</p>
+                }
               </div>
             </p-card>
-            @for (item of highlightSpend(); track item.category.id) {
+            @for (item of highlightSpend(); track item.slug) {
               <p-card styleClass="pos-panel">
                 <div class="kpi-body">
                   <p class="kpi-value">{{ euro(item.amount) }}</p>
-                  <p class="kpi-label">{{ item.category.name }}</p>
+                  <p class="kpi-label">{{ item.label }}</p>
                   <div class="kpi-meter">
                     <p-progressbar
                       [value]="pct(item.percent)"
                       [showValue]="false"
-                      [style]="barStyle(item.category.color)"
+                      [style]="barStyle(item.meter)"
                     />
                     <span>{{ pct(item.percent) }}%</span>
                   </div>
@@ -94,12 +97,12 @@
               <ul class="txn-list">
                 @for (row of recentExpenses(); track row.id; let i = $index) {
                   <li [class.ruled]="i > 0">
-                    <span class="mark" [style.background]="row.category.color">{{ mark(row) }}</span>
+                    <span class="mark" [style.background]="markColor(row)">{{ mark(row) }}</span>
                     <div class="txn-copy">
                       <p class="txn-name">{{ row.merchant }}</p>
                       <p class="txn-date">{{ when(row.occurredAt) }}</p>
                     </div>
-                    <p class="txn-cat">{{ row.category.name }}</p>
+                    <p class="txn-cat">{{ categoryLabel(row) }}</p>
                     <p class="txn-amt">{{ signedEuro(row) }}</p>
                   </li>
                 } @empty {
@@ -113,7 +116,7 @@
                 <p-button label="Set budgets" [text]="true" size="small" (onClick)="showTab('budgets')" />
               </app-pos-panel-header>
               <div class="budget-stack">
-                @for (row of budgets(); track row.id) {
+                @for (row of overviewBudgets(); track row.id) {
                   <div>
                     <div class="budget-meta">
                       <span class="budget-name">{{ row.category.name }}</span>
@@ -184,11 +187,11 @@
               <tr>
                 <td>
                   <div class="merchant-cell">
-                    <span class="mark" [style.background]="row.category.color">{{ mark(row) }}</span>
+                    <span class="mark" [style.background]="markColor(row)">{{ mark(row) }}</span>
                     <span class="txn-name">{{ row.merchant }}</span>
                   </div>
                 </td>
-                <td class="secondary">{{ row.category.name }}</td>
+                <td class="secondary">{{ categoryLabel(row) }}</td>
                 <td class="muted">{{ when(row.occurredAt) }}</td>
                 <td class="num" [class.income]="row.kind === 'income'">{{ signedEuro(row) }}</td>
                 <td>

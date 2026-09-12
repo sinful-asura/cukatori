@@ -6,6 +6,7 @@ import { AuthCookies } from './auth.cookies.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
 import { AuthSessionService } from './auth-session.service.js';
+import { GoogleCredentialVerifier } from './google-credential.verifier.js';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { AuthSessionService } from './auth-session.service.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthSessionService, AuthCookies, AuthGuard],
+  providers: [AuthService, AuthSessionService, AuthCookies, AuthGuard, GoogleCredentialVerifier],
   exports: [JwtModule, AuthService, AuthGuard, AuthSessionService, AuthCookies],
 })
 export class AuthModule {}

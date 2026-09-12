@@ -22,3 +22,9 @@ export class LoginRequest {
   @IsString()
   password!: string;
 }
+
+export class GoogleAuthRequest {
+  @IsString()
+  @MinLength(20)
+  credential!: string;
+}

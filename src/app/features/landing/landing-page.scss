@@ -33,11 +33,10 @@
   font-weight: 500;
 }
 
-.mark {
-  width: 10px;
-  height: 10px;
-  border-radius: 99px;
-  background: var(--accent);
+.brand img {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .links {
@@ -46,7 +45,12 @@
 
 .actions,
 .hero-actions {
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.hero-actions app-google-sign-in {
+  min-width: 280px;
 }
 
 .hero {

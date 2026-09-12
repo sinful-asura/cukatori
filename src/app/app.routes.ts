@@ -1,4 +1,5 @@
 import { RedirectFunction, Routes } from '@angular/router';
+import { guestGuard, sessionGuard } from './core/session.guard';
 
 const redirectAppToOs: RedirectFunction = ({ url }) => {
   const rest = url.map((segment) => segment.path).filter(Boolean).join('/');
@@ -16,7 +17,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/landing/landing-page').then((m) => m.LandingPage),
   },
   {
+    path: 'login',
+    canActivate: [guestGuard],
+    data: { mode: 'login' },
+    loadComponent: () => import('./features/auth/auth-page').then((m) => m.AuthPage),
+  },
+  {
+    path: 'register',
+    canActivate: [guestGuard],
+    data: { mode: 'register' },
+    loadComponent: () => import('./features/auth/auth-page').then((m) => m.AuthPage),
+  },
+  {
     path: 'os',
+    canActivate: [sessionGuard],
     loadComponent: () => import('./core/layout/app-shell/app-shell').then((m) => m.AppShell),
     children: [
       {

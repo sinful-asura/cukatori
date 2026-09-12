@@ -8,16 +8,18 @@ Import both modules. MikroORM already globs `src/**/*.entity.ts`, so `mikro-orm.
 
 ```ts
 import { CatalogModule } from './modules/catalog/catalog.module.js';
+import { ExerciseLibraryModule } from './modules/exercise-library/exercise-library.module.js';
 import { ExerciseModule } from './modules/exercise/exercise.module.js';
 
 imports: [
   // …
   CatalogModule,
+  ExerciseLibraryModule,
   ExerciseModule,
 ]
 ```
 
-`ExerciseModule` already imports `CatalogModule`, `ActivityModule`, and `AuthModule`. Importing `ExerciseModule` alone also registers `GET /api/exercises`. Listing both keeps ownership obvious.
+`ExerciseModule` already imports `CatalogModule`, `ActivityModule`, and `AuthModule`. Importing `ExerciseModule` alone also registers `GET /api/exercises` (loggable catalog ids). `ExerciseLibraryModule` is the public MuscleWiki browse API at `GET /api/exercise-library` — keep it off `/exercises` so substitutes stay on `GET /api/exercises/:id/substitutes`.
 
 ## Shared barrel (`shared/index.ts`)
 
@@ -27,9 +29,11 @@ Frontend imports `@ascend-os/shared/exercise` (path-mapped). Optional barrel add
 export * from './exercise';
 ```
 
-## Nest contracts (`api/src/contracts/exercise.ts`)
+## Nest contracts (`api/src/contracts/exercise-library.ts`)
 
-Optional copy of `shared/exercise`. Types used by Nest live under `api/src/modules/{catalog,exercise}` so the API does not import repo-root `shared/`.
+Keep in sync with `shared/exercise/catalog.ts`. Nest cannot import repo-root `shared/`.
+
+Optional empty `MUSCLEWIKI_API_KEY` in `.env` — the module then serves the bundled 16-lift catalogue and reports `fallbackReason`.
 
 ## Routes
 
@@ -45,4 +49,4 @@ First authenticated `GET /api/workouts` or `GET /api/exercises` seeds ~109 catal
 
 ## UI
 
-`/os/exercise` uses `app-page-header` (title = last session name, kicker = `Last session · Sep 10, 2026`) plus PrimeNG Tabs / Table / ProgressBar / Card (`pos-panel`) / Tag. Overview matches Personal OS ExerciseView: featured lifts, PosStat KPIs, hedged recap, muscle bars, session log, and PRs. Catalog / workout / PR tables stay on live API data. Do not edit `body-map/` or `insights/` from this scenario.
+`/os/exercise` uses `app-page-header` (title = last session name, kicker = `Last session · Sep 10, 2026`) plus PrimeNG Tabs / Table / ProgressBar / Card (`pos-panel`) / Tag. Overview matches Personal OS ExerciseView: featured lifts, PosStat KPIs, hedged recap, muscle bars, session log, and PRs. The Exercises tab is the MuscleWiki library (`app-exercise-library`): search, muscle/equipment/difficulty filters, paging, and a detail panel with demonstration video. Logging a set from the library name-matches against `/api/exercises`. Do not edit `body-map/` or `insights/` from this scenario.
