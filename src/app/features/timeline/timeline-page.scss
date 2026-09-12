@@ -1,0 +1,71 @@
+:host {
+  display: block;
+}
+
+.timeline-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 760px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+header p,
+.empty,
+.xp,
+time + span {
+  color: var(--text-muted);
+}
+
+header p {
+  margin: 6px 0 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filters p-select {
+  min-width: 160px;
+}
+
+.empty {
+  margin: 0;
+}
+
+.event {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 8px;
+}
+
+.event-head,
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.event strong {
+  font-weight: 600;
+}
+
+.event p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+time {
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
