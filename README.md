@@ -10,7 +10,7 @@ npm install
 cd api && npm install && cd ..
 
 npm run local              # db + api + fe
-npm run local -- db        # Postgres 18 container, :5432
+npm run local -- db        # Postgres 18 container, :5433 (Garage uses :5432)
 npm run local -- api       # nest start --watch on :3000
 npm run local -- fe        # ng serve on :4200 (proxies /api)
 npm run local -- seed

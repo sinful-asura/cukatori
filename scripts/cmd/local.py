@@ -80,6 +80,10 @@ def wait_for_postgres(timeout_s: int = 90) -> None:
     )
 
 
+def _host_port() -> str:
+    return load_repo_env().get("POSTGRES_PORT", "5433")
+
+
 def _postgres_host_port() -> str:
     result = subprocess.run(
         ["docker", "port", POSTGRES_CONTAINER, "5432"],
@@ -91,18 +95,19 @@ def _postgres_host_port() -> str:
 
 def start_db() -> None:
     ensure_env_file()
-    print("=== local db (Compose Postgres 18) ===")
+    host_port = _host_port()
+    print(f"=== local db (Compose Postgres 18 on :{host_port}) ===")
     up = ["docker", "compose", *compose_db_args(), "up", "-d"]
     subprocess.check_call(up, cwd=REPO)
     wait_for_postgres()
     if not _postgres_host_port():
-        print("  :5432 not published on the host — recreating container…", flush=True)
+        print(f"  :{host_port} not published on the host — recreating container…", flush=True)
         subprocess.check_call([*up, "--force-recreate"], cwd=REPO)
         wait_for_postgres()
     if not _postgres_host_port():
         raise RuntimeError(
-            "Compose Postgres is healthy inside Docker, but :5432 is not published "
-            "to the host. Nest still connects to localhost:5432.\n"
+            "Compose Postgres is healthy inside Docker, but the host port is not published. "
+            f"Nest expects DATABASE_URL on localhost:{host_port}.\n"
             "Re-run: npm run local -- db"
         )
 

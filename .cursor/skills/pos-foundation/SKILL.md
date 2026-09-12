@@ -9,7 +9,7 @@ Project skill only. Stay in `docker/**`, `api/**`, `.env.example`, `proxy.conf.j
 
 ## Do
 
-1. Postgres 18 Alpine compose in `docker/docker-compose.db.yaml` + host port overlay `docker-compose.db.local.yaml` (5432). API compose optional.
+1. Postgres 18 Alpine compose in `docker/docker-compose.db.yaml` + host port overlay `docker-compose.db.local.yaml` (`POSTGRES_PORT`, default 5433 so it does not collide with Knežević Garage on 5432). API compose optional.
 2. `.env.example`: `POSTGRES_*`, `JWT_SECRET`, `DATABASE_URL`, `UPLOAD_DIR`, `PORT=3000`.
 3. `proxy.conf.json` at repo root: `/api` → `http://localhost:3000`.
 4. Nest already exists in `api/` (ESM, Nest 12). Do not `nest new` again.
