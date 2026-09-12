@@ -125,6 +125,8 @@ def fe_cmd() -> list[str]:
     return [
         *resolve_ng(),
         "serve",
+        "--port",
+        "4200",
         "--proxy-config",
         "proxy.conf.json",
     ]
@@ -200,8 +202,12 @@ def run_blocking(commands: list[tuple[str, list[str], Path]]) -> int:
     atexit.register(cleanup)
     try:
         for name, cmd, cwd in commands:
+            env = child_env.copy()
+            if name == "fe":
+                # .env PORT is for Nest; Angular CLI also reads PORT and would bind :3000.
+                env.pop("PORT", None)
             print(f"+ [{name}] {' '.join(cmd)}", flush=True)
-            _procs.append(_popen(cmd, cwd, child_env))
+            _procs.append(_popen(cmd, cwd, env))
         while not _cleaned:
             still = [p for p in _procs if p.poll() is None]
             if not still:
