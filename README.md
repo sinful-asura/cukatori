@@ -1,8 +1,14 @@
 # Cukatori — Personal OS
 
-Angular 22 frontend, NestJS API, PostgreSQL 18. Same local/deploy split as Knežević Garage: **Docker only for Postgres on the laptop**; Nest and `ng serve` stay on the host. Production images wrap all three.
+A private life OS for one person: habits, goals, workouts, entertainment, finance, an encrypted journal, and a weekly recap. Activity from every module goes through one bus so XP, streaks, and the timeline stay consistent. Demo user is **Kristijan** (level 18, 12-day streak).
+
+Stack: Angular 22, NestJS, PostgreSQL 18. Same local/deploy split as Knežević Garage — **Docker only for Postgres on the laptop**; Nest and `ng serve` stay on the host. Production images wrap all three.
+
+Full spec: [PROJECT.md](PROJECT.md).
 
 ## Local
+
+Needs Python 3.12 (see `.python-version`) and global `ng` / `nest`. Do not run `ng new` again.
 
 ```bash
 cp .env.example .env
@@ -10,13 +16,17 @@ npm install
 cd api && npm install && cd ..
 
 npm run local              # db + api + fe
-npm run local -- db        # Postgres 18 container, :5433 (Garage uses :5432)
-npm run local -- api       # nest start --watch on :3000
-npm run local -- fe        # ng serve on :4200 (proxies /api)
+npm run local -- db        # Postgres 18 container, host :5433 (Garage already uses :5432)
+npm run local -- api       # Nest watch on :3000
+npm run local -- fe        # ng serve on :4200 (proxies /api → :3000)
 npm run local -- seed
 ```
 
 Open [http://localhost:4200](http://localhost:4200). API: [http://localhost:3000/api/health](http://localhost:3000/api/health).
+
+`.env` `PORT=3000` is **Nest only**. Angular CLI also reads `PORT`, so `npm run local -- fe` unsets it and passes `--port 4200`. Do not point `ng serve` at 3000.
+
+TypeScript 6 deprecates `baseUrl` (TS5101). Path aliases in `tsconfig.json` use `./shared/...` — do not add `baseUrl` back or the frontend will not compile. Incremental `*.tsbuildinfo` files are gitignored.
 
 ## Production
 
@@ -41,5 +51,3 @@ On the server: `docker compose --env-file .env -f docker/docker-compose.prod.yam
 | `src/nginx/` | Host nginx |
 | `scripts/cmd/` | `local` / `build` / `deploy` |
 | `.cursor/` | Project-scoped swarm skills |
-
-CLIs: global `ng` and `nest`. Do not `ng new` again.
