@@ -182,6 +182,40 @@ export const KRISTIJAN_EVENTS: ActivityEventDto[] = [
   },
 ];
 
+export const WEEK_ACTIVITY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+
+export const SEED_WEEK_ACTIVITY = [1, 3, 5, 2, 4, 6, 2];
+
+export const SEED_MIX_SERIES: { label: string; color: string; values: number[] }[] = [
+  { label: 'Exercise', color: '#0091ff', values: [0, 2, 4, 1, 3, 5, 1] },
+  { label: 'Habits', color: '#fde047', values: [1, 1, 2, 1, 2, 2, 1] },
+  { label: 'Reading', color: '#eab308', values: [0, 1, 1, 2, 1, 2, 0] },
+  { label: 'Finance', color: '#a16207', values: [0, 1, 0, 1, 0, 2, 1] },
+];
+
+export interface HourlyRow {
+  time: string;
+  habit: string;
+  exercise: string;
+  media: string;
+  spend: string;
+  xp: string;
+}
+
+export const SEED_HOURLY_ROWS: HourlyRow[] = [
+  { time: 'Sep 12, 11 AM', habit: '—', exercise: '—', media: 'Dune · 20p', spend: '—', xp: '+20' },
+  { time: 'Sep 12, 8 AM', habit: 'Water', exercise: 'Chest & Tri', media: '—', spend: '€14.50', xp: '+115' },
+  { time: 'Sep 11, 9 PM', habit: 'Journal', exercise: '—', media: 'One Piece · 3ep', spend: '—', xp: '+15' },
+  { time: 'Sep 11, 7 AM', habit: 'Walk', exercise: 'Back & Bi', media: '—', spend: '€9.99', xp: '+80' },
+  { time: 'Sep 10, 8 PM', habit: 'Read', exercise: '—', media: 'Dune · 25p', spend: '€64.00', xp: '+20' },
+  { time: 'Sep 10, 7 AM', habit: 'Water', exercise: 'Push day', media: '—', spend: '—', xp: '+80' },
+];
+
+export const SEED_HABITS_DONE = 1;
+export const SEED_WORKOUTS = 4;
+export const SEED_PAGES = 86;
+export const SEED_SPENT = 312;
+
 export interface HeatDay {
   date: string;
   count: 0 | 1 | 2 | 3 | 4;

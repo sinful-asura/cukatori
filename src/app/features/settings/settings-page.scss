@@ -5,47 +5,44 @@
 .settings {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 720px;
+  gap: 16px;
 }
 
-h1 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-}
-
-header p,
-.row p {
-  margin: 6px 0 0;
-  color: var(--text-muted);
-  font-size: 14px;
+.rows {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px 0;
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 1fr minmax(180px, 240px);
-  gap: 16px;
+  display: flex;
   align-items: center;
-  padding: 16px 0;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
+  font-size: 13px;
 }
 
-h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row p-select,
+.row input {
+  min-width: 160px;
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 16px;
+  padding: 8px 14px 16px;
 }
 
 @media (max-width: 640px) {
   .row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

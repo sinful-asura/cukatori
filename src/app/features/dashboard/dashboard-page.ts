@@ -1,24 +1,61 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
-import { Checkbox } from 'primeng/checkbox';
-import { Chip } from 'primeng/chip';
-import { MeterGroup } from 'primeng/metergroup';
+import { Select } from 'primeng/select';
 import { Skeleton } from 'primeng/skeleton';
-import { Tag } from 'primeng/tag';
+import { Table } from 'primeng/table';
+import {
+  PageHeader,
+  PosBarChart,
+  PosChartToggle,
+  type PosChartMode,
+  PosLineChart,
+  PosPanelHeader,
+  PosStat,
+} from '../../shared/ui/pos';
 import { SettingsStore } from '../settings/settings.store';
-import { DashboardStore } from './dashboard.store';
+import { DashboardStore, type ModuleFilter, type RangeFilter } from './dashboard.store';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [FormsModule, RouterLink, Card, Checkbox, Chip, MeterGroup, Skeleton, Tag],
+  imports: [
+    FormsModule,
+    Button,
+    Card,
+    Select,
+    Skeleton,
+    Table,
+    PageHeader,
+    PosBarChart,
+    PosChartToggle,
+    PosLineChart,
+    PosPanelHeader,
+    PosStat,
+  ],
   templateUrl: './dashboard-page.html',
   styleUrl: './dashboard-page.scss',
 })
 export class DashboardPage implements OnInit {
   readonly store = inject(DashboardStore);
   private readonly settings = inject(SettingsStore);
+
+  readonly activityMode = signal<PosChartMode>('line');
+  readonly mixMode = signal<PosChartMode>('line');
+
+  readonly moduleOptions: { label: string; value: ModuleFilter }[] = [
+    { label: 'All modules', value: 'all' },
+    { label: 'Exercise', value: 'exercise' },
+    { label: 'Habits', value: 'habit' },
+    { label: 'Reading', value: 'entertainment' },
+    { label: 'Finance', value: 'finance' },
+  ];
+
+  readonly rangeOptions: { label: string; value: RangeFilter }[] = [
+    { label: 'Last 7 days', value: 7 },
+    { label: 'Last 14 days', value: 14 },
+    { label: 'Last 30 days', value: 30 },
+  ];
 
   ngOnInit(): void {
     this.settings.applyTheme(this.settings.settings().theme);

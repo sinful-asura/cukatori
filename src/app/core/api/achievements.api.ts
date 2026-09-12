@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, type Observable } from 'rxjs';
 import { environment } from '../environment';
 
 export type AchievementCategory = 'training' | 'consistency' | 'progress' | 'life';
@@ -119,6 +119,35 @@ export class AchievementsApi {
   private readonly base = `${environment.apiUrl}/achievements`;
 
   list(): Observable<AchievementDto[]> {
-    return this.http.get<AchievementDto[]>(this.base);
+    return this.http.get<unknown>(this.base).pipe(map(normalizeAchievements));
   }
+}
+
+function normalizeAchievements(raw: unknown): AchievementDto[] {
+  const rows = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === 'object' && Array.isArray((raw as { items?: unknown }).items)
+      ? (raw as { items: unknown[] }).items
+      : [];
+  return rows
+    .filter((row): row is Record<string, unknown> => !!row && typeof row === 'object')
+    .map((row, index) => ({
+      id: str(row['id'], `ach-${index}`),
+      key: str(row['key'], `key-${index}`),
+      title: str(row['title'], 'Achievement'),
+      description: str(row['description'] ?? row['summary'], ''),
+      category: readCategory(row['category']),
+      unlockedAt: typeof row['unlockedAt'] === 'string' ? row['unlockedAt'] : null,
+    }));
+}
+
+function str(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.length > 0 ? value : fallback;
+}
+
+function readCategory(value: unknown): AchievementCategory {
+  if (value === 'training' || value === 'consistency' || value === 'progress' || value === 'life') {
+    return value;
+  }
+  return 'progress';
 }
