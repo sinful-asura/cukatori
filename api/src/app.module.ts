@@ -1,7 +1,7 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { EntityManager, MikroORM } from '@mikro-orm/postgresql';
+import { MikroORM } from '@mikro-orm/postgresql';
 import bcrypt from 'bcryptjs';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -25,24 +25,22 @@ import { UsersModule } from './modules/users/users.module.js';
   providers: [AppService],
 })
 export class AppModule implements OnModuleInit {
-  constructor(
-    private readonly orm: MikroORM,
-    private readonly em: EntityManager,
-  ) {}
+  constructor(private readonly orm: MikroORM) {}
 
   async onModuleInit() {
     if (process.env.NODE_ENV !== 'production') {
       await this.orm.schema.update();
     }
+    const em = this.orm.em.fork();
     const email = 'kristijan@local';
-    const existing = await this.em.findOne(User, { email });
+    const existing = await em.findOne(User, { email });
     if (!existing) {
-      this.em.create(User, {
+      em.create(User, {
         email,
         passwordHash: await bcrypt.hash('cukatori', 10),
         displayName: 'Kristijan',
       });
-      await this.em.flush();
+      await em.flush();
     }
   }
 }
