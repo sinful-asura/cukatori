@@ -1,11 +1,14 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, ViewEncapsulation, inject } from '@angular/core';
+import { Toast } from 'primeng/toast';
 import { QuickLogCommand } from '../../../core/quick-log/quick-log-command';
 import { QuickLogPaletteService } from '../../../core/quick-log/quick-log-palette.service';
 
 @Component({
   selector: 'app-celebration-host',
-  imports: [QuickLogCommand],
-  template: `<app-quick-log-command />`,
+  imports: [QuickLogCommand, Toast],
+  templateUrl: './celebration-host.html',
+  styleUrl: './celebration-host.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class CelebrationHost {
   private readonly palette = inject(QuickLogPaletteService);

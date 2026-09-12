@@ -1,10 +1,17 @@
+.ql-mask.p-dialog-mask,
+.ql-mask.p-overlay-mask {
+  background: rgba(17, 17, 16, 0.72);
+}
+
 .ql-dialog.p-dialog {
   width: min(560px, calc(100vw - 32px));
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-4);
+  box-shadow: var(--shadow-1);
   overflow: hidden;
+  font-family: var(--font);
+  color: var(--text);
 }
 
 .ql-dialog .p-dialog-content {
@@ -16,19 +23,25 @@
   background: var(--bg-card);
 }
 
+.ql-shell.is-listening .ql-field .p-inputtext,
+.ql-shell.is-listening .ql-field input {
+  border-color: var(--accent);
+}
+
 .ql-menu.p-commandmenu,
 .ql-dialog .p-commandmenu {
   width: 100%;
   border: 0;
   background: transparent;
   border-radius: 0;
+  font-family: var(--font);
 }
 
 .ql-dialog .p-commandmenu-header {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 14px 8px;
+  padding: 16px 16px 8px;
   background: transparent;
   border-color: var(--border);
 }
@@ -48,28 +61,183 @@
   width: 100%;
 }
 
-.ql-field input {
+.ql-dialog .ql-field.p-iconfield,
+.ql-dialog .p-iconfield.ql-field {
   width: 100%;
-  background: #0c0c10;
-  border-radius: 999px;
+}
+
+.ql-dialog .ql-field .p-inputicon {
+  color: var(--text-dim);
+}
+
+.ql-dialog .ql-field .p-inputtext,
+.ql-dialog .ql-field input {
+  width: 100%;
+  height: 40px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  box-shadow: none;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.ql-dialog .ql-field .p-inputtext::placeholder,
+.ql-dialog .ql-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.ql-dialog .ql-field .p-inputtext:enabled:hover,
+.ql-dialog .ql-field input:enabled:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+.ql-dialog .ql-field .p-inputtext:enabled:focus,
+.ql-dialog .ql-field .p-inputtext:focus-visible,
+.ql-dialog .ql-field input:enabled:focus,
+.ql-dialog .ql-field input:focus-visible {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  outline: none;
+}
+
+.ql-dialog .ql-mic.p-button {
+  width: 32px;
+  height: 32px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-2);
+}
+
+.ql-dialog .ql-mic.p-button:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.ql-dialog .ql-mic.ql-mic-live.p-button,
+.ql-dialog .ql-mic.ql-mic-live.p-button:hover {
+  color: var(--accent);
+  background: var(--bg-hover);
 }
 
 .ql-preview {
   margin: 0;
-  padding: 0 6px;
-  color: var(--accent-warm);
+  padding: 0 4px;
+  color: var(--accent);
+  font-family: var(--font);
   font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.ql-listening {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .ql-hint {
   display: block;
   width: 100%;
   color: var(--text-muted);
+  font-family: var(--font);
   font-size: 12px;
+  line-height: 16px;
+}
+
+.ql-dialog .p-commandmenu-list {
+  padding: 0 8px 8px;
+}
+
+.ql-dialog .p-commandmenu-empty-message {
+  padding: 12px 16px 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .ql-dialog .p-commandmenu-footer {
-  padding: 10px 16px 14px;
+  padding: 10px 16px 16px;
   background: transparent;
   border-color: var(--border);
+}
+
+.ql-dialog .ql-commands.p-menu,
+.ql-dialog .p-menu {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.ql-dialog .p-menu-list,
+.ql-dialog .p-menu-submenu-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ql-dialog .p-menu-submenu-label {
+  padding: 8px 8px 4px;
+  color: var(--text-muted);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  background: transparent;
+}
+
+.ql-dialog .p-menu-item-content,
+.ql-dialog .p-menu-item-link {
+  border-radius: var(--radius-3);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.ql-dialog .p-menu-item:not(.p-disabled) .p-menu-item-content:hover,
+.ql-dialog .p-menu-item.p-focus .p-menu-item-content {
+  background: var(--bg-hover);
+}
+
+.ql-dialog .p-menu-item-icon {
+  color: var(--text-dim);
+}
+
+.ql-dialog .ql-log-item .p-menu-item-icon,
+.ql-dialog .ql-log-item .ql-row i {
+  color: var(--accent);
+}
+
+.ql-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 8px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ql-row i {
+  width: 16px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.ql-log-item .ql-row i {
+  color: var(--accent);
 }

@@ -1,0 +1,56 @@
+.pos-celebration-toast.p-toast {
+  font-family: var(--font);
+}
+
+.pos-celebration-toast .p-toast-message,
+.pos-celebration-toast .p-toast-message-content {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
+}
+
+.pos-celebration-toast .p-toast-message {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+  overflow: hidden;
+}
+
+.pos-celebration-toast .p-toast-message-info,
+.pos-celebration-toast .p-toast-message-success,
+.pos-celebration-toast .p-toast-message-secondary {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+}
+
+.pos-celebration-toast .p-toast-message-icon {
+  color: var(--accent);
+}
+
+.pos-celebration-toast .p-toast-summary {
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.pos-celebration-toast .p-toast-detail {
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.pos-celebration-toast .p-toast-close-button {
+  color: var(--text-dim);
+  border-radius: var(--radius-2);
+  width: 28px;
+  height: 28px;
+}
+
+.pos-celebration-toast .p-toast-close-button:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}

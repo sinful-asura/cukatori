@@ -4,7 +4,7 @@ Do not edit hotspots from this scenario. Orchestrator wires the following.
 
 ## Drop-in chrome
 
-Root `App` already has `<p-toast>` and `MessageService`. Add the host next to it:
+Root `App` already has a generic `<p-toast>` and `MessageService`. Add the host next to it:
 
 ```html
 <p-toast position="top-right" />
@@ -16,7 +16,12 @@ Root `App` already has `<p-toast>` and `MessageService`. Add the host next to it
 import { CelebrationHost } from './shared/ui/celebration-host';
 ```
 
-`CelebrationHost` mounts the quick-log `CommandMenu` and listens for Ctrl/⌘ K. Celebrations use the existing toast — no extra HUD.
+`CelebrationHost` mounts:
+
+- Quick-log `CommandMenu` (Ctrl/⌘ K)
+- A keyed PrimeNG toast (`key="celebration"`) styled with Personal OS tokens
+
+`CelebrationService` always sends `key: 'celebration'` so those messages do not land on the generic root toast. No game HUD.
 
 ## App shell search
 

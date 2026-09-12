@@ -7,15 +7,17 @@
   [draggable]="false"
   [resizable]="false"
   styleClass="ql-dialog"
+  maskStyleClass="ql-mask"
   [contentStyle]="{ padding: '0' }"
 >
-  <div class="ql-shell">
+  <div class="ql-shell" [class.is-listening]="listening()">
     <p-commandmenu
       class="ql-menu"
       [model]="commands()"
       [search]="text()"
       (searchChange)="onDraft($event)"
       [filter]="keepExamples"
+      [menuStyleClass]="'ql-commands'"
       placeholder="Search or type a command…"
       ariaLabel="Quick log"
       (onSelect)="onSelect()"
@@ -36,17 +38,27 @@
           <p-inputicon>
             <p-button
               [icon]="listening() ? 'pi pi-stop' : 'pi pi-microphone'"
-              [rounded]="true"
               [text]="true"
               [disabled]="!speechSupported"
+              [styleClass]="listening() ? 'ql-mic ql-mic-live' : 'ql-mic'"
               [attr.aria-label]="listening() ? 'Stop listening' : 'Log by voice'"
               (onClick)="toggleListen()"
             />
           </p-inputicon>
         </p-iconfield>
-        @if (preview()) {
+        @if (listening()) {
+          <p class="ql-listening">Listening — speech fills this field</p>
+        } @else if (preview()) {
           <p class="ql-preview">{{ preview() }}</p>
         }
+      </ng-template>
+      <ng-template #item let-item>
+        <span class="ql-row">
+          @if (item.icon) {
+            <i [class]="item.icon" aria-hidden="true"></i>
+          }
+          <span>{{ item.label }}</span>
+        </span>
       </ng-template>
       <ng-template #emptyMessage let-search>
         Press Enter to log “{{ search }}”

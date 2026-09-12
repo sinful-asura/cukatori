@@ -57,6 +57,7 @@ export class QuickLogCommand {
         ? {
             label: parsed.kind === 'unknown' ? `Log “${draft}”` : `Log · ${formatQuickLog(parsed)}`,
             icon: 'pi pi-send',
+            styleClass: 'ql-log-item',
             command: () => {
               void this.submit();
             },
