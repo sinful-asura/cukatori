@@ -20,7 +20,11 @@ from lib.targets import (
     POSTGRES_IMAGE,
     SHIP_SERVICES,
     compose_db_args,
+    docker_prime_ng_build_args,
     ensure_env_file,
+    load_repo_env,
+    ng_define_flags,
+    prime_ng_licence,
     parse_services,
     resolve_ng,
     resolve_npm,
@@ -56,7 +60,15 @@ def build_api() -> None:
 
 def build_fe() -> None:
     print("=== build fe (Angular production + Docker image) ===")
-    subprocess.check_call([*resolve_ng(), "build", "--configuration", "production"], cwd=REPO)
+    env = load_repo_env()
+    if prime_ng_licence(env):
+        print("=== fe: PrimeNG licence from .env ===")
+    else:
+        print("=== fe: no PRIME_NG_LICENCE — PrimeNG badge will show ===")
+    subprocess.check_call(
+        [*resolve_ng(), "build", "--configuration", "production", *ng_define_flags(env)],
+        cwd=REPO,
+    )
     subprocess.check_call(
         [
             "docker",
@@ -65,6 +77,7 @@ def build_fe() -> None:
             "ascend-os-web:local",
             "-f",
             str(REPO / "src" / "web" / "Dockerfile"),
+            *docker_prime_ng_build_args(env),
             str(REPO),
         ],
     )

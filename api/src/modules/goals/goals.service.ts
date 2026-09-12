@@ -89,7 +89,7 @@ export class GoalsService {
 
   async remove(user: User, id: string): Promise<{ ok: true }> {
     const goal = await this.requireGoal(user, id);
-    await this.em.removeAndFlush(goal);
+    await this.em.remove(goal).flush();
     return { ok: true };
   }
 

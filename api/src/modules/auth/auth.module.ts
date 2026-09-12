@@ -17,6 +17,6 @@ import { AuthSessionService } from './auth-session.service.js';
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthSessionService, AuthCookies, AuthGuard],
-  exports: [AuthService, AuthGuard, AuthSessionService, AuthCookies],
+  exports: [JwtModule, AuthService, AuthGuard, AuthSessionService, AuthCookies],
 })
 export class AuthModule {}

@@ -23,7 +23,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from lib.compose import COMPOSE_ALL_PROD, COMPOSE_PROJECT, prod_compose_cmd
 from lib.paths import REPO
-from lib.targets import SHIP_SERVICES, load_repo_env, parse_services, service_parser
+from lib.targets import (
+    SHIP_SERVICES,
+    docker_prime_ng_build_args,
+    load_repo_env,
+    parse_services,
+    service_parser,
+)
 
 DEPLOY_SERVICES = (*SHIP_SERVICES, "nginx")
 
@@ -48,8 +54,11 @@ def _tag(name: str) -> str:
 def build_and_maybe_push(image_name: str, dockerfile: Path) -> None:
     tagged = _tag(image_name)
     print(f"=== docker build {tagged} ===")
+    extra: list[str] = []
+    if image_name.endswith("-web"):
+        extra = docker_prime_ng_build_args(load_repo_env())
     subprocess.check_call(
-        ["docker", "build", "-t", tagged, "-f", str(dockerfile), str(REPO)],
+        ["docker", "build", "-t", tagged, "-f", str(dockerfile), *extra, str(REPO)],
     )
     if _registry():
         print(f"=== docker push {tagged} ===")

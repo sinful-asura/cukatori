@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 
@@ -118,6 +119,22 @@ def resolve_node() -> str:
         if path:
             return path
     raise RuntimeError("node not found in PATH — install Node.js")
+
+
+def prime_ng_licence(env: dict[str, str] | None = None) -> str:
+    src = env if env is not None else os.environ
+    raw = (src.get("PRIME_NG_LICENCE") or src.get("PRIME_NG_LICENSE") or "").strip()
+    if raw in {"", "your-prime-ng-licence"}:
+        return ""
+    return raw
+
+
+def ng_define_flags(env: dict[str, str] | None = None) -> list[str]:
+    return ["--define", f"ASCEND_PRIME_NG_LICENCE={json.dumps(prime_ng_licence(env))}"]
+
+
+def docker_prime_ng_build_args(env: dict[str, str] | None = None) -> list[str]:
+    return ["--build-arg", f"PRIME_NG_LICENCE={prime_ng_licence(env)}"]
 
 
 def resolve_ng() -> list[str]:

@@ -43,6 +43,11 @@ export const routes: Routes = [
           import('./features/exercise/exercise.routes').then((m) => m.EXERCISE_ROUTES),
       },
       {
+        path: 'photos',
+        loadChildren: () =>
+          import('./features/photos/photos.routes').then((m) => m.PHOTOS_ROUTES),
+      },
+      {
         path: 'entertainment',
         loadChildren: () =>
           import('./features/entertainment/entertainment.routes').then(

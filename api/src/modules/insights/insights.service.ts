@@ -20,12 +20,12 @@ export class InsightsService {
   constructor(
     private readonly em: EntityManager,
     private readonly bus: ActivityBus,
-    private readonly catalog: CatalogReader,
+    private readonly catalogReader: CatalogReader,
     private readonly training: TrainingReader,
   ) {}
 
   async catalog() {
-    const exercises = await this.catalog.list();
+    const exercises = await this.catalogReader.list();
     return { muscles: [...MUSCLE_IDS], exercises };
   }
 

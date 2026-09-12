@@ -137,7 +137,7 @@ export class GoalsPage implements OnInit {
         status: current >= goal.target ? 'completed' : goal.status,
       };
       this.replace(next);
-      this.toast(next, next.status === 'completed' && goal.status !== 'completed');
+      this.toast(next, next.status === 'completed');
       return;
     }
     this.api.progress(goal.id, { delta }).subscribe({

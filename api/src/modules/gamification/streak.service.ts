@@ -11,6 +11,13 @@ const NO_STREAK_TYPES = new Set<ActivityType>([
   'STREAK_UPDATED',
 ]);
 
+function asDate(value: Date | string | null | undefined): Date | null {
+  if (!value) {
+    return null;
+  }
+  return value instanceof Date ? value : new Date(value);
+}
+
 function calendarKey(date: Date, timeZone: string): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone,
@@ -57,7 +64,7 @@ export class StreakService {
       kind: row.kind,
       current: row.current,
       longest: row.longest,
-      lastActiveAt: row.lastActiveAt ? row.lastActiveAt.toISOString() : null,
+      lastActiveAt: asDate(row.lastActiveAt)?.toISOString() ?? null,
     };
   }
 
@@ -88,7 +95,7 @@ export class StreakService {
       if (!row) {
         row = em.create(Streak, { user, kind, current: 0, longest: 0, lastActiveAt: null });
       }
-      const lastKey = row.lastActiveAt ? calendarKey(row.lastActiveAt, timeZone) : null;
+      const lastKey = asDate(row.lastActiveAt) ? calendarKey(asDate(row.lastActiveAt)!, timeZone) : null;
       if (lastKey === eventKey) {
         updated.push(this.toDto(row));
         continue;

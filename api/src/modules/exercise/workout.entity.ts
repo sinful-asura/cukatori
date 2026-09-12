@@ -1,4 +1,4 @@
-import { Collection, OptionalProps } from '@mikro-orm/core';
+import { Collection, OptionalProps, type Rel } from '@mikro-orm/core';
 import { Entity, Index, ManyToOne, OneToMany, PrimaryKey, Property } from '@mikro-orm/decorators/legacy';
 import { randomUUID } from 'node:crypto';
 import { User } from '../users/user.entity.js';
@@ -63,7 +63,7 @@ export class Workout {
   tags: string[] = [];
 
   @OneToMany(() => WorkoutSet, (set) => set.workout)
-  sets = new Collection<WorkoutSet>(this);
+  sets = new Collection<Rel<WorkoutSet>>(this);
 
   @Property()
   createdAt: Date = new Date();

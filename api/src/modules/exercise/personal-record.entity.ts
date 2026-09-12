@@ -1,9 +1,12 @@
-import { OptionalProps } from '@mikro-orm/core';
+import { OptionalProps, type Rel } from '@mikro-orm/core';
 import { Entity, Index, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/decorators/legacy';
+import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { Exercise } from '../catalog/exercise.entity.js';
 import { User } from '../users/user.entity.js';
-import { Workout } from './workout.entity.js';
+import type { Workout } from './workout.entity.js';
+
+const require = createRequire(import.meta.url);
 
 @Entity({ tableName: 'personal_records' })
 @Unique({ properties: ['user', 'exercise', 'kind'] })
@@ -30,8 +33,8 @@ export class PersonalRecord {
   @Property()
   unit!: string;
 
-  @ManyToOne(() => Workout, { nullable: true })
-  workout: Workout | null = null;
+  @ManyToOne(() => require('./workout.entity.js').Workout, { nullable: true })
+  workout: Rel<Workout> | null = null;
 
   @Property()
   occurredAt: Date = new Date();

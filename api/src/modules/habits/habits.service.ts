@@ -72,7 +72,7 @@ export class HabitsService {
   async remove(user: User, id: string): Promise<{ ok: true }> {
     const habit = await this.requireHabit(user, id);
     await this.em.nativeDelete(HabitLog, { habit });
-    await this.em.removeAndFlush(habit);
+    await this.em.remove(habit).flush();
     return { ok: true };
   }
 

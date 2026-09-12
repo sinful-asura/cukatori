@@ -40,7 +40,7 @@ Theme overrides go through `definePreset` / design tokens, not `::ng-deep`.
 
 `Chart` and `Editor` are deprecated in v22 (PrimeUI PRO). Use `MeterGroup` / `ProgressBar` / KPI `Card`s instead of a donut library.
 
-License: PrimeNG 22 shows an **Invalid PrimeUI License** badge without a key. Register a free community license at [primeui.dev/licenses/community](https://primeui.dev/licenses/community) (individuals / small orgs) and put it in `environment.primeNgLicense` (`src/app/core/environment.ts`). Do not invent a key. The key is not a secret (it ships in the bundle) but do not publish someone else’s.
+License: PrimeNG 22 shows an **Invalid PrimeUI License** badge without a key. Register a free community license at [primeui.dev/licenses/community](https://primeui.dev/licenses/community) (individuals / small orgs) and put it in `.env` as `PRIME_NG_LICENCE` (or `PRIME_NG_LICENSE`). `npm run local -- fe` / `npm run build -- fe` inject it into `environment.primeNgLicense`. Do not invent a key or commit `.env`. The key is not a secret (it ships in the bundle) but do not publish someone else’s.
 
 ## Component picks
 
@@ -81,4 +81,4 @@ License: PrimeNG 22 shows an **Invalid PrimeUI License** badge without a key. Re
 
 ## Swarm
 
-One scenario → one skill under `.cursor/skills/` → one worktree/branch when isolation is needed. Stay in `allowedPaths`. Hotspots are orchestrator-only. Emit through `ActivityBus`; never write `XpLedger` / `Streak` from a feature module. Prefer `INTEGRATION.md` over editing `app.module.ts` / `app.routes.ts`.
+One scenario → one skill under `.cursor/skills/` → one Cursor worktree (`/worktree`, under `~/.cursor/worktrees/`) when isolation is needed. Stay in `allowedPaths`. Hotspots are orchestrator-only. Emit through `ActivityBus`; never write `XpLedger` / `Streak` from a feature module. Prefer `INTEGRATION.md` over editing `app.module.ts` / `app.routes.ts`.

@@ -6,7 +6,11 @@
     </a>
     <nav>
       @for (link of links; track link.path) {
-        <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >{{ link.label }}</a>
       }
     </nav>
     <div class="user">
@@ -20,7 +24,12 @@
   <div class="main">
     <header>
       <label class="search">
-        <input type="search" placeholder="Search or type a command…" />
+        <input
+          type="search"
+          placeholder="Search or type a command…"
+          (focus)="openQuickLog()"
+          (click)="openQuickLog()"
+        />
       </label>
       <time>Thu, Sep 11 2026</time>
     </header>

@@ -4,7 +4,7 @@ A private life OS for one person: habits, goals, workouts, entertainment, financ
 
 Stack: Angular 22 **SPA** (no server-side rendering), NestJS, PostgreSQL 18. Same local/deploy split as Knežević Garage — **Docker only for Postgres on the laptop**; Nest and `ng serve` stay on the host. Production images wrap all three. The FE image is static files behind nginx.
 
-Full spec: [PROJECT.md](PROJECT.md). Agent UI rules and PrimeNG component picks: [AGENTS.md](AGENTS.md). PrimeNG 22 needs a [community license key](https://primeui.dev/licenses/community) in `src/app/core/environment.ts` (`primeNgLicense`) or the app shows a license badge.
+Full spec: [PROJECT.md](PROJECT.md). Agent UI rules and PrimeNG component picks: [AGENTS.md](AGENTS.md). PrimeNG 22 needs a [community license key](https://primeui.dev/licenses/community) in `.env` as `PRIME_NG_LICENCE` (injected at `ng serve` / `ng build`) or the app shows a license badge.
 
 ## Local
 

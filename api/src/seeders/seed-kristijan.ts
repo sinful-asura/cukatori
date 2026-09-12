@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import type { EntityManager } from '@mikro-orm/core';
+import { SEED_LEVEL, SEED_XP_INTO, totalXpBeforeLevel } from '../contracts/xp.js';
 import { ActivityEvent } from '../modules/activity/activity-event.entity.js';
+import { Streak } from '../modules/gamification/streak.entity.js';
+import { XpLedger } from '../modules/gamification/xp-ledger.entity.js';
 import { QuickLogStub } from '../modules/quick-log/quick-log-stub.entity.js';
 import { User } from '../modules/users/user.entity.js';
 import { DemoSnapshot } from './demo-snapshot.entity.js';
@@ -27,17 +30,44 @@ type SeedEvent = {
 export async function seedKristijan(em: EntityManager): Promise<{ userId: string; reused: boolean }> {
   const user = await upsertKristijan(em);
   const existing = await em.findOne(DemoSnapshot, { slug: KRISTIJAN_DEMO.slug });
+  let reused = false;
   if (existing && process.env.SEED_KRISTIJAN !== 'force') {
     existing.payload = structuredClone(KRISTIJAN_DEMO) as unknown as Record<string, unknown>;
-    await em.flush();
-    return { userId: user.id, reused: true };
+    reused = true;
+  } else {
+    await replaceDemoEvents(em, user);
+    await replaceDemoStubs(em, user);
+    await upsertSnapshot(em, existing);
   }
-
-  await replaceDemoEvents(em, user);
-  await replaceDemoStubs(em, user);
-  await upsertSnapshot(em, existing);
+  await ensureDemoProgress(em, user);
   await em.flush();
-  return { userId: user.id, reused: false };
+  return { userId: user.id, reused };
+}
+
+async function ensureDemoProgress(em: EntityManager, user: User): Promise<void> {
+  const target = totalXpBeforeLevel(SEED_LEVEL) + SEED_XP_INTO;
+  const rows = await em.find(XpLedger, { user });
+  const total = rows.reduce((sum, row) => sum + row.amount, 0);
+  if (total < target) {
+    em.create(XpLedger, {
+      user,
+      amount: target - total,
+      sourceType: 'DEMO_SEED',
+      sourceId: null,
+    });
+  }
+  const lastActiveAt = new Date(`${DEMO_TODAY}T12:00:00.000Z`);
+  const days = KRISTIJAN_DEMO.gamification.streakDays;
+  for (const kind of ['overall', 'training'] as const) {
+    const streak = await em.findOne(Streak, { user, kind });
+    if (!streak) {
+      em.create(Streak, { user, kind, current: days, longest: days, lastActiveAt });
+      continue;
+    }
+    streak.current = Math.max(streak.current, days);
+    streak.longest = Math.max(streak.longest, days);
+    streak.lastActiveAt = streak.lastActiveAt ?? lastActiveAt;
+  }
 }
 
 async function upsertKristijan(em: EntityManager): Promise<User> {
@@ -203,11 +233,7 @@ function demoEvents(): SeedEvent[] {
       summary: 'Journal: Great session today',
       xpAwarded: 15,
       occurredAt: '2026-09-11T22:10:00.000Z',
-      payload: {
-        title: 'Great session today',
-        iv: KRISTIJAN_DEMO.journal[0].iv,
-        ciphertext: KRISTIJAN_DEMO.journal[0].ciphertext,
-      },
+      payload: { entryId: 'demo-journal-great-session' },
     },
   );
 

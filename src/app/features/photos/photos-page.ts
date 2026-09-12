@@ -89,6 +89,7 @@ export class PhotosPage {
   }
 
   upload(event: { files: File[] }): void {
+    const file = event.files[0];
     if (!file) {
       return;
     }

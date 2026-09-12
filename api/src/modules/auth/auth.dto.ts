@@ -1,7 +1,9 @@
 import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
+const localEmail = { require_tld: false };
+
 export class RegisterRequest {
-  @IsEmail()
+  @IsEmail(localEmail)
   email!: string;
 
   @IsString()
@@ -14,7 +16,7 @@ export class RegisterRequest {
 }
 
 export class LoginRequest {
-  @IsEmail()
+  @IsEmail(localEmail)
   email!: string;
 
   @IsString()

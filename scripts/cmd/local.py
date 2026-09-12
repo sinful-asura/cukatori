@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.paths import REPO
 from lib.ports import pids_on_port
 from lib.targets import (
+    ng_define_flags,
     LOCAL_DEFAULT,
     LOCAL_SERVICES,
     compose_db_args,
@@ -129,6 +130,7 @@ def fe_cmd() -> list[str]:
         "4200",
         "--proxy-config",
         "proxy.conf.json",
+        *ng_define_flags(load_repo_env()),
     ]
 
 
