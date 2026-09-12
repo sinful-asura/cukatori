@@ -44,6 +44,7 @@ export class EntertainmentSeeder {
     }
     const existing = await em.count(MediaItem, { user });
     if (existing > 0) {
+      await this.ensureHeatmapHistory(em);
       return;
     }
 
@@ -218,5 +219,66 @@ export class EntertainmentSeeder {
     logs[1].createdAt = daysAgo(1);
     logs[2].createdAt = daysAgo(0);
     await em.persist(logs).flush();
+    await this.ensureHeatmapHistory(em);
   }
+
+  /**
+   * Spread Kristijan watch/read logs across the last 6 months so the
+   * Entertainment heatmap matches Personal OS (seed 42, 182 days).
+   */
+  async ensureHeatmapHistory(em: EntityManager = this.em): Promise<void> {
+    const user = await em.findOne(User, { email: DEMO_EMAIL });
+    if (!user) {
+      return;
+    }
+    const marked = await em.count(MediaProgress, { media: { user }, note: 'demo-heatmap' });
+    if (marked > 0) {
+      return;
+    }
+
+    const onePiece = await em.findOne(MediaItem, { user, title: 'One Piece' });
+    const dune = await em.findOne(MediaItem, { user, title: 'Dune' });
+    if (!onePiece || !dune) {
+      return;
+    }
+
+    const intensities = buildHeatmap(42, 182);
+    const now = new Date();
+    const logs: MediaProgress[] = [];
+    for (let i = 0; i < intensities.length; i++) {
+      const intensity = intensities[i];
+      if (intensity <= 0) {
+        continue;
+      }
+      const day = new Date(now);
+      day.setHours(12, 0, 0, 0);
+      day.setDate(day.getDate() - (intensities.length - 1 - i));
+      const media = i % 2 === 0 ? onePiece : dune;
+      for (let n = 0; n < intensity; n++) {
+        const row = em.create(MediaProgress, {
+          media,
+          episode: media === onePiece ? 980 + (i % 40) : null,
+          pages: media === dune ? 180 + (i % 90) : null,
+          hours: 0.25,
+          note: 'demo-heatmap',
+        });
+        row.createdAt = new Date(day.getTime() + n * 60_000);
+        logs.push(row);
+      }
+    }
+    if (logs.length > 0) {
+      await em.persist(logs).flush();
+    }
+  }
+}
+
+function buildHeatmap(seed: number, count: number): number[] {
+  const days: number[] = [];
+  let s = seed;
+  for (let i = 0; i < count; i++) {
+    s = (s * 16807) % 2147483647;
+    const v = s % 10;
+    days.push(v < 1 ? 0 : v < 3 ? 1 : v < 6 ? 2 : v < 8 ? 3 : 4);
+  }
+  return days;
 }
