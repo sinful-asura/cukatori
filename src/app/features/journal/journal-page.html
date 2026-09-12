@@ -1,98 +1,143 @@
 <article class="journal">
-  <header class="bar">
-    <h1>
-      <i class="pi pi-lock" aria-hidden="true"></i>
-      My Journal
-    </h1>
-    <div class="actions">
+  <app-page-header title="Journal" kicker="Write it down while it’s still clear.">
+    <div class="header-actions">
+      <p-tag value="Encrypted · only you" severity="secondary" />
       @if (!crypto.unlocked()) {
-        <p-button
-          label="Unlock"
-          icon="pi pi-unlock"
-          [rounded]="true"
-          [text]="true"
-          (onClick)="openUnlock()"
-        />
+        <p-button label="Unlock" icon="pi pi-unlock" [text]="true" (onClick)="openUnlock()" />
       }
-      <p-button label="New entry" icon="pi pi-plus" [rounded]="true" (onClick)="openCompose()" />
+      <p-button label="New entry" icon="pi pi-plus" (onClick)="openCompose()" />
     </div>
-  </header>
-
-  <div class="search-row">
-    <p-iconfield>
-      <p-inputicon>
-        <i class="pi pi-search"></i>
-      </p-inputicon>
-      <input
-        pInputText
-        [fluid]="true"
-        [ngModel]="search()"
-        (ngModelChange)="search.set($event)"
-        placeholder="Search"
-        aria-label="Search journal"
-      />
-    </p-iconfield>
-  </div>
+  </app-page-header>
 
   @if (error()) {
     <p-message severity="warn">{{ error() }}</p-message>
-  } @else if (loading()) {
-    <p class="muted pad">Loading entries…</p>
-  } @else {
-    <div class="panes">
-      <ul class="list">
-        @for (entry of filtered(); track entry.id) {
-          <li [class.active]="entry.id === selected()?.id">
-            <button type="button" (click)="select(entry.id)">
-              <span class="row-title">{{ entry.title }}</span>
-              <span class="row-meta">
-                @for (tag of entry.tags; track tag) {
-                  <p-tag [value]="tag" [severity]="tagSeverity(tag)" [rounded]="true" />
-                }
-                <time>{{ entry.createdAt | date: 'MMM d' }}</time>
-              </span>
-            </button>
-          </li>
-        } @empty {
-          <li class="empty muted">No entries yet.</li>
-        }
-      </ul>
-
-      <section class="detail">
-        @if (selected(); as entry) {
-          <h2>{{ entry.title }}</h2>
-          <div class="detail-meta">
-            <time>{{ entry.createdAt | date: 'MMM d' }}</time>
-            @for (tag of entry.tags; track tag) {
-              <p-tag [value]="tag" [severity]="tagSeverity(tag)" [rounded]="true" />
-            }
-          </div>
-          @if (discomfortNote(entry.title, entry.tags); as note) {
-            <p-message severity="warn" size="small">{{ note }}</p-message>
-          }
-          @if (crypto.unlocked()) {
-            @if (entry.decryptError) {
-              <p class="muted">Could not decrypt this entry with the current passphrase.</p>
-            } @else {
-              <p class="body">{{ entry.plain?.body }}</p>
-              @if (entry.imageUrl) {
-                <img class="photo" [src]="entry.imageUrl" alt="" />
-              }
-            }
-          } @else {
-            <p class="muted">Unlock to read this entry.</p>
-          }
-        } @else {
-          <p class="muted">Write a private note. Only ciphertext leaves this browser.</p>
-        }
-      </section>
-    </div>
   }
 
-  <footer class="foot">
-    <i class="pi pi-lock" aria-hidden="true"></i>
-    Encrypted · only you can read
-  </footer>
+  <p-tabs [value]="tab()" (valueChange)="onTab($event)">
+    <p-tablist>
+      <p-tab value="entries">Entries</p-tab>
+      <p-tab value="week">This week</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="entries">
+        @if (loading()) {
+          <p class="muted pad">Loading entries…</p>
+        } @else {
+          <div class="entries">
+            <div class="list-col">
+              <input
+                pInputText
+                [fluid]="true"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                placeholder="Search titles and tags"
+                aria-label="Search journal"
+              />
+              <div class="entry-list">
+                @for (entry of filtered(); track entry.id) {
+                  <button
+                    type="button"
+                    class="entry-item"
+                    [class.selected]="entry.id === selected()?.id"
+                    (click)="select(entry.id)"
+                  >
+                    <p class="entry-date">{{ entry.createdAt | date: 'EEE, MMM d' }}</p>
+                    <p class="entry-title">{{ entry.title }}</p>
+                    @if (excerpt(entry); as preview) {
+                      <p class="entry-excerpt">{{ preview }}</p>
+                    } @else if (!crypto.unlocked()) {
+                      <p class="entry-excerpt">Unlock to read this entry.</p>
+                    }
+                  </button>
+                } @empty {
+                  <p class="muted pad">No entries yet.</p>
+                }
+              </div>
+            </div>
+
+            <p-card styleClass="pos-panel">
+              <div class="reading">
+                @if (selected(); as entry) {
+                  <p class="reading-date">{{ entry.createdAt | date: 'EEE, MMM d' }}</p>
+                  <h2>{{ entry.title }}</h2>
+                  <div class="reading-tags">
+                    @for (tag of entry.tags; track tag) {
+                      <p-tag [value]="tag" [severity]="tagSeverity(tag)" />
+                    }
+                  </div>
+                  @if (discomfortNote(entry.title, entry.tags); as note) {
+                    <p-message severity="warn" size="small">{{ note }}</p-message>
+                  }
+                  @if (crypto.unlocked()) {
+                    @if (entry.decryptError) {
+                      <p class="muted">Could not decrypt this entry with the current passphrase.</p>
+                    } @else {
+                      <p class="reading-body">{{ entry.plain?.body }}</p>
+                      @if (entry.imageUrl) {
+                        <div class="reading-photo">
+                          <img [src]="entry.imageUrl" alt="" />
+                        </div>
+                      }
+                    }
+                  } @else {
+                    <p class="reading-body muted">Unlock to read this entry.</p>
+                  }
+                } @else {
+                  <p class="muted">Write a private note. Only ciphertext leaves this browser.</p>
+                }
+              </div>
+            </p-card>
+          </div>
+        }
+      </p-tabpanel>
+
+      <p-tabpanel value="week">
+        <div class="week">
+          <div class="week-kpis">
+            <p-card styleClass="pos-panel">
+              <div class="week-kpi">
+                <p class="week-kpi-label">Workouts</p>
+                <p class="week-kpi-value">{{ week.workouts }}</p>
+              </div>
+            </p-card>
+            <p-card styleClass="pos-panel">
+              <div class="week-kpi">
+                <p class="week-kpi-label">PRs</p>
+                <p class="week-kpi-value">{{ week.prs }}</p>
+              </div>
+            </p-card>
+            <p-card styleClass="pos-panel">
+              <div class="week-kpi">
+                <p class="week-kpi-label">Pages read</p>
+                <p class="week-kpi-value">{{ week.booksPages }}</p>
+              </div>
+            </p-card>
+            <p-card styleClass="pos-panel">
+              <div class="week-kpi">
+                <p class="week-kpi-label">Spent</p>
+                <p class="week-kpi-value">€{{ week.spent }}</p>
+              </div>
+            </p-card>
+          </div>
+
+          <p-accordion value="note">
+            <p-accordion-panel value="note">
+              <p-accordion-header>Weekly note</p-accordion-header>
+              <p-accordion-content>
+                <p class="week-copy">{{ week.insight }}</p>
+              </p-accordion-content>
+            </p-accordion-panel>
+            <p-accordion-panel value="open">
+              <p-accordion-header>Still open</p-accordion-header>
+              <p-accordion-content>
+                <p class="week-copy">{{ week.stillOpen }}</p>
+              </p-accordion-content>
+            </p-accordion-panel>
+          </p-accordion>
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </article>
 
 <p-dialog
@@ -160,7 +205,7 @@
       pInputText
       [fluid]="true"
       [(ngModel)]="draftTags"
-      placeholder="Great session, Gratitude"
+      placeholder="#progress, #gym"
     />
     <label for="journal-body">Entry</label>
     <textarea
@@ -183,7 +228,7 @@
     />
     @if (draftImageName) {
       <div class="image-chip">
-        <p-tag [value]="draftImageName" severity="secondary" [rounded]="true" />
+        <p-tag [value]="draftImageName" severity="secondary" />
         <p-button label="Remove" [text]="true" size="small" (onClick)="clearImage()" />
       </div>
     }

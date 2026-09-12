@@ -3,21 +3,29 @@ import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import type { JournalEntryDto, JournalPlaintext } from '@ascend-os/shared/journal';
 import { MessageService } from 'primeng/api';
+import { Accordion, AccordionContent, AccordionHeader, AccordionPanel } from 'primeng/accordion';
 import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { Dialog } from 'primeng/dialog';
 import { FileUpload } from 'primeng/fileupload';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
 import { InputPassword } from 'primeng/inputpassword';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Tag } from 'primeng/tag';
 import { Textarea } from 'primeng/textarea';
 import type { FileSelectEvent } from 'primeng/types/fileupload';
 import { firstValueFrom } from 'rxjs';
 import { JournalApi } from '../../core/api/journal.api';
+import { PageHeader } from '../../shared/ui/page-header/page-header';
 import { JournalCrypto } from './journal-crypto';
-import { JOURNAL_DEMO_DRAFTS, discomfortNote, tagSeverity } from './journal-demo';
+import {
+  JOURNAL_DEMO_DRAFTS,
+  JOURNAL_WEEK_STUB,
+  discomfortNote,
+  entryExcerpt,
+  tagSeverity,
+} from './journal-demo';
 
 type JournalView = JournalEntryDto & {
   plain?: JournalPlaintext;
@@ -30,14 +38,23 @@ type JournalView = JournalEntryDto & {
   imports: [
     DatePipe,
     FormsModule,
+    Accordion,
+    AccordionContent,
+    AccordionHeader,
+    AccordionPanel,
     Button,
+    Card,
     Dialog,
     FileUpload,
-    IconField,
-    InputIcon,
     InputPassword,
     InputText,
     Message,
+    PageHeader,
+    Tab,
+    TabList,
+    TabPanel,
+    TabPanels,
+    Tabs,
     Tag,
     Textarea,
   ],
@@ -51,6 +68,7 @@ export class JournalPage implements OnDestroy {
 
   readonly tagSeverity = tagSeverity;
   readonly discomfortNote = discomfortNote;
+  readonly week = JOURNAL_WEEK_STUB;
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -59,6 +77,7 @@ export class JournalPage implements OnDestroy {
   readonly vaultConfigured = signal(false);
   readonly unlockOpen = signal(false);
   readonly composeOpen = signal(false);
+  readonly tab = signal('entries');
   readonly search = signal('');
   readonly entries = signal<JournalView[]>([]);
   readonly selectedId = signal<string | null>(null);
@@ -97,6 +116,19 @@ export class JournalPage implements OnDestroy {
 
   ngOnDestroy(): void {
     this.crypto.lock();
+  }
+
+  onTab(value: string | number | undefined): void {
+    if (value != null) {
+      this.tab.set(String(value));
+    }
+  }
+
+  excerpt(entry: JournalView): string {
+    if (!entry.plain?.body) {
+      return '';
+    }
+    return entryExcerpt(entry.plain.body);
   }
 
   openUnlock(): void {
