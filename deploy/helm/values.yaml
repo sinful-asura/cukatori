@@ -1,0 +1,76 @@
+web:
+  containerPort: 8080
+  placement:
+    pool: shared
+  probes:
+    readiness:
+      httpGet:
+        path: /healthz
+        port: http
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 64Mi
+
+api:
+  containerPort: 3000
+  placement:
+    pool: shared
+  env:
+    NODE_ENV: production
+    PORT: "3000"
+    # Nest applies its own migrations on startup. Keep one replica until that moves to migrations.* (a pre-upgrade Job).
+    RUN_MIGRATIONS: "true"
+    UPLOAD_DIR: /data/uploads
+  probes:
+    startup:
+      httpGet:
+        path: /api/health
+        port: http
+      periodSeconds: 3
+      failureThreshold: 40
+    readiness:
+      httpGet:
+        path: /api/health
+        port: http
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+  podSecurityContext:
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  # JWT_SECRET and other secret values come from this app's Bitwarden Secrets Manager project, mounted as files
+  # under /run/secrets/app. Set secrets.enabled with organizationId and projectId per environment, and have the
+  # API read them, before the first production release.
+  secrets:
+    enabled: false
+  persistence:
+    enabled: true
+    size: 1Gi
+    mountPath: /data/uploads
+  postgres:
+    enabled: true
+    instances: 1
+    storage: 1Gi
+    database: ascend
+    owner: ascend
+    resources:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+      limits:
+        memory: 512Mi

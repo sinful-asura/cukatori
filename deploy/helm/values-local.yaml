@@ -1,0 +1,21 @@
+web:
+  ingress:
+    enabled: true
+    clusterIssuer: local-ca
+    hosts:
+      - host: cukatori.localhost
+
+api:
+  env:
+    CORS_ORIGINS: https://cukatori.localhost
+    AUTH_COOKIE_SECURE: "true"
+    # Local only. Production takes this from Bitwarden.
+    JWT_SECRET: local-development-only
+  ingress:
+    enabled: true
+    clusterIssuer: local-ca
+    hosts:
+      - host: cukatori.localhost
+        paths:
+          - path: /api
+            pathType: Prefix

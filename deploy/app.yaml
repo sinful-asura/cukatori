@@ -1,0 +1,8 @@
+# The app as the platform sees it. `task release` builds each service's image (docker-bake.hcl)
+# and deploys the chart in deploy/helm; the component names are the Helm aliases there.
+name: cukatori
+components:
+  web:
+    kind: service
+  api:
+    kind: service

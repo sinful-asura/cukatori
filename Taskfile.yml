@@ -1,0 +1,39 @@
+version: '3'
+
+dotenv: ['.env']
+
+includes:
+  # setup, dev, test, lint, e2e, build, plan, release, uninstall, doctor: shared by every Nytera app.
+  nytera:
+    taskfile: '{{env "HOME"}}/.local/share/nytera/infra/task/app.yml'
+    flatten: true
+
+tasks:
+  app:setup:
+    desc: Install node dependencies for the frontend and the API
+    cmds:
+      - npm ci
+      - npm ci --prefix api
+
+  app:dev:
+    desc: Postgres in Docker, Nest (watch) and the Angular dev server as local processes
+    cmds:
+      - process-compose up {{.CLI_ARGS}}
+
+  app:test:
+    desc: API and frontend unit tests
+    cmds:
+      - npm test --prefix api
+      - npx ng test --watch=false
+
+  app:lint:
+    desc: API lint and formatting check
+    cmds:
+      - npm run lint --prefix api
+      - npx prettier --check src shared
+
+  app:e2e:
+    cmds: ['echo "no e2e tests yet"']
+
+  app:prepare:
+    cmds: ['echo "nothing to build before the images: both Dockerfiles build from source"']

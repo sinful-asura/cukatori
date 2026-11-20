@@ -1,0 +1,12 @@
+apiVersion: v2
+name: cukatori
+description: Cukatori (Ascend OS) web and API
+type: application
+version: 0.1.0
+dependencies:
+  - name: app
+    version: 0.1.0
+    alias: web
+  - name: app
+    version: 0.1.0
+    alias: api

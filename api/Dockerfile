@@ -23,6 +23,8 @@ RUN npm ci --omit=dev
 COPY --from=build /app/api/dist ./dist
 COPY shared /shared
 
+# The node image ships this unprivileged user (uid 1000); deploy/helm/values.yaml runs as it.
+USER node
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
