@@ -10,7 +10,11 @@ COPY shared shared
 COPY src src
 RUN npx ng build --configuration production
 
-FROM nginxinc/nginx-unprivileged:1.31.6-alpine
+FROM nginxinc/nginx-unprivileged:1.31.7-alpine
+# Base images trail Alpine's security fixes; take every fixed package at build time.
+USER root
+RUN apk upgrade --no-cache
+USER 101
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/ascend-os/browser /usr/share/nginx/html
 EXPOSE 8080
