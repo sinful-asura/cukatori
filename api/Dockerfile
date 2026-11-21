@@ -1,5 +1,5 @@
 # Nest API image (context: repo root)
-FROM node:22-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY api api
 WORKDIR /app/api
 RUN npm run build
 
-FROM node:22-bookworm-slim
+FROM node:26-bookworm-slim
 
 WORKDIR /app
 ENV NODE_ENV=production
