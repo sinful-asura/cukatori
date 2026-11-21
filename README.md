@@ -8,36 +8,32 @@ Full spec: [PROJECT.md](PROJECT.md). Agent UI rules and PrimeNG component picks:
 
 ## Local
 
-Needs Python 3.12 (see `.python-version`) and global `ng` / `nest`. Do not run `ng new` again.
+Tools are pinned in `mise.toml` (node, the Angular CLI); platform commands come from `nytera-infra`.
+Do not run `ng new` again.
 
 ```bash
 cp .env.example .env
-npm install
-cd api && npm install && cd ..
+task setup                 # pinned tools, then npm ci for the frontend and the API
 
 task dev                   # db + api + web, in the dekit terminal UI
-task dev -- db             # Postgres 18 container, host :5433 (Garage already uses :5432)
 task dev -- api            # Nest watch on :3000, and the database
 task dev -- web            # ng serve on :4200 (proxies /api → :3000)
-npm run local -- seed
+task test                  # API and frontend unit tests
 ```
 
 Open [http://localhost:4200](http://localhost:4200) (`/` → `/landing`). Signed-in OS is under `/os` (old `/app` URLs redirect there). API: [http://localhost:3000/api/health](http://localhost:3000/api/health).
 
-`.env` `PORT=3000` is **Nest only**. Angular CLI also reads `PORT`, so `npm run local -- fe` unsets it and passes `--port 4200`. Do not point `ng serve` at 3000.
+`.env` `PORT=3000` is **Nest only**. Angular CLI also reads `PORT`; the dev server is started with its own port, so do not point `ng serve` at the `.env` value.
 
 TypeScript 6 deprecates `baseUrl` (TS5101). Path aliases in `tsconfig.json` use `./shared/...` — do not add `baseUrl` back or the frontend will not compile. Incremental `*.tsbuildinfo` files are gitignored.
 
-## Production
+## Release
+
+Local cluster only for now (experimental; there are no production values).
 
 ```bash
-npm run build -- api
-npm run build -- fe
-npm run deploy             # images (+ push if DOCKER_REGISTRY is set)
-npm run deploy -- nginx    # host nginx site (garage layout)
+task release               # build both images and deploy to the local cluster (ny local:up first)
 ```
-
-On the server: `docker compose --env-file .env -f docker/docker-compose.prod.yaml up -d`. Host nginx (`src/nginx/nginx.conf`) proxies `/api/` → `:3000` and `/` → `:8080`.
 
 ## Layout
 
@@ -46,8 +42,6 @@ On the server: `docker compose --env-file .env -f docker/docker-compose.prod.yam
 | `src/app/` | Angular app |
 | `api/` | NestJS |
 | `shared/` | DTOs shared by both |
-| `docker/` | Compose stacks |
-| `src/web/` | FE image (nginx + Angular) |
-| `src/nginx/` | Host nginx |
-| `scripts/cmd/` | `local` / `build` / `deploy` |
+| `deploy/` | What the platform deploys: `app.yaml`, the web image, Helm values |
+| `compose.yaml`, `dekit.yaml` | Database for development; the processes `task dev` runs |
 | `.cursor/` | Project-scoped swarm skills |
