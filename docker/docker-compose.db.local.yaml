@@ -1,8 +1,0 @@
-# Laptop overlay — publish Postgres on the host for Nest / tools.
-# Knežević Garage already uses :5432, so this project defaults to :5433.
-# Override with POSTGRES_PORT in .env.
-
-services:
-  postgres:
-    ports:
-      - '${POSTGRES_PORT:-5433}:5432'

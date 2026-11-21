@@ -15,10 +15,10 @@ cp .env.example .env
 npm install
 cd api && npm install && cd ..
 
-npm run local              # db + api + fe
-npm run local -- db        # Postgres 18 container, host :5433 (Garage already uses :5432)
-npm run local -- api       # Nest watch on :3000
-npm run local -- fe        # ng serve on :4200 (proxies /api → :3000)
+task dev                   # db + api + web, in the dekit terminal UI
+task dev -- db             # Postgres 18 container, host :5433 (Garage already uses :5432)
+task dev -- api            # Nest watch on :3000, and the database
+task dev -- web            # ng serve on :4200 (proxies /api → :3000)
 npm run local -- seed
 ```
 

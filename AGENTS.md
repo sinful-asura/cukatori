@@ -6,7 +6,7 @@ Read this before writing UI. Spec lives in [PROJECT.md](PROJECT.md). Visual sour
 
 Angular 22 standalone **SPA** (no SSR / no hydration) + NestJS + MikroORM 7 + Postgres 18. Shared DTOs in `shared/`. Nest cannot import repo-root `shared/` — keep `api/src/contracts/` in sync. Do not add `provideClientHydration`, `src/server.ts`, or `@angular/ssr`.
 
-Local: Docker for Postgres only (`:5433`). API `:3000`, FE `:4200`. `.env` `PORT` is Nest; `npm run local -- fe` unsets it.
+Local: Docker for Postgres only (`:5433`). API `:3000`, FE `:4200`. `.env` `PORT` is Nest; `task dev -- web` unsets it.
 
 Routes: `/` → `/landing`. Signed-in shell is `/os/*`. Old `/app/*` redirects to `/os/*`.
 
@@ -40,7 +40,7 @@ Theme overrides go through `definePreset` / design tokens, not `::ng-deep`.
 
 `Chart` and `Editor` are deprecated in v22 (PrimeUI PRO). Use `MeterGroup` / `ProgressBar` / KPI `Card`s instead of a donut library.
 
-License: PrimeNG 22 shows an **Invalid PrimeUI License** badge without a key. Register a free community license at [primeui.dev/licenses/community](https://primeui.dev/licenses/community) (individuals / small orgs) and put it in `.env` as `PRIME_NG_LICENCE` (or `PRIME_NG_LICENSE`). `npm run local -- fe` / `npm run build -- fe` inject it into `environment.primeNgLicense`. Do not invent a key or commit `.env`. The key is not a secret (it ships in the bundle) but do not publish someone else’s.
+License: PrimeNG 22 shows an **Invalid PrimeUI License** badge without a key. Register a free community license at [primeui.dev/licenses/community](https://primeui.dev/licenses/community) (individuals / small orgs) and put it in `.env` as `PRIME_NG_LICENCE` (or `PRIME_NG_LICENSE`). `task dev -- web` / `npm run build -- fe` inject it into `environment.primeNgLicense`. Do not invent a key or commit `.env`. The key is not a secret (it ships in the bundle) but do not publish someone else’s.
 
 ## Component picks
 

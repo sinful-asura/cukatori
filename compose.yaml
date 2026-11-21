@@ -1,5 +1,5 @@
 # What local development needs from Docker. The Nest API and the Angular dev server run as local
-# processes (dekit.yaml). Same project, container and volume names as docker/docker-compose.db.yaml.
+# processes (dekit.yaml). The project, container and volume names are the ones the first setup used, so existing local data is kept.
 name: ascend-os
 
 services:
