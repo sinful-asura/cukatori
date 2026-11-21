@@ -1,0 +1,25 @@
+# `task dev` starts these and attaches the dekit terminal UI: one pane per process, in color, with scrollback.
+# `task dev -- api` starts api and what it depends on. dekit does not read .env, so the wrappers load it.
+defaults:
+  env:
+    # dekit gives each task a terminal but sets TERM=dumb, which turns color off.
+    TERM: xterm-256color
+
+tasks:
+  db:
+    # Starts Postgres detached and finishes once it is healthy. Stop it with: docker compose stop postgres
+    type: job
+    cmd: ["docker", "compose", "up", "-d", "--wait", "postgres"]
+    autostart: true
+
+  api:
+    cwd: api
+    cmd: ["sh", "-c", "set -a; [ -f ../.env ] && . ../.env; set +a; exec npm run start:dev"]
+    deps: [db]
+    ready:
+      http: http://127.0.0.1:3000/api/health
+    autostart: true
+
+  web:
+    cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec npx ng serve --proxy-config proxy.conf.json"]
+    autostart: true
