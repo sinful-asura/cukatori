@@ -9,6 +9,8 @@ tasks:
   db:
     # Starts Postgres detached and finishes once it is healthy. Stop it with: docker compose stop postgres
     type: job
+    # Removed from the list once every setup job has finished; a failed one stays.
+    tags: [setup]
     cmd: ["docker", "compose", "up", "-d", "--wait", "postgres"]
     autostart: true
 
@@ -21,5 +23,7 @@ tasks:
     autostart: true
 
   web:
+    # After the API, so the dev server's proxy does not log connection errors while the API is still starting.
+    deps: [api]
     cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec npx ng serve --proxy-config proxy.conf.json"]
     autostart: true

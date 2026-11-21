@@ -18,9 +18,7 @@ tasks:
   app:dev:
     desc: Postgres in Docker, Nest (watch) and the Angular dev server as local processes
     cmds:
-      - defer: dekit down
-      - '{{if .CLI_ARGS}}dekit start {{.CLI_ARGS}}{{else}}dekit up{{end}}'
-      - dekit attach {{.CLI_ARGS}}
+      - task: dev:dekit
 
   app:test:
     desc: API and frontend unit tests
