@@ -23,7 +23,5 @@ tasks:
     autostart: true
 
   web:
-    # After the API, so the dev server's proxy does not log connection errors while the API is still starting.
-    deps: [api]
-    cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec npx ng serve --proxy-config proxy.conf.json"]
+    cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec npx ng serve --proxy-config proxy.conf.mjs"]
     autostart: true
