@@ -23,5 +23,5 @@ tasks:
     autostart: true
 
   web:
-    cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec npx ng serve --proxy-config proxy.conf.mjs"]
+    cmd: ["sh", "-c", "set -a; [ -f .env ] && . ./.env; set +a; exec ng serve --proxy-config proxy.conf.mjs"]
     autostart: true

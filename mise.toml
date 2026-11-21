@@ -1,3 +1,5 @@
 # Toolchain for this repo. Platform tools (helm, kubectl, task, ...) come from nytera-infra's mise.toml.
 [tools]
 node = "26"
+# The Angular CLI as a command (`ng`), the same major version as in package.json.
+"npm:@angular/cli" = "22"
